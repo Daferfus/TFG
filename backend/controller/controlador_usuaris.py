@@ -1,4 +1,4 @@
-from model.usuaris import Usuari
+from backend.model.usuaris import Usuari
 import bcrypt
 
 ##############################
