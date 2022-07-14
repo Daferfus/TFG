@@ -7,7 +7,7 @@ from flask import current_app as app
 #########
 @app.route('/hello')
 def hello():
-    return 'Hello, World'
+    return 'Hello, World!'
 
 @app.route('/recuperar_dades_de_alumnes', methods=['GET'])
 def iniciar_recerca_de_alumnes():

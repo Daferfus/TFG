@@ -17,11 +17,16 @@ class ProdConfig(Config):
     FLASK_ENV = 'production'
     DEBUG = False
     TESTING = False
-    MONGODB_SETTINGS = json.loads(environ.get("PROD_DATABASE_URI"))
-
+    MONGODB_SETTINGS = {
+        "db": environ.get('PROD_MONGO_DB'),
+        "host": environ.get('PROD_MONGO_URI')
+        }
 
 class DevConfig(Config):
     FLASK_ENV = 'development'
     DEBUG = True
     TESTING = True
-    MONGODB_SETTINGS = json.loads(environ.get("DEV_DATABASE_URI"))
+    MONGODB_SETTINGS = {
+        "db": environ.get('DEV_MONGO_DB'),
+        "host": environ.get('DEV_MONGO_URI')
+        }
