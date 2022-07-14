@@ -1,4 +1,4 @@
-from backend.model.empreses import Empresa
+from backend.models.empreses import Empresa
 import pandas as pd
 
 

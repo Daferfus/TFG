@@ -1,10 +1,14 @@
 import json
 from flask import request, make_response, jsonify
-from backend.controller import controlador_alumnes, controlador_professors, controlador_empreses, controlador_usuaris, controlador_assignacions
+from backend.controllers import controlador_alumnes, controlador_professors, controlador_empreses, controlador_usuaris, controlador_assignacions
 from flask import current_app as app
 #########
 ## GET ##
 #########
+@app.route('/hello')
+def hello():
+    return 'Hello, World'
+
 @app.route('/recuperar_dades_de_alumnes', methods=['GET'])
 def iniciar_recerca_de_alumnes():
     if request.method != 'GET':

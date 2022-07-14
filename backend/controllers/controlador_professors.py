@@ -1,4 +1,4 @@
-from backend.model.professors import Professor
+from backend.models.professors import Professor
 import pandas as pd
 
 ###############################

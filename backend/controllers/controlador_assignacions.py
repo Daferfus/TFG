@@ -1,7 +1,7 @@
-from backend.model.alumnes import Alumne
-from backend.model.professors import Professor
-from backend.model.empreses import Empresa
-from backend.controller import controlador_alumnes, controlador_empreses, controlador_professors
+from backend.models.alumnes import Alumne
+from backend.models.professors import Professor
+from backend.models.empreses import Empresa
+from backend.controllers import controlador_alumnes, controlador_empreses, controlador_professors
 from geopy import distance
 from geopy import Nominatim
 import requests
