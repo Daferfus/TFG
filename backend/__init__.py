@@ -21,7 +21,7 @@ def init_app():
     # Initialize Plugins
     db.init_app(app)
     r.init_app(app)
-
+    
     with app.app_context():
         # Include our Routes
         import backend.routes
