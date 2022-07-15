@@ -24,11 +24,17 @@ def init_app():
     
     with app.app_context():
         # Include our Routes
-        import backend.routes
+        from . import routes
+        from .usuaris import routes as usuaris
+        from .alumnes import routes as alumnes
+        from .professors import routes as professors
+        from .empreses import routes as empreses
         
         # Register Blueprints
-        #app.register_blueprint(auth.auth_bp)
-        #app.register_blueprint(admin.admin_bp)
+        app.register_blueprint(usuaris.usuaris_bp)
+        app.register_blueprint(alumnes.alumnes_bp)
+        app.register_blueprint(professors.professors_bp)
+        app.register_blueprint(empreses.empreses_bp)
 
         return app
 
