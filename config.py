@@ -9,8 +9,7 @@ load_dotenv(path.join(basedir, '.env'))
 class Config:
     """Base config."""
     # SESSION_COOKIE_NAME = environ.get('SESSION_COOKIE_NAME')
-    STATIC_FOLDER = 'static'
-    TEMPLATES_FOLDER = 'templates'
+    SECRET_KEY = environ.get('SECRET_KEY')
 
 
 class ProdConfig(Config):

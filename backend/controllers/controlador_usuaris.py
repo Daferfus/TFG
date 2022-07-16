@@ -15,14 +15,14 @@ def registrar_usuari(nom_de_usuari, contrasenya_de_usuari, rol_de_usuari):
 
 def actualitzar_credencials_del_usuari(nom_de_usuari_per_a_filtrar, nom_de_usuari, contrasenya_de_usuari, rol_de_usuari):
     contrasenya_encriptada = bcrypt.hashpw(contrasenya_de_usuari.encode('utf-8'), bcrypt.gensalt())
-    Usuari.objects(nom=nom_de_usuari_per_a_filtrar).update(__raw__=[
+    Usuari.objects(nom=nom_de_usuari_per_a_filtrar).update(__raw__=
         {"$set": {
             "nom": nom_de_usuari,
-            "contraseña": contrasenya_encriptada,
+            "contrasenya": contrasenya_encriptada,
             "rol": rol_de_usuari
             }
         }
-    ],)
+    )
 
 def borrar_usuaris():
     Usuari.objects.delete()
