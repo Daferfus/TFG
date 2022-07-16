@@ -14,8 +14,8 @@ def registrar_usuari(nom_de_usuari, contrasenya_de_usuari, rol_de_usuari):
             contrasenya=contrasenya_de_usuari, 
             rol=rol_de_usuari
             )
-        usuari.set_password(contrasenya_de_usuari)
         print(usuari)
+        usuari.set_password(contrasenya_de_usuari)
         usuari.save()
         login_user(usuari)
 
@@ -37,8 +37,8 @@ def borrar_usuari(nom_del_usuari):
     Usuari.objects(nom=nom_del_usuari).delete()
 
 def autenticar_usuari(nom_de_usuari, contrasenya_de_usuari):
-    usuari = recuperar_dades_del_usuari(nom_de_usuari)
-    if usuari and usuari.check_password(password=contrasenya_de_usuari):
+    usuari = recuperar_dades_del_usuari(nom_de_usuari).first()
+    if usuari and usuari.check_password(contrasenya=contrasenya_de_usuari):
         login_user(usuari)
 
 def recuperar_dades_de_usuaris():

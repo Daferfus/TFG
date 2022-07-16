@@ -18,7 +18,7 @@ def iniciar_recerca_de_empreses():
     resp = jsonify(success=True, message=dades_de_empreses)
     return resp
 
-@empreses_bp.route('/recuperar_dades_de_la_empresa/<empresa>', methods=['GET'])
+@empreses_bp.route('/recuperar_dades_de_la_empresa/<string:empresa>', methods=['GET'])
 def iniciar_recerca_de_la_empresa(empresa):
     if request.method != 'GET':
         return make_response('Tipo de Petición Incorrecto', 400)
@@ -53,9 +53,8 @@ def recollir_fitxer_empreses():
     resp = jsonify(success=True, message="S'han importat amb èxit les empreses.")
     return resp
 
-@empreses_bp.route('/actualitzar_empresa', methods=["PUT"])
-def recollir_nom_de_empresa():
-    nom_de_empresa_per_a_filtrar = request.args.get("nom")
+@empreses_bp.route('/actualitzar_empresa/<string:empresa>', methods=["PUT"])
+def recollir_nom_de_empresa(empresa):
     nom = request.form['nom_de_empresa'] 
     poblacio = request.form['poblacio_de_empresa'] 
     telefon = request.form['telefon_de_empresa'] 
@@ -63,7 +62,7 @@ def recollir_nom_de_empresa():
     persona_de_contacte = request.form['persona_de_contacte_en_la_empresa']
 
     controlador_empreses.actualitzar_empresa(
-        nom_de_empresa_per_a_filtrar,
+        empresa,
         nom, 
         poblacio, 
         telefon, 
@@ -80,11 +79,10 @@ def eliminacio_de_empreses():
     resp = jsonify(success=True, message="S'han eliminat totes les empreses.")
     return resp
 
-@empreses_bp.route('/borrar_empresa', methods=['DELETE'])
-def eliminacio_de_empresa():
-    nom_de_empresa_per_a_filtrar = request.args.get("nom_de_empresa")
-    controlador_empreses.borrar_empresa(nom_de_empresa_per_a_filtrar)
-    resp = jsonify(success=True, message="S'ha eliminat la empresa "+nom_de_empresa_per_a_filtrar+".")
+@empreses_bp.route('/borrar_empresa/<string:empresa>', methods=['DELETE'])
+def eliminacio_de_empresa(empresa):
+    controlador_empreses.borrar_empresa(empresa)
+    resp = jsonify(success=True, message="S'ha eliminat la empresa "+empresa+".")
     return resp
 
 

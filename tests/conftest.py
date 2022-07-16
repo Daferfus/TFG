@@ -48,7 +48,7 @@ def nou_usuari():
 @pytest.fixture(scope='module')
 def nou_alumne():
     alumne = Alumne(
-        nom_i_cognom="David Fernández Fuster", 
+        nom_i_cognoms="David Fernández Fuster", 
         grup="DAW", 
         poblacio="Gandía", 
         mobilitat="Sí", 

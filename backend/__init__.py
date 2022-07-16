@@ -27,7 +27,6 @@ def init_app():
     
     with app.app_context():
         # Include our Routes
-        from . import routes
         from .usuaris import routes as usuaris
         from .alumnes import routes as alumnes
         from .professors import routes as professors

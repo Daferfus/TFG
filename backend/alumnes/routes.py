@@ -63,9 +63,8 @@ def recollir_fitxer_alumnes():
     resp = jsonify(success=True, message="S'han importat amb èxit els alumnes de "+cicle+".")
     return resp
 
-@alumnes_bp.route('/actualitzar_alumne', methods=["PUT"])
-def recollir_nom_de_alumne():
-    nom_de_alumne_per_a_filtrar = request.args.get("nom")
+@alumnes_bp.route('/actualitzar_alumne/<alumne>', methods=["PUT"])
+def recollir_nom_de_alumne(alumne):
     nom_i_cognom = request.form['nom_i_cognom_del_alumne']
     grup = request.form['grup_del_alumne']
     poblacio = request.form['poblacio_del_alumne']
@@ -77,7 +76,7 @@ def recollir_nom_de_alumne():
     erasmus = request.form['erasmus_del_alumne']
 
     controlador_alumnes.actualitzar_alumne(
-        nom_de_alumne_per_a_filtrar,
+        alumne,
         nom_i_cognom, 
         grup, 
         poblacio, 
@@ -99,9 +98,8 @@ def eliminacio_de_alumnes():
     resp = jsonify(success=True, message="S'han eliminat tots els alumnes.")
     return resp
 
-@alumnes_bp.route('/borrar_alumne', methods=['DELETE'])
-def eliminacio_de_alumne():
-    nom_de_alumne_per_a_filtrar = request.args.get("nom_de_alumne")
-    controlador_alumnes.borrar_alumne(nom_de_alumne_per_a_filtrar)
-    resp = jsonify(success=True, message="S'ha eliminat el alumne "+nom_de_alumne_per_a_filtrar+".")
+@alumnes_bp.route('/borrar_alumne/<alumne>', methods=['DELETE'])
+def eliminacio_de_alumne(alumne):
+    controlador_alumnes.borrar_alumne(alumne)
+    resp = jsonify(success=True, message="S'ha eliminat el alumne "+alumne+".")
     return resp

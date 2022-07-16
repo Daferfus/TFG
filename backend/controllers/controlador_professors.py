@@ -12,7 +12,7 @@ def insertar_professor(
     hores_restants_del_professor,
     rati_fct_del_professor = "",
     rati_dual_del_professor = "",
-    assignacions_del_professor = {}
+    assignacions_del_professor = []
 ):
     professor = Professor(
         nom=nom_del_professor, 
@@ -35,7 +35,7 @@ def actualitzar_professor(
     hores_alliberades_del_professor,
     hores_restants_del_professor
 ):
-    Professor.objects(nom=nom_de_professor_per_a_filtrar, cognoms=cognoms_de_professor_per_a_filtrar).update(__raw__=[
+    Professor.objects(nom=nom_de_professor_per_a_filtrar, cognoms=cognoms_de_professor_per_a_filtrar).update(__raw__=
         {"$set": {
             "nom": nom_del_professor,
             "cognoms": cognoms_del_professor,
@@ -44,7 +44,7 @@ def actualitzar_professor(
             "hores_restants": hores_restants_del_professor
             }
         }
-    ],)
+    )
 
 def borrar_professors():
     Professor.objects.delete()
@@ -55,8 +55,8 @@ def borrar_professor(nom_del_professor, cognoms_del_professor):
 def recuperar_dades_de_professors():
     return Professor.objects()
     
-def recuperar_dades_del_professor(nom_del_professor):
-    professor = Professor.objects(nom=nom_del_professor)
+def recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor):
+    professor = Professor.objects(nom=nom_del_professor, cognoms=cognoms_del_professor)
     return professor;
 
 def importar_professors(nom_del_fitxer):

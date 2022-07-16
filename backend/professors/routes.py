@@ -18,11 +18,11 @@ def iniciar_recerca_de_professors():
     resp = jsonify(success=True, message=dades_de_professors)
     return resp
 
-@professors_bp.route('/recuperar_dades_del_professor/<professor>', methods=['GET'])
-def iniciar_recerca_del_professor(professor):
+@professors_bp.route('/recuperar_dades_del_professor/<string:nom_del_professor>/<string:cognoms_del_professor>', methods=['GET'])
+def iniciar_recerca_del_professor(nom_del_professor, cognoms_del_professor):
     if request.method != 'GET':
         return make_response('Tipo de Petición Incorrecto', 400)
-    dades_del_professor = controlador_professors.recuperar_dades_del_professor(professor)
+    dades_del_professor = controlador_professors.recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor)
     resp = jsonify(success=True, message=dades_del_professor)
     return resp
 
@@ -54,10 +54,8 @@ def recollir_fitxer_professors():
     resp = jsonify(success=True, message="S'han importat amb èxit els professors.")
     return resp
 
-@professors_bp.route('/actualitzar_professor', methods=["PUT"])
-def recollir_nom_de_professor():
-    nom_de_professor_per_a_filtrar = request.args.get("nom")
-    cognoms_de_professor_per_a_filtrar = request.args.get("cognoms")
+@professors_bp.route('/actualitzar_professor/<string:nom_del_professor>/<string:cognoms_del_professor>', methods=["PUT"])
+def recollir_nom_de_professor(nom_del_professor, cognoms_del_professor):
     nom = request.form['nom_del_professor']
     cognoms = request.form['cognoms_del_professor'] 
     titulacions = json.loads(request.form["titulacions_del_professor"]) 
@@ -65,8 +63,8 @@ def recollir_nom_de_professor():
     hores_restants = request.form["hores_alliberades_del_professor"]
 
     controlador_professors.actualitzar_professor(
-        nom_de_professor_per_a_filtrar,
-        cognoms_de_professor_per_a_filtrar,
+        nom_del_professor,
+        cognoms_del_professor,
         nom,
         cognoms, 
         titulacions, 
@@ -83,10 +81,8 @@ def eliminacio_de_professors():
     resp = jsonify(success=True, message="S'han eliminat tots els professors.")
     return resp
 
-@professors_bp.route('/borrar_professor', methods=['DELETE'])
-def eliminacio_de_professor():
-    nom_de_professor_per_a_filtrar = request.args.get("nom_de_professor")
-    cognoms_de_professor_per_a_filtrar = request.args.get("cognoms_de_professor")
-    controlador_professors.borrar_professor(nom_de_professor_per_a_filtrar, cognoms_de_professor_per_a_filtrar)
-    resp = jsonify(success=True, message="S'ha eliminat el professor "+nom_de_professor_per_a_filtrar+" "+cognoms_de_professor_per_a_filtrar+".")
+@professors_bp.route('/borrar_professor/<string:nom_del_professor>/<string:cognoms_del_professor>', methods=['DELETE'])
+def eliminacio_de_professor(nom_del_professor, cognoms_del_professor):
+    controlador_professors.borrar_professor(nom_del_professor, cognoms_del_professor)
+    resp = jsonify(success=True, message="S'ha eliminat el professor "+nom_del_professor+" "+cognoms_del_professor+".")
     return resp

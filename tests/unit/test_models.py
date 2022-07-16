@@ -13,12 +13,12 @@ def test_nou_alumne_amb_fixture(nou_alumne):
     """
     DONAT un model d'Alumne
     QUAN un nou Alumne es creat
-    ENTONCES comprobar que els camps nom_i_cognom, grup, poblacio, mobilitat, tipo_de_practica, 
+    ENTONCES comprobar que els camps nom_i_cognoms, grup, poblacio, mobilitat, tipo_de_practica, 
     preferencies, observacions, aporta_empresa, erasmus, distancies i assignacio 
     hajen sigut definits correctament
     """
 
-    assert nou_alumne.nom_i_cognom == "David Fernández Fuster" 
+    assert nou_alumne.nom_i_cognoms == "David Fernández Fuster" 
     assert nou_alumne.grup == "DAW"
     assert nou_alumne.poblacio == "Gandía"
     assert nou_alumne.mobilitat == "Sí" 

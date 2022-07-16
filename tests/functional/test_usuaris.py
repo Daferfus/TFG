@@ -1,4 +1,5 @@
 import json
+from flask_login import current_user
 
 def test_borrar_usuaris_amb_fixture(test_client):
     assert test_client.get('/borrar_usuaris').status_code == 405
@@ -6,12 +7,27 @@ def test_borrar_usuaris_amb_fixture(test_client):
     response = test_client.delete('/borrar_usuaris')
     assert json.loads(response.get_data(as_text=True))["success"] == True
 
-def test_insertar_usuari_amb_fixture(test_client):
+def test_registrar_usuari_amb_fixture(test_client):
     datos = {"nom_de_usuari": 'Mikaeru Softo', "contrasenya_de_usuari": 'Machete1@', "rol_de_usuari": "Alumne"}
-    assert test_client.get('/insertar_usuari', data=datos).status_code == 405
-    assert test_client.post('/insertar_usuari', data=datos).status_code == 200
-    response = test_client.post('/insertar_usuari', data=datos)
+    assert test_client.get('/registrar_usuari', data=datos).status_code == 405
+    assert test_client.post('/registrar_usuari', data=datos).status_code == 200
+    response = test_client.post('/registrar_usuari', data=datos)
     assert json.loads(response.get_data(as_text=True))["success"] == True
+
+def test_autenticar_usuari_amb_fixture(test_client):
+    datos = {"nom_de_usuari": 'Mikaeru Softo', "contrasenya_de_usuari": 'Machete1@'}
+    assert test_client.get('/autenticar_usuari', data=datos).status_code == 405
+    assert test_client.post('/autenticar_usuari', data=datos).status_code == 200
+    response = test_client.post('/autenticar_usuari', data=datos)
+    assert json.loads(response.get_data(as_text=True))["success"] == True
+    assert current_user.is_authenticated == True
+
+def test_logout_amb_fixture(test_client):
+    assert test_client.post('/logout').status_code == 405
+    assert test_client.get('/logout').status_code == 200
+    response = test_client.get('/logout')
+    assert json.loads(response.get_data(as_text=True))["success"] == True
+    assert current_user.is_authenticated == False
 
 def test_recuperar_dades_de_usuaris_amb_fixture(test_client):
     assert test_client.post('/recuperar_dades_de_usuaris').status_code == 405

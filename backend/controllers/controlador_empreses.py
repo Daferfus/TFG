@@ -11,7 +11,7 @@ def insertar_empresa(
     telefon_de_empresa=0, 
     correu_de_empresa="", 
     persona_de_contacte_en_la_empresa="",
-    practiques_de_la_empresa={}
+    practiques_de_la_empresa=[]
     ):
     empresa = Empresa(
         nom=nom_de_empresa, 
@@ -32,7 +32,7 @@ def actualitzar_empresa(
     correu_de_empresa="", 
     persona_de_contacte_en_la_empresa="",
     ):
-    Empresa.objects(nom=nom_de_empresa_per_a_filtrar).update(__raw__=[
+    Empresa.objects(nom=nom_de_empresa_per_a_filtrar).update(__raw__=
         {"$set": {
             "nom": nom_de_empresa,
             "poblacio": poblacio_de_empresa,
@@ -41,7 +41,7 @@ def actualitzar_empresa(
             "persona_de_contacte": persona_de_contacte_en_la_empresa,
             }
         }
-    ],)
+    )
 
 def borrar_empreses():
     Empresa.objects.delete()

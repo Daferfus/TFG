@@ -6,7 +6,7 @@ import csv
 ########### Alumnes ############
 ################################
 def insertar_alumne(
-    nom_i_cognom_del_alumne,
+    nom_i_cognoms_del_alumne,
     grup_del_alumne,
     poblacio_del_alumne,
     mobilitat_del_alumne,
@@ -20,7 +20,7 @@ def insertar_alumne(
 ):   
 
     alumne = Alumne(
-        nom_i_cognom=nom_i_cognom_del_alumne, 
+        nom_i_cognoms=nom_i_cognoms_del_alumne, 
         grup=grup_del_alumne, 
         poblacio=poblacio_del_alumne, 
         mobilitat=mobilitat_del_alumne, 
@@ -36,7 +36,7 @@ def insertar_alumne(
 
 def actualitzar_alumne(
     nom_de_alumne_per_a_filtrar,
-    nom_i_cognom_del_alumne,
+    nom_i_cognoms_del_alumne,
     grup_del_alumne,
     poblacio_del_alumne,
     mobilitat_del_alumne,
@@ -47,9 +47,9 @@ def actualitzar_alumne(
     erasmus_del_alumne = False
 ):   
 
-    Alumne.objects(nom_i_cognom=nom_de_alumne_per_a_filtrar).update(__raw__=[
+    Alumne.objects(nom_i_cognoms=nom_de_alumne_per_a_filtrar).update(__raw__=
         {"$set": {
-            "nom_i_cognom": nom_i_cognom_del_alumne,
+            "nom_i_cognom": nom_i_cognoms_del_alumne,
             "grup": grup_del_alumne,
             "poblacio": poblacio_del_alumne,
             "mobilitat": mobilitat_del_alumne,
@@ -61,20 +61,20 @@ def actualitzar_alumne(
             "erasmus": erasmus_del_alumne
             }
         }
-    ],)
+    )
 
 def borrar_alumnes():
     Alumne.objects.delete()
 
 def borrar_alumne(nom_del_alumne):
-    Alumne.objects(nom=nom_del_alumne).delete()
+    Alumne.objects(nom_i_cognoms=nom_del_alumne).delete()
 
 def recuperar_dades_de_alumnes():
     alumne = Alumne.objects()
     return alumne;
 
 def recuperar_dades_del_alumne(nom_del_alumne):
-    alumne = Alumne.objects(nom=nom_del_alumne)
+    alumne = Alumne.objects(nom_i_cognoms=nom_del_alumne)
     return alumne;
 
 def importar_alumnes(nom_deL_fitxer, cicle):
@@ -133,7 +133,7 @@ def importar_alumnes(nom_deL_fitxer, cicle):
                 'Preferències': preferencies 
                 }
             insertar_alumne(
-                nom_i_cognom_del_alumne = alumne["Nom"], 
+                nom_i_cognoms_del_alumne = alumne["Nom"], 
                 grup_del_alumne = cicle, 
                 poblacio_del_alumne = alumne["Ciutat"],
                 mobilitat_del_alumne = alumne["Cotxe"],

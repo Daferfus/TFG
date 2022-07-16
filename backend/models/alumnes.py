@@ -1,7 +1,7 @@
 import mongoengine as me
 
 class Alumne(me.Document):
-    nom_i_cognom = me.StringField(required=True)
+    nom_i_cognoms = me.StringField(required=True)
     grup = me.StringField(required=True)
     poblacio = me.StringField(required=True)
     mobilitat = me.StringField(required=True)
