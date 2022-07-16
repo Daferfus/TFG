@@ -7,10 +7,10 @@ def test_borrar_usuaris_amb_fixture(test_client):
     assert json.loads(response.get_data(as_text=True))["success"] == True
 
 def test_insertar_usuari_amb_fixture(test_client):
-    datos = {'nom_de_usuari': 'Mikaeru Softo', 'contrasenya_de_usuari': 'Machete1@', "rol_de_usuari": "Alumne"}
+    datos = {"nom_de_usuari": 'Mikaeru Softo', "contrasenya_de_usuari": 'Machete1@', "rol_de_usuari": "Alumne"}
     assert test_client.get('/insertar_usuari', data=datos).status_code == 405
     assert test_client.post('/insertar_usuari', data=datos).status_code == 200
-    response = test_client.post('/insertar_usuari', data={'nom_de_usuari': 'Mikaeru Softo', 'contrasenya_de_usuari': 'Machete1@', "rol_de_usuari": "Alumne"})
+    response = test_client.post('/insertar_usuari', data=datos)
     assert json.loads(response.get_data(as_text=True))["success"] == True
 
 def test_recuperar_dades_de_usuaris_amb_fixture(test_client):
