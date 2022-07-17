@@ -2,6 +2,7 @@ from flask import Flask
 from flask_mongoengine import MongoEngine
 from flask_redis import FlaskRedis
 from flask_login import LoginManager
+from flask_session import Session
 
 ################################
 ## Llibreries de Accés Global ##
@@ -9,6 +10,8 @@ from flask_login import LoginManager
 db = MongoEngine()
 r = FlaskRedis()
 login_manager = LoginManager()
+#sess = Session()
+
 
 def init_app():
     """Initialize the core application."""
@@ -24,6 +27,8 @@ def init_app():
     db.init_app(app)
     r.init_app(app)
     login_manager.init_app(app)
+    #sess.init_app(app)
+
     
     with app.app_context():
         # Include our Routes

@@ -1,72 +1,82 @@
 import json
+from flask import Response
+from backend.professors.model_professors import Professor
 
-def test_borrar_professors_amb_fixture(test_client):
-    assert test_client.get('/borrar_professors').status_code == 405
-    assert test_client.delete('/borrar_professors').status_code == 200
-    response = test_client.delete('/borrar_professors')
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+def test_esborrar_professors_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de esborrat de professors
+    LLAVORS comprovar que no quede cap professor.
+    """    
+    resposta: Response = test_client.delete('/esborrar_professors')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
 
 def test_insertar_professor_amb_fixture(test_client):
-    datos = {
-        "nom_del_professor": "Juan Miguel", 
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de inserció de professor
+    LLAVORS comprovar que este haja sigut insertat i que no puga tornar-se a insertar.
+    """    
+    dades: dict = {
+        "nom_del_professor": "Juan Maria", 
         "cognoms_del_professor": "Alberola Oltra", 
         "titulacions_del_professor": '{"DAW": "X", "ASIX": "X"}', 
         "hores_alliberades_del_professor": 8, 
         "hores_restants_del_professor": 5
     }
-    assert test_client.get('/insertar_professor', data=datos).status_code == 405
-    assert test_client.post('/insertar_professor', data=datos).status_code == 200
-    response = test_client.post('/insertar_professor', data=datos)
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+    primera_resposta: Response = test_client.post('/insertar_professor', data=dades)
+    assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
+    segona_resposta: Response = test_client.post('/insertar_professor', data=dades)
+    assert json.loads(segona_resposta.get_data(as_text=True))["message"] == "Ja existeix un professor amb aquest nom i cognoms."
 
-
-def test_recuperar_dades_de_professors_amb_fixture(test_client):
-    assert test_client.post('/recuperar_dades_de_professors').status_code == 405
-    assert test_client.get('/recuperar_dades_de_professors').status_code == 200
-    response = test_client.get('/recuperar_dades_de_professors')
-    professor = json.loads(response.get_data(as_text=True))["message"]
-    assert professor[0]["nom"] == "Juan Miguel"
+def test_recuperar_dades_del_professor_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de de recerca del professor anteriorment insertat
+    LLAVORS comprovar que existisca.
+    """    
+    resposta = test_client.get('/recuperar_dades_del_professor/Juan Maria/Alberola Oltra')
+    professor: Professor|str = json.loads(resposta.get_data(as_text=True))["message"]
+    assert professor["nom"] == "Juan Maria"
 
 def test_actualitzar_professor_amb_fixture(test_client):
-    datos = {
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició d'actualitzar professor
+    LLAVORS comprovar que el nom ja no siga el mateix.
+    """    
+    dades: dict = {
         "nom_del_professor": "Juan Miguel", 
         "cognoms_del_professor": "Alberola Oltra", 
         "titulacions_del_professor": '{"DAW": "X", "ASIX": "X"}', 
         "hores_alliberades_del_professor": 8, 
         "hores_restants_del_professor": 8
     }
-    assert test_client.post('/actualitzar_professor/Juan Miguel/Alberola Oltra', data=datos).status_code == 405
-    assert test_client.put('/actualitzar_professor/Juan Miguel/Alberola Oltra', data=datos).status_code == 200
-    response = test_client.put('/actualitzar_professor/Juan Miguel/Alberola Oltra', data=datos)
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+    primera_resposta: Response = test_client.put('/actualitzar_professor/Juan Maria/Alberola Oltra', data=dades)
+    assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
+    segona_resposta: Response = test_client.put('/actualitzar_professor/Juan Maria/Alberola Oltra', data=dades)
+    assert json.loads(segona_resposta.get_data(as_text=True))["success"] == False
 
-def test_borrar_professor_amb_fixture(test_client):
-    assert test_client.get('/borrar_professor/Juan Miguel/Alberola Oltra').status_code == 405
-    assert test_client.delete('/borrar_professor/Juan Miguel/Alberola Oltra').status_code == 200
-    response = test_client.delete('/borrar_professor/Juan Miguel/Alberola Oltra')
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+def test_esborrar_professor_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de esborrat de professor
+    LLAVORS comprovar que el professor previament insertat no existisca.
+    """    
+    resposta: Response = test_client.delete('/esborrar_professor/Juan Miguel/Alberola Oltra')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
 
-def test_recuperar_dades_del_professor_amb_fixture(test_client):
-    assert test_client.post('/recuperar_dades_del_professor/Juan Miguel/Alberola Oltra').status_code == 405
-    assert test_client.get('/recuperar_dades_del_professor/Juan Miguel/Alberola Oltra').status_code == 200
-    response = test_client.get('/recuperar_dades_del_professor/Juan Miguel/Alberola Oltra')
-    professor = json.loads(response.get_data(as_text=True))["message"]
-    assert professor == []
 
-# def test_importar_alumnes_amb_fixture(test_client):
-#     assert test_client.get('/importar_alumnes').status_code == 405
-#     assert test_client.post('/importar_alumnes').status_code == 200
-#     response = test_client.post('/importar_alumnes')
-#     usuari = json.loads(response.get_data(as_text=True))["message"]
-#     assert usuari == []
+def test_importar_professors_amb_fixture(test_client):
+    resposta = test_client.post('/importar_professors')
+    assert json.loads(resposta.get_data(as_text=True))["sucess"] == True
 
-# @alumnes_bp.route('/importar_alumnes', methods=['POST'])
-# def recollir_fitxer_alumnes():
-#     cicle = request.form['cicle']
-#     f = request.files['fichero']
-#     nom_de_fitxer = './'+cicle+'.csv';
-#     f.save(nom_de_fitxer)
-    
-#     controlador_alumnes.importar_alumnes(nom_de_fitxer, cicle)
-#     resp = jsonify(success=True, message="S'han importat amb èxit els alumnes de "+cicle+".")
-#     return resp
+def test_recuperar_dades_de_professors_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de recuperar dades de tots els professors
+    LLAVORS te que hi haure més de 0 professors en la base de dades.
+    """    
+    response: Response = test_client.get('/recuperar_dades_de_professors')
+    professor: list[Professor] = json.loads(response.get_data(as_text=True))["message"]
+    assert len(professor) > 0

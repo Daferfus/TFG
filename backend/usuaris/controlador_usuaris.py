@@ -54,7 +54,7 @@ def actualitzar_credencials_del_usuari(
     Returns:
         str: Resultat de l'operació.
     """
-    usuari_existent: any = Usuari.objects(nom=nom_de_usuari_per_a_filtrar) 
+    usuari_existent: Usuari = Usuari.objects(nom=nom_de_usuari_per_a_filtrar) 
     if usuari_existent:
         usuari: Usuari = usuari_existent.get(nom=nom_de_usuari_per_a_filtrar)
         usuari.nom = nom_de_usuari

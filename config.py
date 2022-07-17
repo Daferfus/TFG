@@ -1,5 +1,6 @@
 """Flask configuration."""
 import json
+import redis
 from os import environ, path
 from dotenv import load_dotenv
 
@@ -10,8 +11,8 @@ class Config:
     """Base config."""
     # SESSION_COOKIE_NAME = environ.get('SESSION_COOKIE_NAME')
     SECRET_KEY = environ.get('SECRET_KEY')
-
-
+    #SESSION_TYPE = redis
+    #SESSION_REDIS = redis.from_url(environ.get('SESSION_REDIS'))
 class ProdConfig(Config):
     FLASK_ENV = 'production'
     DEBUG = False
