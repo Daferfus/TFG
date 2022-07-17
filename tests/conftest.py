@@ -16,10 +16,10 @@ from flask_mongoengine import MongoEngine
 # from bson.objectid import ObjectId
 from json import dumps
 
-from backend.models.usuaris import Usuari
-from backend.models.alumnes import Alumne
-from backend.models.professors import Professor
-from backend.models.empreses import Empresa
+from backend.usuaris.model_usuaris import Usuari
+from backend.alumnes.model_alumnes import Alumne
+from backend.professors.model_professors import Professor
+from backend.empreses.model_empreses import Empresa
 
 @pytest.fixture(scope='module')
 def test_client():

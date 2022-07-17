@@ -1,4 +1,4 @@
-from backend.models.alumnes import Alumne
+from backend.alumnes.model_alumnes import Alumne
 import csv
 
 

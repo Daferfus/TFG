@@ -1,57 +1,83 @@
 import json
-from flask_login import current_user
 
-def test_borrar_usuaris_amb_fixture(test_client):
-    assert test_client.get('/borrar_usuaris').status_code == 405
-    assert test_client.delete('/borrar_usuaris').status_code == 200
-    response = test_client.delete('/borrar_usuaris')
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+def test_esborrar_usuaris_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de esborrat d'usuaris
+    LLAVORS comprovar que no quede cap usuari.
+    """    
+    resposta = test_client.delete('/esborrar_usuaris')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
+
 
 def test_registrar_usuari_amb_fixture(test_client):
-    datos = {"nom_de_usuari": 'Mikaeru Softo', "contrasenya_de_usuari": 'Machete1@', "rol_de_usuari": "Alumne"}
-    assert test_client.get('/registrar_usuari', data=datos).status_code == 405
-    assert test_client.post('/registrar_usuari', data=datos).status_code == 200
-    response = test_client.post('/registrar_usuari', data=datos)
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de registre d'usuari
+    LLAVORS comprovar que este haja sigut registrat i que no puga tornar-se a registrar.
+    """    
+    dades = {"nom_de_usuari": 'Mikaeru Softo', "contrasenya_de_usuari": 'Machete1@', "rol_de_usuari": "Alumne"}
+    primera_resposta = test_client.post('/registrar_usuari', data=dades)
+    assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
+    segona_resposta = test_client.post('/registrar_usuari', data=dades)
+    assert json.loads(segona_resposta.get_data(as_text=True))["message"] == "Ja existeix un usuari amb aquest nom."
 
 def test_autenticar_usuari_amb_fixture(test_client):
-    datos = {"nom_de_usuari": 'Mikaeru Softo', "contrasenya_de_usuari": 'Machete1@'}
-    assert test_client.get('/autenticar_usuari', data=datos).status_code == 405
-    assert test_client.post('/autenticar_usuari', data=datos).status_code == 200
-    response = test_client.post('/autenticar_usuari', data=datos)
-    assert json.loads(response.get_data(as_text=True))["success"] == True
-    assert current_user.is_authenticated == True
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de autenticació d'usuari
+    LLAVORS comprovar que estiga autenticat.
+    """    
+    dades = {"nom_de_usuari": 'Mikaeru Softo', "contrasenya_de_usuari": 'Machete1@'}
+    resposta = test_client.post('/autenticar_usuari', data=dades)
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
 
 def test_logout_amb_fixture(test_client):
-    assert test_client.post('/logout').status_code == 405
-    assert test_client.get('/logout').status_code == 200
-    response = test_client.get('/logout')
-    assert json.loads(response.get_data(as_text=True))["success"] == True
-    assert current_user.is_authenticated == False
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de tancar sessió
+    LLAVORS comprovar que l'usuari no estiga autenticat.
+    """    
+    resposta = test_client.get('/logout')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
 
 def test_recuperar_dades_de_usuaris_amb_fixture(test_client):
-    assert test_client.post('/recuperar_dades_de_usuaris').status_code == 405
-    assert test_client.get('/recuperar_dades_de_usuaris').status_code == 200
-    response = test_client.get('/recuperar_dades_de_usuaris')
-    usuari = json.loads(response.get_data(as_text=True))["message"]
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de recuperar dades de tots els usuaris
+    LLAVORS el primer usuari te que correspondre al previament insertat.
+    """    
+    resposta = test_client.get('/recuperar_dades_de_usuaris')
+    usuari = json.loads(resposta.get_data(as_text=True))["message"]
     assert usuari[0]["nom"] == "Mikaeru Softo"
 
 def test_actualitzar_usuari_amb_fixture(test_client):
-    datos = {'nom_de_usuari': 'Michael Soft', 'contrasenya_de_usuari': 'Machete1@', "rol_de_usuari": "Alumne"}
-    assert test_client.post('/actualitzar_usuari/Mikaeru Softo', data=datos).status_code == 405
-    assert test_client.put('/actualitzar_usuari/Mikaeru Softo', data=datos).status_code == 200
-    response = test_client.put('/actualitzar_usuari/Mikaeru Softo', data=datos)
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició d'actualitzar usuari
+    LLAVORS comprovar que el nom ja no siga el mateix.
+    """    
+    dades = {'nom_de_usuari': 'Michael Soft', 'contrasenya_de_usuari': 'Machete1@', "rol_de_usuari": "Alumne"}
+    primera_resposta = test_client.put('/actualitzar_usuari/Mikaeru Softo', data=dades)
+    assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
+    segona_resposta = test_client.put('/actualitzar_usuari/Mikaeru Softo', data=dades)
+    assert json.loads(segona_resposta.get_data(as_text=True))["success"] == False
 
-def test_borrar_usuari_amb_fixture(test_client):
-    assert test_client.get('/borrar_usuari/Michael Soft').status_code == 405
-    assert test_client.delete('/borrar_usuari/Michael Soft').status_code == 200
-    response = test_client.delete('/borrar_usuari/Michael Soft')
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+def test_esborrar_usuari_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de esborrat d'usuari
+    LLAVORS comprovar que el usuari previament insertat no existisca.
+    """    
+    resposta = test_client.delete('/esborrar_usuari/Michael Soft')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
 
 def test_recuperar_dades_del_usuari_amb_fixture(test_client):
-    assert test_client.post('/recuperar_dades_del_usuari/Michael Soft').status_code == 405
-    assert test_client.get('/recuperar_dades_del_usuari/Michael Soft').status_code == 200
-    response = test_client.get('/recuperar_dades_del_usuari/Michael Soft')
-    usuari = json.loads(response.get_data(as_text=True))["message"]
-    assert usuari == []
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de de recerca del usuari anteriorment borrat
+    LLAVORS comprovar que no existisca.
+    """    
+    resposta = test_client.get('/recuperar_dades_del_usuari/Michael Soft')
+    usuari = json.loads(resposta.get_data(as_text=True))["message"]
+    assert usuari == "No s'ha trovat cap usuari."

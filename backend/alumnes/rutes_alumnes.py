@@ -3,7 +3,11 @@ from flask import current_app as app
 
 import json
 from flask import request, make_response, jsonify
-from backend.controllers import controlador_alumnes, controlador_professors, controlador_empreses, controlador_usuaris, controlador_assignacions
+from backend.alumnes import controlador_alumnes
+from backend.assignacions import controlador_assignacions
+from backend.professors import controlador_professors
+from backend.empreses import controlador_empreses
+from backend.usuaris import controlador_usuaris
 
 # Blueprint Configuration
 alumnes_bp = Blueprint(

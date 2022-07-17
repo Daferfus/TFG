@@ -27,10 +27,10 @@ def init_app():
     
     with app.app_context():
         # Include our Routes
-        from .usuaris import routes as usuaris
-        from .alumnes import routes as alumnes
-        from .professors import routes as professors
-        from .empreses import routes as empreses
+        from .usuaris import rutes_usuaris as usuaris
+        from .alumnes import rutes_alumnes as alumnes
+        from .professors import rutes_professors as professors
+        from .empreses import rutes_empreses as empreses
         
         # Register Blueprints
         app.register_blueprint(usuaris.usuaris_bp)
