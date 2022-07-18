@@ -1,72 +1,102 @@
 import json
 
-def test_borrar_empreses_amb_fixture(test_client):
-    assert test_client.get('/borrar_empreses').status_code == 405
-    assert test_client.delete('/borrar_empreses').status_code == 200
-    response = test_client.delete('/borrar_empreses')
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+from flask import Response
+
+from backend.empreses.model_empreses import Empresa
+
+def test_esborrar_empreses_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de esborrat d'empreses
+    LLAVORS comprovar que no quede cap empresa.
+    """  
+    resposta: Response = test_client.delete('/esborrar_empreses')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
 
 def test_insertar_empresa_amb_fixture(test_client):
-    datos = {
-        "nom_de_empresa": "Locatec", 
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de inserció d'empresa
+    LLAVORS comprovar que esta haja sigut insertada i que no puga tornar-se a insertar.
+    """    
+    dades: dict = {
+        "nom_de_empresa": "Mahico Soluciones", 
         "poblacio_de_empresa": "València", 
         "telefon_de_empresa": 665517969, 
         "correu_de_empresa": "info@locatec.es", 
         "persona_de_contacte_en_la_empresa": "Salva"
     }
-    assert test_client.get('/insertar_empresa', data=datos).status_code == 405
-    assert test_client.post('/insertar_empresa', data=datos).status_code == 200
-    response = test_client.post('/insertar_empresa', data=datos)
-    assert json.loads(response.get_data(as_text=True))["success"] == True
-
-
-def test_recuperar_dades_de_empreses_amb_fixture(test_client):
-    assert test_client.post('/recuperar_dades_de_empreses').status_code == 405
-    assert test_client.get('/recuperar_dades_de_empreses').status_code == 200
-    response = test_client.get('/recuperar_dades_de_empreses')
-    empresa = json.loads(response.get_data(as_text=True))["message"]
-    assert empresa[0]["nom"] == "Locatec"
-
-def test_actualitzar_empresa_amb_fixture(test_client):
-    datos = {
-        "nom_de_empresa": "Locatec", 
-        "poblacio_de_empresa": "València", 
-        "telefon_de_empresa": 665517969, 
-        "correu_de_empresa": "info@locatec.es", 
-        "persona_de_contacte_en_la_empresa": "Salva"
-    }
-    assert test_client.post('/actualitzar_empresa/Locatec', data=datos).status_code == 405
-    assert test_client.put('/actualitzar_empresa/Locatec', data=datos).status_code == 200
-    response = test_client.put('/actualitzar_empresa/Locatec', data=datos)
-    assert json.loads(response.get_data(as_text=True))["success"] == True
-
-def test_borrar_empresa_amb_fixture(test_client):
-    assert test_client.get('/borrar_empresa/Locatec').status_code == 405
-    assert test_client.delete('/borrar_empresa/Locatec').status_code == 200
-    response = test_client.delete('/borrar_empresa/Locatec')
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+    primera_resposta: Response = test_client.post('/insertar_empresa', data=dades)
+    assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
+    segona_resposta: Response = test_client.post('/insertar_empresa', data=dades)
+    assert json.loads(segona_resposta.get_data(as_text=True))["message"] == "Ja existeix una empresa amb aquest nom."
 
 def test_recuperar_dades_de_la_empresa_amb_fixture(test_client):
-    assert test_client.post('/recuperar_dades_de_la_empresa/Locatec').status_code == 405
-    assert test_client.get('/recuperar_dades_de_la_empresa/Locatec').status_code == 200
-    response = test_client.get('/recuperar_dades_de_la_empresa/Locatec')
-    empresa = json.loads(response.get_data(as_text=True))["message"]
-    assert empresa == []
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de de recerca de l'empresa anteriorment insertada
+    LLAVORS comprovar que existisca.
+    """    
+    resposta: Response = test_client.get('/recuperar_dades_de_la_empresa/Mahico Soluciones')
+    empresa: Empresa|str = json.loads(resposta.get_data(as_text=True))["message"]
+    assert empresa["nom"] == "Mahico Soluciones"
 
-# def test_importar_alumnes_amb_fixture(test_client):
-#     assert test_client.get('/importar_alumnes').status_code == 405
-#     assert test_client.post('/importar_alumnes').status_code == 200
-#     response = test_client.post('/importar_alumnes')
-#     usuari = json.loads(response.get_data(as_text=True))["message"]
-#     assert usuari == []
+def test_actualitzar_empresa_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició d'actualitzar empresa
+    LLAVORS comprovar que el nom ja no siga el mateix.
+    """    
+    dades: dict = {
+        "nom_de_empresa": "Locatec", 
+        "poblacio_de_empresa": "València", 
+        "telefon_de_empresa": 665517969, 
+        "correu_de_empresa": "info@locatec.es", 
+        "persona_de_contacte_en_la_empresa": "Salva"
+    }
+    primera_resposta: Response = test_client.put('/actualitzar_empresa/Mahico Soluciones', data=dades)
+    assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
+    segona_resposta: Response = test_client.put('/actualitzar_empresa/Mahico Soluciones', data=dades)
+    assert json.loads(segona_resposta.get_data(as_text=True))["success"] == False
 
-# @alumnes_bp.route('/importar_alumnes', methods=['POST'])
-# def recollir_fitxer_alumnes():
-#     cicle = request.form['cicle']
-#     f = request.files['fichero']
-#     nom_de_fitxer = './'+cicle+'.csv';
-#     f.save(nom_de_fitxer)
-    
-#     controlador_alumnes.importar_alumnes(nom_de_fitxer, cicle)
-#     resp = jsonify(success=True, message="S'han importat amb èxit els alumnes de "+cicle+".")
-#     return resp
+def test_esborrar_empresa_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició d'esborrat d'empresa
+    LLAVORS comprovar que l'empresa previament insertada no existisca.
+    """    
+    resposta: Response = test_client.delete('/esborrar_empresa/Locatec')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
+
+
+def test_importar_empreses_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de importar empreses
+    LLAVORS comprovar que les empreses estiguen insertades.
+    """    
+    file = "tests\\functional\\fitxers\\Empreses-Adaptat.xlsx"
+    data = {
+        'fichero': (open(file, 'rb'), file)
+    }
+    resposta = test_client.post('/importar_empreses', data=data)
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
+
+def test_exportar_empreses_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de exportar empreses
+    LLAVORS comprovar que existisca el fitxer.
+    """    
+    resposta = test_client.get('/exportar_empreses')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
+
+def test_recuperar_dades_de_empreses_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de recuperar dades de totes les empreses
+    LLAVORS te que hi haure més de 0 empreses en la base de dades.
+    """    
+    resposta: Response = test_client.get('/recuperar_dades_de_empreses')
+    empreses: list[Empresa] = json.loads(resposta.get_data(as_text=True))["message"]
+    assert len(empreses) == 51

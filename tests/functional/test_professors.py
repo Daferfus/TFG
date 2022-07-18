@@ -1,4 +1,5 @@
 import json
+import io
 from flask import Response
 from backend.professors.model_professors import Professor
 
@@ -68,8 +69,26 @@ def test_esborrar_professor_amb_fixture(test_client):
 
 
 def test_importar_professors_amb_fixture(test_client):
-    resposta = test_client.post('/importar_professors')
-    assert json.loads(resposta.get_data(as_text=True))["sucess"] == True
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de importar professors
+    LLAVORS comprovar que els professor estiguen insertats.
+    """    
+    file = "tests\\functional\\fitxers\\Dades_empreses-professors-21-22.xlsx"
+    data = {
+        'fichero': (open(file, 'rb'), file)
+    }
+    resposta = test_client.post('/importar_professors', data=data)
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
+
+def test_exportar_professors_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de exportar professors
+    LLAVORS comprovar que existisca el fitxer.
+    """    
+    resposta = test_client.get('/exportar_professors')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
 
 def test_recuperar_dades_de_professors_amb_fixture(test_client):
     """
@@ -77,6 +96,6 @@ def test_recuperar_dades_de_professors_amb_fixture(test_client):
     QUAN s'haja executat la petició de recuperar dades de tots els professors
     LLAVORS te que hi haure més de 0 professors en la base de dades.
     """    
-    response: Response = test_client.get('/recuperar_dades_de_professors')
-    professor: list[Professor] = json.loads(response.get_data(as_text=True))["message"]
-    assert len(professor) > 0
+    resposta: Response = test_client.get('/recuperar_dades_de_professors')
+    professors: list[Professor] = json.loads(resposta.get_data(as_text=True))["message"]
+    assert len(professors) == 44

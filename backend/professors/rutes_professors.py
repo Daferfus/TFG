@@ -82,7 +82,7 @@ def recollir_fitxer_professors() -> Response:
         Response: Informació sobre el resultat de la petició.
     """
     f: Request = request.files['fichero']
-    nom_del_fitxer: str = './professors.xls'
+    nom_del_fitxer: str = './professors.xlsx'
     f.save(nom_del_fitxer)
     resultat:str = controlador_professors.importar_professors(nom_del_fitxer)
 
@@ -92,6 +92,21 @@ def recollir_fitxer_professors() -> Response:
     else:
         resposta: Response = jsonify(success=True, message=resultat)
         return resposta
+
+@professors_bp.route('/exportar_professors', methods=['GET'])
+def descarregar_fitxer_professors() -> Response:
+    """Crida a la funció per a exportar professors de la base de dades.
+
+    Returns:
+        Response: Informació sobre el resultat de la petició.
+    """
+    resultat:bool = controlador_professors.exportar_professors()
+    if resultat:
+        resposta: Response = jsonify(success=resultat, message="S'han exportat amb èxit les dades dels professors.")
+        return resposta
+    else:
+        resposta: Response = jsonify(success=resultat, message="Hi ha hagut un problema durant l'exportació.")
+    return resposta
 
 @professors_bp.route('/actualitzar_professor/<string:nom_del_professor>/<string:cognoms_del_professor>', methods=["PUT"])
 def recollir_nom_de_professor(nom_del_professor: str, cognoms_del_professor: str) -> Response:
@@ -128,6 +143,11 @@ def recollir_nom_de_professor(nom_del_professor: str, cognoms_del_professor: str
 
 @professors_bp.route('/esborrar_professors', methods=['DELETE'])
 def eliminacio_de_professors() -> Response:
+    """Esborra tots els professors.
+
+    Returns:
+        str: Resultat de l'operació.
+    """
     resultat: str = controlador_professors.esborrar_professors()
     if resultat == "S'ha esborrat amb èxit tots els professors.":
         resposta = jsonify(success=True, message=resultat)
@@ -138,6 +158,15 @@ def eliminacio_de_professors() -> Response:
 
 @professors_bp.route('/esborrar_professor/<string:nom_del_professor>/<string:cognoms_del_professor>', methods=['DELETE'])
 def eliminacio_de_professor(nom_del_professor: str, cognoms_del_professor: str) -> Response:
+    """Esborra un professor donat.
+
+    Args:
+        nom_del_professor (str): Nom del professor a esborrar.
+        cognoms_del_professor (str): Cognoms del professor a esborrar.
+            
+    Returns:
+        str: Resultat de l'operació.
+    """
     resultat: str = controlador_professors.esborrar_professor(nom_del_professor, cognoms_del_professor)
     if resultat == "S'ha esborrat amb èxit el professor.":
         resposta = jsonify(success=True, message=resultat)

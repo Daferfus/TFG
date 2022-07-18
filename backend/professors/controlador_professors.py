@@ -1,6 +1,6 @@
 from backend.professors.model_professors import Professor
 import pandas as pd
-
+import os
 ###############################
 ######### Professors ##########
 ###############################
@@ -29,7 +29,7 @@ def insertar_professor(
     Returns:
         str: Resultat de l'operació.
     """
-    professor_existent: Professor = recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor)
+    professor_existent: Professor|None = recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor)
 
     if professor_existent is None:
         professor: Professor = Professor(
@@ -43,7 +43,7 @@ def insertar_professor(
             assignacions=assignacions_del_professor,
         )
         professor.save()
-        professor_insertat: Professor = recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor)
+        professor_insertat: Professor|None = recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor)
 
         if professor_insertat:
             return "El professor s'ha insertat amb èxit."
@@ -62,7 +62,7 @@ def actualitzar_professor(
     hores_alliberades_del_professor: int,
     hores_restants_del_professor: str
 ) -> str:
-    """Actualitza les dades d'un professor donat
+    """Actualitza les dades d'un professor donat.
 
     Args:
         nom_de_professor_per_a_filtrar (str): Nom del professor a actualitzar.
@@ -144,7 +144,7 @@ def recuperar_dades_del_professor(nom_del_professor: str, cognoms_del_professor:
         Professor: Professor retornat.
     """
     professor = Professor.objects(nom=nom_del_professor, cognoms=cognoms_del_professor).first()
-    return professor;
+    return professor
 
 def importar_professors(nom_del_fitxer: str) -> str:
     """Inserta cada professor trovat en un fitxer.
@@ -199,6 +199,31 @@ def importar_professors(nom_del_fitxer: str) -> str:
     if contador_de_insertats == 0 and quantitat_de_professors_ja_insertats == 0:
         return "Ha ocorregut un problema durant l'operació."
     else:
-        return "S'han insertat " +contador_de_insertats+ " de " +len(df)+ " professors." +quantitat_de_professors_ja_insertats+ " ja estaven insertats."
+        return "S'han insertat " +str(contador_de_insertats)+ " de " +str(len(df))+ " professors." +str(quantitat_de_professors_ja_insertats)+ " ja estaven insertats."
+
+
+def exportar_professors() -> str:
+    """Exporta els professors de la base de dades a un fitxer xlsx.
+    """
+    professors: list[Professor] = recuperar_dades_de_professors()
+    professors_dict: list[dict] = []
+
+    for professor in professors:
+        professor_dict: dict = {
+            "Nom": professor.nom,
+            "Cognoms": professor.cognoms,
+            "Titulacions": str(professor.titulacions),
+            "Hores Alliberades": professor.hores_alliberades,
+            "Hores Restants": professor.hores_restants,
+            "Rati FCT": professor.rati_fct,
+            "Rati DUAL": professor.rati_dual,
+            "Assignacions": professor.assignacions
+        }
+        professors_dict.append(professor_dict)
+    
+    dades = pd.DataFrame.from_dict(professors_dict)
+    dades.to_excel("professors_ex.xlsx",header=True)
+
+    return os.path.exists("professors_ex.xlsx")
 ##########################################################
 ##########################################################
