@@ -59,6 +59,41 @@ def test_actualitzar_empresa_amb_fixture(test_client):
     segona_resposta: Response = test_client.put('/actualitzar_empresa/Mahico Soluciones', data=dades)
     assert json.loads(segona_resposta.get_data(as_text=True))["success"] == False
 
+def test_insertar_practica_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició de inserció de pràctica
+    LLAVORS comprovar que esta haja sigut insertada i que no puga tornar-se a insertar.
+    """    
+    dades: dict = {
+        "practiques_de_la_empresa": '{"id": 1, "nom": "Practica01","tutor": "Juanma"}'
+    }
+    primera_resposta: Response = test_client.post('/insertar_practica/Locatec', data=dades)
+    assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
+    segona_resposta: Response = test_client.post('/insertar_practica/Locatec', data=dades)
+    assert json.loads(segona_resposta.get_data(as_text=True))["message"] == "La pràctica ja existeix."
+
+def test_actualitzar_practica_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició d'actualitzar pràctica
+    LLAVORS comprovar que el nom ja no siga el mateix.
+    """    
+    dades: list[dict] = {
+        "practica_de_la_empresa": '{"id": 1, "nom": "Pràctica01", "tutor": "Juan Miguel Alberola Oltra"}'
+    }
+    primera_resposta: Response = test_client.put('/actualitzar_practica/Locatec/{"id": 1, "nom": "Practica01", "tutor": "Juanma"}', data=dades)
+    assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
+
+def test_esborrar_practica_amb_fixture(test_client):
+    """
+    DONADA una aplicació Flask configurada per a fer proves
+    QUAN s'haja executat la petició d'esborrat de pràctica
+    LLAVORS comprovar que la pràctica previament insertada no existisca.
+    """    
+    resposta: Response = test_client.delete('/esborrar_practica/Locatec/{"id": 1, "nom": "Pràctica01", "tutor": "Juan Miguel Alberola Oltra"}')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
+
 def test_esborrar_empresa_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves

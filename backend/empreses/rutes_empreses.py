@@ -138,18 +138,18 @@ def recollir_nom_de_empresa(empresa: str) -> Response:
 
 
 @empreses_bp.route('/esborrar_empreses', methods=['DELETE'])
-def eliminacio_de_empreses():
-    """Esborra totes les empreses.
+def eliminacio_de_empreses() -> Response:
+    """Crida a la funció per a esborrar totes les empreses.
 
     Returns:
-        str: Resultat de l'operació.
+        Response: Informació sobre el resultat de la petició.
     """
     resultat: str = controlador_empreses.esborrar_empreses()
     if resultat == "S'ha esborrat amb èxit totes les empreses.":
-        resposta = jsonify(success=True, message=resultat)
+        resposta: Response = jsonify(success=True, message=resultat)
         return resposta
     else:
-        resposta = jsonify(success=False, message=resultat)
+        resposta: Response = jsonify(success=False, message=resultat)
         return resposta
 
 @empreses_bp.route('/esborrar_empresa/<string:empresa>', methods=['DELETE'])
@@ -187,10 +187,14 @@ def recollir_dades_practica(empresa: str) -> Response:
         empresa,
         practiques
     )
-    resposta: Response = jsonify(success=True, message=resultat)
-    return resposta
+    if resultat=="Pràctica insertada.":
+        resposta: Response = jsonify(success=True, message=resultat)
+        return resposta
+    else:
+        resposta: Response = jsonify(success=False, message=resultat)
+        return resposta
 
-@empreses_bp.route('/actualitzar_practica/<string:empresa>/<practica>', methods=["PUT"])
+@empreses_bp.route('/actualitzar_practica/<string:empresa>/<practica_a_actualitzar>', methods=["PUT"])
 def recollir_nom_de_la_practica(empresa: str, practica_a_actualitzar: dict) -> Response:
     """Crida a la funció per a actualitzar una pràctica donada.
 
@@ -202,27 +206,32 @@ def recollir_nom_de_la_practica(empresa: str, practica_a_actualitzar: dict) -> R
         Response: Informació sobre el resultat de la petició.
     """
     practica_actualitzada: dict = json.loads(request.form['practica_de_la_empresa'])
-
+    practica_a_actualitzar: dict = json.loads(practica_a_actualitzar)
     resultat: str = controlador_empreses.actualitzar_practica(
         empresa,
         practica_a_actualitzar,
         practica_actualitzada
     )
 
-    resposta: Response = jsonify(success=True, message=resultat)
+    if resultat=="La pràctica ha sigut actualitzada.":
+        resposta: Response = jsonify(success=True, message=resultat)
+    else:
+        resposta: Response = jsonify(success=False, message=resultat)
     return resposta
 
-@empreses_bp.route('/esborrar_practica/<string:empresa>', methods=['DELETE'])
-def eliminacio_de_practica(empresa: str) -> Response:
+
+@empreses_bp.route('/esborrar_practica/<string:empresa>/<string:practica>', methods=['DELETE'])
+def eliminacio_de_practica(empresa: str, practica: dict) -> Response:
     """Esborra una pràctica donada.
 
     Args:
         empresa (str): Nom de l'empresa que ofereix la pràctica.
+        practica (dict): La pràctica a esborrar.
 
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    practica_a_esborrar = request.args.get("nom_de_la_practica")
-    resultat: str = controlador_empreses.esborrar_practica(empresa, practica_a_esborrar)
+    practica: dict = json.loads(practica)
+    resultat: str = controlador_empreses.esborrar_practica(empresa, practica)
     resposta: Response = jsonify(success=True, message=resultat)
     return resposta

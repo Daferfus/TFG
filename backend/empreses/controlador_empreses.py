@@ -134,9 +134,13 @@ def insertar_practica(
     """
     empresa: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar).get()
     if empresa:
-        empresa.practiques.append(practica_de_la_empresa)
-        empresa.save()
-        return "Pràctica insertada."
+        practica_existeix: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar, practiques=practica_de_la_empresa).first()
+        if practica_existeix:
+            return "La pràctica ja existeix."
+        else:
+            empresa.practiques.append(practica_de_la_empresa)
+            empresa.save()
+            return "Pràctica insertada."
     else:
         return "L'empresa no existeix."
 
@@ -155,8 +159,13 @@ def actualitzar_practica(
     Returns:
         str: Resultat de l'operació.
     """
-    resultat: int = Empresa.objects(nom=nom_de_empresa_per_a_filtrar, practiques=practica_a_filtrar).update(set__practiques__S=practica_de_la_empresa)
-    if resultat > 0:
+    empresa: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar).first()
+    empresa.practiques[practica_a_filtrar["id"]-1] = practica_de_la_empresa
+    empresa.save()
+
+    practica_existeix: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar, practiques=practica_de_la_empresa).first()
+
+    if practica_existeix:
         return "La pràctica ha sigut actualitzada."
     else:
         return "No s'ha canviat res de la pràctica."
@@ -171,8 +180,9 @@ def esborrar_practica(nom_de_empresa_per_a_filtrar: str, practica_de_la_empresa:
     Returns:
         str: Resultat de l'operació.
     """
-    resultat: int = Empresa.objects(nom=nom_de_empresa_per_a_filtrar).update(pull__practiques__S=practica_de_la_empresa)
-    if resultat > 0:
+    empresa: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar).first()
+    resultat = empresa.practiques.pop(practica_de_la_empresa["id"]-1)
+    if resultat:
         return "La pràctica ha sigut esborrada."
     else:
         return "No s'ha trovat la pràctica a esborrar."
@@ -212,7 +222,7 @@ def importar_empreses(nom_del_fitxer: str) -> str:
     nombre_de_fila: int = 0
 
     contador_de_insertats: int = 0
-    quantitat_de_professors_ja_insertats: int = 0
+    quantitat_de_empreses_ja_insertats: int = 0
 
     while nombre_de_fila < len(df):
         empresa: dict = {}
@@ -245,11 +255,11 @@ def importar_empreses(nom_del_fitxer: str) -> str:
         if resultat == "L'empresa s'ha insertat amb èxit.":
             contador_de_insertats+=1
         elif resultat == "Ja existeix una empresa amb aquest nom.":
-            quantitat_de_professors_ja_insertats+=1
-    if contador_de_insertats == 0 and quantitat_de_professors_ja_insertats == 0:
+            quantitat_de_empreses_ja_insertats+=1
+    if contador_de_insertats == 0 and quantitat_de_empreses_ja_insertats == 0:
         return "Ha ocorregut un problema durant l'operació."
     else:
-        return "S'han insertat " +str(contador_de_insertats)+ " de " +str(len(df))+ " empreses." +str(quantitat_de_professors_ja_insertats)+ " ja estaven insertades."
+        return "S'han insertat " +str(contador_de_insertats)+ " de " +str(len(df))+ " empreses." +str(quantitat_de_empreses_ja_insertats)+ " ja estaven insertades."
 
 def exportar_empreses() -> str:
     """Exporta les empreses de la base de dades a un fitxer xlsx.
