@@ -9,6 +9,8 @@ from backend.professors.model_professors import Professor
 # Blueprint Configuration
 professors_bp = Blueprint(
     'professors_bp', __name__,
+    template_folder='templates',
+    static_folder='static'
 )
 
 @professors_bp.route('/recuperar_dades_de_professors', methods=['GET'])

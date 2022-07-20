@@ -7,6 +7,8 @@ from backend.alumnes.model_alumnes import Alumne
 # Blueprint Configuration
 alumnes_bp = Blueprint(
     'alumnes_bp', __name__,
+    template_folder='templates',
+    static_folder='static'
 )
 
 @alumnes_bp.route('/recuperar_dades_de_alumnes', methods=['GET'])

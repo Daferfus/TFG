@@ -13,6 +13,10 @@ class Config:
     SECRET_KEY = environ.get('SECRET_KEY')
     #SESSION_TYPE = redis
     #SESSION_REDIS = redis.from_url(environ.get('SESSION_REDIS'))
+    STATIC_FOLDER = 'static'
+    TEMPLATES_FOLDER = 'templates'
+    LESS_BIN = 'lessc'
+    ASSETS_AUTO_BUILD = True
 class ProdConfig(Config):
     FLASK_ENV = 'production'
     DEBUG = False
@@ -21,10 +25,12 @@ class ProdConfig(Config):
         "db": environ.get('PROD_MONGO_DB'),
         "host": environ.get('PROD_MONGO_URI')
         }
+    ASSETS_DEBUG = False
 
 class DevConfig(Config):
     FLASK_ENV = 'development'
     DEBUG = True
+    ASSETS_DEBUG = True
     TESTING = True
     MONGODB_SETTINGS = {
         "db": environ.get('DEV_MONGO_DB'),

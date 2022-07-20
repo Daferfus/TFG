@@ -7,6 +7,8 @@ from backend.usuaris.model_usuaris import Usuari
 # Blueprint Configuration
 usuaris_bp = Blueprint(
     'usuaris_bp', __name__,
+    template_folder='templates',
+    static_folder='static'
 )
 
 @usuaris_bp.route('/hola')

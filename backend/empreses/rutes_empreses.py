@@ -8,6 +8,8 @@ from backend.empreses.model_empreses import Empresa
 # Blueprint Configuration
 empreses_bp = Blueprint(
     'empreses', __name__,
+    template_folder='templates',
+    static_folder='static'
 )
 
 @empreses_bp.route('/recuperar_dades_de_empreses', methods=['GET'])
