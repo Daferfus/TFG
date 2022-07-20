@@ -39,7 +39,7 @@ def init_app():
         from .empreses import rutes_empreses as empreses
         from .assignacions import rutes_assignacions as assignacions
         from .assets import compile_static_assets
-        from . import routes
+        
         # Register Blueprints
         app.register_blueprint(usuaris.usuaris_bp)
         app.register_blueprint(alumnes.alumnes_bp)

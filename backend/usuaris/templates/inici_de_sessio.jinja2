@@ -1,0 +1,48 @@
+
+{% extends 'layout.jinja2' %}
+
+
+{% block content %}
+  
+  <h1 id="titol_de_seccio">Inici de Sessió</h1>
+
+  <div class="form-wrapper">
+    <form method="POST" action="{{ url_for('usuaris_bp.mostrar_pantalla_de_inici_de_sessio') }}">
+
+      <fieldset class="form-field">
+      <div align='center'>
+      {{ form.nom_de_usuari.label }}
+      </div>
+      <br>
+      {{ form.nom_de_usuari }}
+        {% if form.nom_de_usuari.errors %}
+        <ul class="errors">
+          {% for error in form.nom_de_usuari.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" id="contrasenya">
+          {{ form.contrasenya_de_usuari.label }}
+        </div>
+        <br>
+        {{ form.contrasenya_de_usuari }}
+        {% if form.contrasenya_de_usuari.errors %}
+          <ul class="errors">
+            {% for error in form.contrasenya_de_usuari.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <div align="center">
+        {{ form.submit }}
+      </div>
+      </form>
+  </div>
+
+{% endblock %}

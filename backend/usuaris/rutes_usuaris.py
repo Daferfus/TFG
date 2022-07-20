@@ -1,8 +1,10 @@
 from flask_login import logout_user, current_user
-from flask import Blueprint, Response, request, jsonify
+from flask import Blueprint, Response, request, jsonify, render_template
 from backend.usuaris import controlador_usuaris
 from backend import login_manager
 from backend.usuaris.model_usuaris import Usuari
+
+from .formulari_usuaris import UsuarisForm
 
 # Blueprint Configuration
 usuaris_bp = Blueprint(
@@ -11,6 +13,25 @@ usuaris_bp = Blueprint(
     static_folder='static'
 )
 
+@usuaris_bp.route('/')
+def home():
+    """Landing page."""
+    return render_template(
+        'home.jinja2',
+        title="Projecte d'Assignació",
+        description="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
+    )
+
+@usuaris_bp.route('/inici_de_sessio', methods=["GET", "POST"])
+def mostrar_pantalla_de_inici_de_sessio():
+    form = UsuarisForm()
+    if form.validate_on_submit():
+        print("woah");
+    return render_template(
+        "inici_de_sessio.jinja2",
+        form=form,
+        template="inici_de_sessio-template"
+    )
 @usuaris_bp.route('/hola')
 def hola() -> str:
     """Funció de prova per a verificar el funcionament de l'aplicació.
