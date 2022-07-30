@@ -1,0 +1,49 @@
+
+{% extends 'layout.jinja2' %}
+
+
+{% block content %}
+  
+
+  <div class="form-wrapper">
+    {% include 'messages.jinja2' %}
+    <h1 id="titol_de_seccio">Inici de Sessió</h1>
+    <form method="POST" action="{{ url_for('usuaris_bp.comprovar_dades_del_usuari') }}">
+
+      <fieldset class="form-field">
+      <div class="marge_vertical" align='center'>
+      {{ form.nom_de_usuari.label }}
+      </div>
+      <br>
+      {{ form.nom_de_usuari }}
+        {% if form.nom_de_usuari.errors %}
+        <ul class="errors">
+          {% for error in form.nom_de_usuari.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.contrasenya_de_usuari.label }}
+        </div>
+        <br>
+        {{ form.contrasenya_de_usuari }}
+        {% if form.contrasenya_de_usuari.errors %}
+          <ul class="errors">
+            {% for error in form.contrasenya_de_usuari.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <div class="marge_vertical" align="center">
+        {{ form.submit }}
+      </div>
+      </form>
+  </div>
+
+{% endblock %}

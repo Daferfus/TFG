@@ -1,6 +1,6 @@
 import json
 from flask import Response
-from backend.usuaris.model_usuaris import Usuari
+from projecte_assignacio.usuaris.model_usuaris import Usuari
 
 def test_esborrar_usuaris_amb_fixture(test_client):
     """

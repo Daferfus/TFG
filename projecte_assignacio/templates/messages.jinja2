@@ -1,0 +1,11 @@
+{% for message in get_flashed_messages() %}
+    <div class="missatge">
+        <button
+          type="button"
+          class="close"
+          onclick="tancarNotificacio()">
+            x
+        </button>
+        {{ message }}
+    </div>
+{% endfor %}

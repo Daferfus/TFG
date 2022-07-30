@@ -2,7 +2,7 @@ import json
 
 from flask import Response
 
-from backend.empreses.model_empreses import Empresa
+from projecte_assignacio.empreses.model_empreses import Empresa
 
 def test_esborrar_empreses_amb_fixture(test_client):
     """

@@ -1,0 +1,9 @@
+{% extends 'layout.jinja2' %}
+
+{% block content %}
+    <div class="container">
+        {% include 'messages.jinja2' %}
+        <h1 id="titol_de_seccio">{{title}}</h1>
+        <p id="descripcio_de_projecte">{{description}}</p>
+    </div>
+{% endblock %}

@@ -1,7 +1,7 @@
 import json
 import io
 from flask import Response
-from backend.professors.model_professors import Professor
+from projecte_assignacio.professors.model_professors import Professor
 
 def test_esborrar_professors_amb_fixture(test_client):
     """

@@ -2,7 +2,7 @@ from curses.ascii import EM
 from shelve import DbfilenameShelf
 import sys
 sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\problema_assignacio")
-from backend import init_app
+from projecte_assignacio import init_app
 
 import pytest
 import random
@@ -16,10 +16,10 @@ from flask_mongoengine import MongoEngine
 # from bson.objectid import ObjectId
 from json import dumps
 
-from backend.usuaris.model_usuaris import Usuari
-from backend.alumnes.model_alumnes import Alumne
-from backend.professors.model_professors import Professor
-from backend.empreses.model_empreses import Empresa
+from projecte_assignacio.usuaris.model_usuaris import Usuari
+from projecte_assignacio.alumnes.model_alumnes import Alumne
+from projecte_assignacio.professors.model_professors import Professor
+from projecte_assignacio.empreses.model_empreses import Empresa
 
 @pytest.fixture(scope='module')
 def test_client():

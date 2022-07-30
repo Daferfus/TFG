@@ -1,0 +1,31 @@
+<header>
+  <span id="home">
+    <a href="{{ url_for('usuaris_bp.home') }}"><img id="logo" src="{{ url_for('static', filename='./img/logo.png') }}" alt="Logo de la Institució."></a>
+  </span>
+  {% if current_user.is_authenticated %}
+  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+    <div>
+      <div class="navbar"></div>
+      <div class="navbar"></div>
+      <div class="navbar"></div>
+    </div>
+  </a>
+  {% else %}
+  <a href="{{ url_for('usuaris_bp.mostrar_pantalla_de_inici_de_sessio') }}"><button id="iniciar_sessio">Iniciar Sessió</button></a>
+  {% endif %}
+</header>
+<nav id="menu">
+      <a href="{{ url_for('usuaris_bp.perfil') }}"><button>Perfil</button></a>
+      {% if current_user.rol == "Coordinador" %}
+      <a href="{{ url_for('alumnes_bp.llistat') }}"><button>Llistat d'Alumnes</button></a>
+      <a href="{{ url_for('professors_bp.llistat') }}"><button>Llistat de Professors</button></a>
+      <a href="{{ url_for('empreses_bp.llistat') }}"><button>Llistat d'Empreses</button></a>
+      <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>
+      <a href="{{ url_for('assignacions_bp.assginacio') }}"><button>Assignació d'Alumne-Empresa-Professor</button></a>
+      {% elif current_user.rol == "Professor" %}
+      <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>
+      {% elif current_user.rol == "Empresa" %}
+      <a href="{{ url_for('empreses_bp.practiques') }}"><button>Ajustos de Configuració</button></a>
+      {% endif %}
+      <a href="{{ url_for('usuaris_bp.logout') }}"><button>Tancar Sessió</button></a>
+</nav>

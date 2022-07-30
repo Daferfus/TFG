@@ -1,4 +1,4 @@
-from backend import init_app
+from projecte_assignacio import init_app
 
 
 app = init_app()

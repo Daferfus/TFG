@@ -2,7 +2,7 @@ import json
 
 from flask import Response
 
-from backend.alumnes.model_alumnes import Alumne
+from projecte_assignacio.alumnes.model_alumnes import Alumne
 
 def test_esborrar_alumnes_amb_fixture(test_client):
     """
