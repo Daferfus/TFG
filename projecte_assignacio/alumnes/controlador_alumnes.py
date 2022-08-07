@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from projecte_assignacio.alumnes.model_alumnes import Alumne
+from projecte_assignacio.usuaris import controlador_usuaris
 import csv
 
 
@@ -8,6 +9,7 @@ import csv
 ########### Alumnes ############
 ################################
 def insertar_alumne(
+    nom_de_usuari_del_alumne: str,
     nom_i_cognoms_del_alumne: str,
     grup_del_alumne: str,
     poblacio_del_alumne: str,
@@ -38,10 +40,11 @@ def insertar_alumne(
     Returns:
         str: Resultat de l'operació.
     """
-    alumne_existent: Alumne|None = recuperar_dades_del_alumne(nom_i_cognoms_del_alumne)
+    alumne_existent: Alumne|None = recuperar_dades_del_alumne(nom_de_usuari_del_alumne)
 
     if alumne_existent is None:
         alumne: Alumne = Alumne(
+            nom_de_usuari=nom_de_usuari_del_alumne,
             nom_i_cognoms=nom_i_cognoms_del_alumne, 
             grup=grup_del_alumne, 
             poblacio=poblacio_del_alumne, 
@@ -65,16 +68,16 @@ def insertar_alumne(
         return "Ja existeix un alumne amb aquest nom i cognoms."
 
 def actualitzar_alumne(
-    nom_de_alumne_per_a_filtrar: str,
+    nom_de_usuari_del_alumne: str,
     nom_i_cognoms_del_alumne: str,
     grup_del_alumne: str,
     poblacio_del_alumne: str,
     mobilitat_del_alumne: str,
     preferencies_del_alumne: dict[str, int],
-    tipo_de_practica_del_alumne: str ="",
+    #tipo_de_practica_del_alumne: str ="",
     observacions_del_alumne: str = "",
-    aporta_empresa_el_alumne: bool = False,
-    erasmus_del_alumne: bool = False
+    #aporta_empresa_el_alumne: bool = False,
+    #erasmus_del_alumne: bool = False
 ) -> str:   
     """Actualitza les dades d'un alumne donat.
 
@@ -93,18 +96,18 @@ def actualitzar_alumne(
     Returns:
         str: Resultat de l'operació.
     """
-    resultat: int = Alumne.objects(nom_i_cognoms=nom_de_alumne_per_a_filtrar).update(__raw__=
+    resultat: int = Alumne.objects(nom_i_cognoms=nom_de_usuari_del_alumne).update(__raw__=
         {"$set": {
             "nom_i_cognoms": nom_i_cognoms_del_alumne,
             "grup": grup_del_alumne,
             "poblacio": poblacio_del_alumne,
             "mobilitat": mobilitat_del_alumne,
             "preferencies": preferencies_del_alumne,
-            "tipo_de_practica": tipo_de_practica_del_alumne,
+            #"tipo_de_practica": tipo_de_practica_del_alumne,
             "preferencies": preferencies_del_alumne,
             "observacions": observacions_del_alumne,
-            "aporta_empresa": aporta_empresa_el_alumne,
-            "erasmus": erasmus_del_alumne
+            #"aporta_empresa": aporta_empresa_el_alumne,
+            #"erasmus": erasmus_del_alumne
             }
         }
     )
@@ -127,7 +130,7 @@ def esborrar_alumnes() -> str:
     else:
         return "Ha ocorregut un problema durant el esborrament."
 
-def esborrar_alumne(nom_del_alumne: str):
+def esborrar_alumne(nom_de_usuari_del_alumne: str):
     """Esborra un alumne donat.
 
     Args:
@@ -136,9 +139,9 @@ def esborrar_alumne(nom_del_alumne: str):
     Returns:
         str: Resultat de l'operació.
     """
-    Alumne.objects(nom_i_cognoms=nom_del_alumne).delete()
+    Alumne.objects(nom_i_cognoms=nom_de_usuari_del_alumne).delete()
 
-    alumne: Alumne = recuperar_dades_del_alumne(nom_del_alumne)
+    alumne: Alumne = recuperar_dades_del_alumne(nom_de_usuari_del_alumne)
     if alumne:
         return "Ha ocorregut un problema durant el esborrament."
     else:
@@ -153,7 +156,7 @@ def recuperar_dades_de_alumnes() -> list[Alumne]:
     alumnes: list[Alumne] = Alumne.objects()
     return alumnes;
 
-def recuperar_dades_del_alumne(nom_del_alumne: str) -> Alumne:
+def recuperar_dades_del_alumne(nom_de_usuari_del_alumne: str) -> Alumne:
     """Retorna un alumne donat.
 
     Args:
@@ -162,7 +165,7 @@ def recuperar_dades_del_alumne(nom_del_alumne: str) -> Alumne:
     Returns:
         Alumne: Alumne retornat.
     """
-    alumne: Alumne = Alumne.objects(nom_i_cognoms=nom_del_alumne).first()
+    alumne: Alumne = Alumne.objects(nom_de_usuari=nom_de_usuari_del_alumne).first()
     return alumne;
 
 def importar_alumnes(nom_deL_fitxer: str, cicle: str):
@@ -199,12 +202,12 @@ def importar_alumnes(nom_deL_fitxer: str, cicle: str):
             elif cicle == "DAW":
                 preferencies: dict[str, int] = {
                     'Backend': dades_del_alumne["[Desarrollador backend]"], 
-                    'Multiplataforma': dades_del_alumne["[Desarrollador software multiplataforma]"],
-                    'Videojuegos': dades_del_alumne["[Desarrollador videojuegos]"],
-                    'Moviles': dades_del_alumne["[Desarrollador de aplicaciones moviles]"],
-                    'Robotica': dades_del_alumne["[Programador de robotica, automocion e informatica industrial]"],
+                    'Frontend': dades_del_alumne["[Desarrollador frontend]"],
+                    'Fullstack': dades_del_alumne["[Desarrollador fullstack]"],
+                    'Disenyador': dades_del_alumne["[Disenyador]"],
                     'Documentacion': dades_del_alumne["[Tecnico QA y documentacion]"],
-                    'ERP': dades_del_alumne["[Consultor ERP]"]
+                    'Devops': dades_del_alumne["[Devops]"],
+                    'Moviles': dades_del_alumne["[Desarrollador de aplicaciones moviles]"]
                 }
             elif cicle == "ASIR":
                 preferencies: dict[str, int] = {
@@ -220,7 +223,7 @@ def importar_alumnes(nom_deL_fitxer: str, cicle: str):
                 }
             elif cicle == "TSMR":
                 preferencies: dict[str, int] = {
-                    'Microinformatico': dades_del_alumne["[Tecnico de microinformatica]"],
+                    'Tecnico': dades_del_alumne["[Tecnico de microinformatica]"],
                     'Asesor': dades_del_alumne["[Asesor/vendedor de microinformatica]"],
                     'HelpDesk': dades_del_alumne["[Tecnico de soporte Helpdesk L1]"],
                     'Instalador': dades_del_alumne["[Instalador de redes e infraestructura IT]"]
@@ -232,13 +235,18 @@ def importar_alumnes(nom_deL_fitxer: str, cicle: str):
                 'Cotxe': dades_del_alumne["Podrias utilizar coche"], 
                 'Preferències': preferencies 
                 }
+            # La idea seria crear-ne el nom d'usuari a partir de les inicials
+            # però les dades de proves contenen noms anonimitzats.
             resultat: str = insertar_alumne(
+                nom_de_usuari_del_alumne= alumne["Nom"],
                 nom_i_cognoms_del_alumne = alumne["Nom"], 
                 grup_del_alumne = cicle, 
                 poblacio_del_alumne = alumne["Ciutat"],
                 mobilitat_del_alumne = alumne["Cotxe"],
                 preferencies_del_alumne=alumne["Preferències"]
             )
+
+            controlador_usuaris.registrar_usuari(nom_de_usuari=alumne["Nom"], contrasenya_de_usuari=cicle+"_"+alumne["Nom"]+"_2022", rol_de_usuari="Alumne")
             if resultat == "L'alumne s'ha insertat amb èxit.":
                 contador_de_insertats+=1
             elif resultat == "Ja existeix un alumne amb aquest nom i cognoms.":
@@ -270,7 +278,7 @@ def exportar_alumnes() -> str:
             "Assignacions": alumne.assignacio
         }
         alumnes_dict.append(alumne_dict)
-    
+
     dades = pd.DataFrame.from_dict(alumnes_dict)
     dades.to_excel("alumnes_ex.xlsx",header=True)
 

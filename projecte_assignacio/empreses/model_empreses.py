@@ -1,6 +1,7 @@
 import mongoengine as me
 
 class Empresa(me.Document):
+    nom_de_usuari: str = me.StringField(required=True)
     nom: str = me.StringField(required=True)
     poblacio: str = me.StringField(required=True)
     telefon: int = me.IntField(required=False)

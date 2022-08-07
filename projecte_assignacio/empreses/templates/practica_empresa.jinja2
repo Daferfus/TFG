@@ -1,0 +1,87 @@
+
+{% extends 'layout.jinja2' %}
+
+
+{% block content %}
+  
+
+  <div class="form-wrapper">
+    {% include 'messages.jinja2' %}
+    <h1 id="titol_de_seccio">{{ title }}</h1>
+    {% if accio=="crear" %}
+        <form method="POST" action="{{ url_for('empreses_bp.recollir_dades_practica', usuari=nom_de_usuari) }}">
+    {% elif accio=="editar" %}
+        <form method="POST" action="{{ url_for('empreses_bp.recollir_nom_de_la_practica', usuari=nom_de_usuari, nombre_de_practica=nombre_de_practica) }}">
+    {% endif %}
+    
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.nom.label }}
+          <br>
+          <br>
+          {{ form.nom }}
+        </div>
+        {% if form.nom.errors %}
+          <ul class="errors">
+            {% for error in form.nom.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.titulacio.label }}
+          <br>
+          <br>
+          {{ form.titulacio }}
+        </div>
+        {% if form.titulacio.errors %}
+          <ul class="errors">
+            {% for error in form.titulacio.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.descripcio.label }}
+          <br>
+          <br>
+          {{ form.descripcio }}
+        </div>
+        {% if form.descripcio.errors %}
+          <ul class="errors">
+            {% for error in form.descripcio.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.tecnologies_i_frameworks.label }}
+          <br>
+          <br>
+          {{ form.tecnologies_i_frameworks }}
+        </div>
+        {% if form.tecnologies_i_frameworks.errors %}
+          <ul class="errors">
+            {% for error in form.tecnologies_i_frameworks.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <div class="marge_vertical" align="center">
+        {{ form.submit }}
+      </div>
+      </form>
+  </div>
+
+{% endblock %}

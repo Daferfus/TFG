@@ -15,7 +15,6 @@
   {% endif %}
 </header>
 <nav id="menu">
-      <a href="{{ url_for('usuaris_bp.perfil') }}"><button>Perfil</button></a>
       {% if current_user.rol == "Coordinador" %}
       <a href="{{ url_for('alumnes_bp.llistat') }}"><button>Llistat d'Alumnes</button></a>
       <a href="{{ url_for('professors_bp.llistat') }}"><button>Llistat de Professors</button></a>
@@ -23,9 +22,13 @@
       <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>
       <a href="{{ url_for('assignacions_bp.assginacio') }}"><button>Assignació d'Alumne-Empresa-Professor</button></a>
       {% elif current_user.rol == "Professor" %}
+      <a href="{{ url_for('professors_bp.perfil') }}"><button>Perfil</button></a>
       <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>
       {% elif current_user.rol == "Empresa" %}
-      <a href="{{ url_for('empreses_bp.practiques') }}"><button>Ajustos de Configuració</button></a>
+      <a href="{{ url_for('empreses_bp.perfil_empresa') }}"><button>Perfil</button></a>
+      <a href="{{ url_for('empreses_bp.practiques') }}"><button>Pràctiques</button></a>
+      {% else %}
+      <a href="{{ url_for('alumnes_bp.perfil') }}"><button>Perfil</button></a>
       {% endif %}
       <a href="{{ url_for('usuaris_bp.logout') }}"><button>Tancar Sessió</button></a>
 </nav>

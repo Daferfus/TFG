@@ -23,15 +23,6 @@ def home():
         description="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
     )
 
-@usuaris_bp.route('/perfil')
-def perfil():
-    """Landing page."""
-    return render_template(
-        'home.jinja2',
-        title="Projecte d'Assignació",
-        description="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
-    )
-
 @usuaris_bp.route('/inici_de_sessio', methods=["GET", "POST"])
 def mostrar_pantalla_de_inici_de_sessio():
     form = UsuarisForm()

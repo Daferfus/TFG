@@ -1,0 +1,114 @@
+
+{% extends 'layout.jinja2' %}
+
+
+{% block content %}
+  
+
+  <div class="form-wrapper">
+    {% include 'messages.jinja2' %}
+    <h1 id="titol_de_seccio">{{ title }}</h1>
+    <form method="POST" action="{{ url_for('empreses_bp.recollir_nom_de_empresa', usuari=nom_de_usuari) }}">
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.nom.label }}
+          <br>
+          <br>
+          {{ form.nom }}
+        </div>
+        {% if form.nom.errors %}
+          <ul class="errors">
+            {% for error in form.nom.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.poblacio.label }}
+          <br>
+          <br>
+          {{ form.poblacio }}
+        </div>
+        {% if form.poblacio.errors %}
+          <ul class="errors">
+            {% for error in form.poblacio.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.telefon.label }}
+          <br>
+          <br>
+          {{ form.telefon }}
+        </div>
+        {% if form.telefon.errors %}
+          <ul class="errors">
+            {% for error in form.telefon.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.correu.label }}
+          <br>
+          <br>
+          {{ form.correu }}
+        </div>
+        {% if form.correu.errors %}
+          <ul class="errors">
+            {% for error in form.correu.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.nom_de_persona_de_contacte.label }}
+          <br>
+          <br>
+          {{ form.nom_de_persona_de_contacte }}
+        </div>
+        {% if form.nom_de_persona_de_contacte.errors %}
+          <ul class="errors">
+            {% for error in form.nom_de_persona_de_contacte.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+    <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.volen_practica.label }}
+          <br>
+          <br>
+          {{ form.volen_practica }}
+        </div>
+        {% if form.volen_practica %}
+          <ul class="errors">
+            {% for error in form.volen_practica.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <div class="marge_vertical" align="center">
+        {{ form.submit }}
+      </div>
+      </form>
+  </div>
+
+{% endblock %}

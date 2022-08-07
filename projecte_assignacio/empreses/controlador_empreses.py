@@ -1,5 +1,6 @@
 import os
 from projecte_assignacio.empreses.model_empreses import Empresa
+from projecte_assignacio.usuaris import controlador_usuaris
 import pandas as pd
 
 
@@ -7,6 +8,7 @@ import pandas as pd
 ########## Empreses ###########
 ###############################
 def insertar_empresa(
+    nom_de_usuari_de_empresa: str,
     nom_de_empresa: str, 
     poblacio_de_empresa: str, 
     telefon_de_empresa: int = 0, 
@@ -29,10 +31,11 @@ def insertar_empresa(
     Returns:
         str: Resultat de l'operació.
     """
-    empresa_existent: Empresa|None = recuperar_dades_de_la_empresa(nom_de_empresa)
+    empresa_existent: Empresa|None = recuperar_dades_de_la_empresa(nom_de_usuari_de_empresa)
 
     if empresa_existent is None:
         empresa: Empresa = Empresa(
+            nom_de_usuari=nom_de_usuari_de_empresa,
             nom=nom_de_empresa, 
             poblacio=poblacio_de_empresa, 
             telefon=telefon_de_empresa, 
@@ -42,7 +45,7 @@ def insertar_empresa(
             assignacions=assignacions_de_la_empresa
             )
         empresa.save()
-        empresa_insertada: Empresa|None = recuperar_dades_de_la_empresa(nom_de_empresa)
+        empresa_insertada: Empresa|None = recuperar_dades_de_la_empresa(nom_de_usuari_de_empresa)
 
         if empresa_insertada:
             return "L'empresa s'ha insertat amb èxit."
@@ -53,7 +56,7 @@ def insertar_empresa(
 
 
 def actualitzar_empresa(
-    nom_de_empresa_per_a_filtrar: str,
+    usuari: str,
     nom_de_empresa: str, 
     poblacio_de_empresa: str, 
     telefon_de_empresa: int = 0, 
@@ -73,7 +76,7 @@ def actualitzar_empresa(
     Returns:
         str: Resultat de l'operació.
     """
-    resultat: int = Empresa.objects(nom=nom_de_empresa_per_a_filtrar).update(__raw__=
+    resultat: int = Empresa.objects(nom_de_usuari=usuari).update(__raw__=
         {"$set": {
             "nom": nom_de_empresa,
             "poblacio": poblacio_de_empresa,
@@ -120,7 +123,7 @@ def esborrar_empresa(nom_de_la_empresa: str) -> str:
         return "S'ha esborrat amb èxit l'empresa."
 
 def insertar_practica(
-    nom_de_empresa_per_a_filtrar: str,
+    usuari: str,
     practica_de_la_empresa: dict
     ) -> str:
     """Anyadix una pràctica a la llista de pràctiques ofertada per l'empresa.
@@ -132,9 +135,9 @@ def insertar_practica(
     Returns:
         str: Resultat de l'operació.
     """
-    empresa: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar).get()
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).get()
     if empresa:
-        practica_existeix: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar, practiques=practica_de_la_empresa).first()
+        practica_existeix: Empresa = Empresa.objects(nom_de_usuari=usuari, practiques=practica_de_la_empresa).first()
         if practica_existeix:
             return "La pràctica ja existeix."
         else:
@@ -145,7 +148,7 @@ def insertar_practica(
         return "L'empresa no existeix."
 
 def actualitzar_practica(
-    nom_de_empresa_per_a_filtrar: str,
+    usuari: str,
     practica_a_filtrar: dict,
     practica_de_la_empresa: dict
     ) -> str:
@@ -159,18 +162,18 @@ def actualitzar_practica(
     Returns:
         str: Resultat de l'operació.
     """
-    empresa: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar).first()
-    empresa.practiques[practica_a_filtrar["id"]-1] = practica_de_la_empresa
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
+    empresa.practiques[practica_a_filtrar] = practica_de_la_empresa
     empresa.save()
 
-    practica_existeix: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar, practiques=practica_de_la_empresa).first()
+    practica_existeix: Empresa = Empresa.objects(nom_de_usuari=usuari, practiques=practica_de_la_empresa).first()
 
     if practica_existeix:
         return "La pràctica ha sigut actualitzada."
     else:
         return "No s'ha canviat res de la pràctica."
 
-def esborrar_practica(nom_de_empresa_per_a_filtrar: str, practica_de_la_empresa: dict) -> str:
+def esborrar_practica(usuari: str, practica_de_la_empresa: dict) -> str:
     """Esborra una pràctica donada.
 
     Args:
@@ -180,8 +183,9 @@ def esborrar_practica(nom_de_empresa_per_a_filtrar: str, practica_de_la_empresa:
     Returns:
         str: Resultat de l'operació.
     """
-    empresa: Empresa = Empresa.objects(nom=nom_de_empresa_per_a_filtrar).first()
-    resultat = empresa.practiques.pop(practica_de_la_empresa["id"]-1)
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
+    resultat = empresa.practiques.pop(practica_de_la_empresa)
+    empresa.save()
     if resultat:
         return "La pràctica ha sigut esborrada."
     else:
@@ -195,7 +199,7 @@ def recuperar_dades_de_empreses() -> list[Empresa]:
     """
     return Empresa.objects()
     
-def recuperar_dades_de_la_empresa(nom_de_la_empresa: str) -> Empresa:
+def recuperar_dades_de_la_empresa(usuari: str) -> Empresa:
     """Retorna una empresa donada.
 
     Args:
@@ -204,7 +208,7 @@ def recuperar_dades_de_la_empresa(nom_de_la_empresa: str) -> Empresa:
     Returns:
         Empresa: Empresa retornada.
     """
-    empresa: Empresa = Empresa.objects(nom=nom_de_la_empresa).first()
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
     return empresa
 
 def importar_empreses(nom_del_fitxer: str) -> str:
@@ -246,11 +250,33 @@ def importar_empreses(nom_del_fitxer: str) -> str:
                 empreses.append(empresa)
                 if empresa["Ciutat"] not in ciutat_empreses:
                     ciutat_empreses.append(empresa["Ciutat"])
+                practiques: list = list()
+                contador_practiques:int = 0
+                for x, y in empresa["Preferencies"].items():
+                    print(x, y)
+                    while(y>0):
+                        contador_practiques+=1
+                        practica: dict = dict()
+                        practica["Nom"] = "Pràctica"+str(contador_practiques)
+                        practica["Titulacio"] = x
+                        practica["Descripcio"] = ""
+                        practica["Tecnologies i Frameworks"] = list()
+                        practiques.append(practica)
+                        y-=1
 
+                print(practiques)
                 resultat: str = insertar_empresa(
-                    empresa["Empresa"],
-                    empresa["Ciutat"]
-                )           
+                    nom_de_usuari_de_empresa="empresa"+str(nombre_de_fila),
+                    nom_de_empresa=empresa["Empresa"],
+                    poblacio_de_empresa=empresa["Ciutat"],
+                    practiques_de_la_empresa=practiques
+                )      
+                controlador_usuaris.registrar_usuari(
+                    nom_de_usuari="empresa"+str(nombre_de_fila), 
+                    contrasenya_de_usuari="empresa"+str(nombre_de_fila)+"_2022", 
+                    rol_de_usuari="Empresa"
+                )
+                print("empresa"+str(nombre_de_fila)+"_2022")
         nombre_de_fila+=1
         if resultat == "L'empresa s'ha insertat amb èxit.":
             contador_de_insertats+=1

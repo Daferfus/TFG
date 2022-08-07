@@ -1,8 +1,10 @@
 import json
 from urllib.request import Request
-from flask import Blueprint, Response, request, make_response, jsonify
+from flask import Blueprint, Response, flash, redirect, render_template, request, make_response, jsonify, url_for
+from flask_login import current_user
 from projecte_assignacio.alumnes import controlador_alumnes
 from projecte_assignacio.alumnes.model_alumnes import Alumne
+from .formulari_alumnes import AlumnesForm
 
 # Blueprint Configuration
 alumnes_bp = Blueprint(
@@ -10,6 +12,83 @@ alumnes_bp = Blueprint(
     template_folder='templates',
     static_folder='static'
 )
+
+@alumnes_bp.route('/perfil', methods=["GET", "POST"])
+def perfil():
+    alumne: Alumne = controlador_alumnes.recuperar_dades_del_alumne(current_user.nom)
+    if(alumne.grup == "DAM"):
+        form = AlumnesForm(
+            nom_i_cognoms=alumne.nom_i_cognoms,
+            ciutat_de_residencia=alumne.poblacio,
+            disponibilitat_de_cotxe=alumne.mobilitat.encode("windows-1252").decode("utf-8"),
+            preferencies_dam={
+                'desenvolupador_backend': alumne.preferencies["Backend"],
+                'desenvolupador_software_multiplataforma': alumne.preferencies["Multiplataforma"],
+                'desenvolupador_de_videojocs': alumne.preferencies["Videojuegos"],
+                'desenvolupador_de_aplicacions_mobils': alumne.preferencies["Moviles"],
+                'robotica_automocio_i_informatica_tradicional': alumne.preferencies["Robotica"],
+                'tecnic_qa_i_documentacio': alumne.preferencies["Documentacion"],
+                'consultor_erp': alumne.preferencies["ERP"],
+                },
+            observacions=alumne.observacions
+        )
+    elif(alumne.grup == "DAW"):
+        form = AlumnesForm(
+            nom_i_cognoms=alumne.nom_i_cognoms,
+            ciutat_de_residencia=alumne.poblacio,
+            disponibilitat_de_cotxe=alumne.mobilitat.encode("windows-1252").decode("utf-8"),
+            preferencies_daw={
+                'desenvolupador_backend': alumne.preferencies["Backend"],
+                'desenvolupador_frontend': alumne.preferencies["Frontend"],
+                'desenvolupador_fullstack': alumne.preferencies["Fullstack"],
+                'dissenyador': alumne.preferencies["Disenyador"],
+                'tecnic_qa_i_documentacio': alumne.preferencies["Documentacion"],
+                'devops': alumne.preferencies["Devops"],
+                'desenvolupador_de_aplicacions_mobils': alumne.preferencies["Moviles"],
+                },
+            observacions=alumne.observacions
+        )
+    elif(alumne.grup == "TSMR"):
+        form = AlumnesForm(
+            nom_i_cognoms=alumne.nom_i_cognoms,
+            ciutat_de_residencia=alumne.poblacio,
+            disponibilitat_de_cotxe=alumne.mobilitat.encode("windows-1252").decode("utf-8"),
+            preferencies_tsmr={
+                'tecnic_de_microinformatica': alumne.preferencies["Tecnico"],
+                'asesor_de_microinformatica': alumne.preferencies["Asesor"],
+                'tecnic_de_soport_helpdesk_l1': alumne.preferencies["HelpDesk"],
+                'instalador_de_xarxes_i_infraestructura_it': alumne.preferencies["Instalador"],
+                },
+            observacions=alumne.observacions
+        )
+    elif(alumne.grup == "ASIR"):
+        form = AlumnesForm(
+            nom_i_cognoms=alumne.nom_i_cognoms,
+            ciutat_de_residencia=alumne.poblacio,
+            disponibilitat_de_cotxe=alumne.mobilitat.encode("windows-1252").decode("utf-8"),
+            preferencies_asir={
+                'administrador_de_base_de_dades': alumne.preferencies["BD"],
+                'administrador_de_xarxes': alumne.preferencies["Redes"],
+                'ciberseguretat': alumne.preferencies["Ciberseguridad"],
+                'administrador_de_sistemes': alumne.preferencies["Sistemas"],
+                'consultor_tic': alumne.preferencies["Consultor"],
+                'tecnic_de_hardware': alumne.preferencies["Hardware"],
+                'tecnic_de_soport_helpdesk_l2': alumne.preferencies["HelpDesk"],
+                'auditor_tic': alumne.preferencies["Auditor"],
+                'tecnic_de_monitoritzacio_de_xarxes': alumne.preferencies["Monitorizador"],
+                },
+            observacions=alumne.observacions
+        )
+    if form.validate_on_submit():
+        print("woah");
+    return render_template(
+        'perfil_alumne.jinja2',
+        title="Perfil",
+        nom_de_usuari=current_user.nom,
+        cicle=alumne.grup,
+        form=form,
+        template="perfil_alumne-template"
+    )
 
 @alumnes_bp.route('/recuperar_dades_de_alumnes', methods=['GET'])
 def iniciar_recerca_de_alumnes() -> Response:
@@ -89,7 +168,7 @@ def recollir_fitxer_alumnes() -> Response:
     """
     cicle: str = request.form['cicle']
     f: Request = request.files['fichero']
-    nom_de_fitxer: str = './'+cicle+'.csv';
+    nom_de_fitxer: str = './projecte_assignacio/alumnes/static/files/'+cicle+'.csv';
     f.save(nom_de_fitxer)
     
     resultat: str = controlador_alumnes.importar_alumnes(nom_de_fitxer, cicle)
@@ -115,8 +194,8 @@ def descarregar_fitxer_alumnes() -> Response:
         resposta: Response = jsonify(success=resultat, message="Hi ha hagut un problema durant l'exportació.")
     return resposta
 
-@alumnes_bp.route('/actualitzar_alumne/<string:alumne>', methods=["PUT"])
-def recollir_nom_de_alumne(alumne: str) -> Response:
+@alumnes_bp.route('/actualitzar_alumne/<string:grup>/<string:usuari>', methods=["POST"])
+def recollir_nom_de_alumne(grup: str, usuari: str) -> Response:
     """Crida a la funció per a actualitzar un alumne donat.
 
     Args:
@@ -125,34 +204,78 @@ def recollir_nom_de_alumne(alumne: str) -> Response:
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    nom_i_cognom: str = request.form['nom_i_cognom_del_alumne']
-    grup: str = request.form['grup_del_alumne']
-    poblacio: str = request.form['poblacio_del_alumne']
-    mobilitat: str = request.form['mobilitat_del_alumne']
-    preferencies: dict = json.loads(request.form['preferencies_del_alumne'])
-    tipo_de_practica: str = request.form['tipo_de_practica_del_alumne']
-    observacions: str = request.form['observacions_del_alumne']
-    aporta_empresa: bool = request.form['aporta_empresa_el_alumne']
-    erasmus: bool = request.form['erasmus_del_alumne']
+    print(request.form)
+    nom_i_cognom: str = request.form['nom_i_cognoms']
+    poblacio: str = request.form['ciutat_de_residencia']
+    mobilitat: str = request.form['disponibilitat_de_cotxe']
+
+    if(grup=="DAM"):
+        preferencies: dict = {
+            "Backend": request.form['preferencies_dam-desenvolupador_backend'],
+            "Multiplataforma": request.form['preferencies_dam-desenvolupador_software_multiplataforma'],
+            "Videojuegos": request.form['preferencies_dam-desenvolupador_de_videojocs'],
+            "Moviles": request.form['preferencies_dam-desenvolupador_de_aplicacions_mobils'],
+            "Robotica": request.form['preferencies_dam-robotica_automocio_i_informatica_tradicional'],
+            "Documentacion": request.form['preferencies_dam-tecnic_qa_i_documentacio'],
+            "ERP": request.form['preferencies_dam-consultor_erp']
+        }
+    elif(grup=="DAW"):
+        preferencies: dict = {
+            'Backend': request.form['preferencies_daw-desenvolupador_backend'],
+            'Frontend': request.form['preferencies_daw-desenvolupador_frontend'],
+            'Fullstack': request.form['preferencies_daw-desenvolupador_fullstack'],
+            'Disenyador': request.form['preferencies_daw-dissenyador'],
+            'Documentacion': request.form['preferencies_daw-tecnic_qa_i_documentacio'],
+            'Devops': request.form['preferencies_daw-devops'],
+            'Moviles': request.form['preferencies_daw-desenvolupador_de_aplicacions_mobils'],
+        },
+    elif(grup=="TSMR"):
+        preferencies: dict = {
+            'Tecnico': request.form['preferencies_tsmr-tecnic_de_microinformatica'],
+            'Asesor': request.form['preferencies_tsmr-asesor_de_microinformatica'],
+            'HelpDesk': request.form['preferencies_tsmr-tecnic_de_soport_helpdesk_l1'],
+            'Instalador': request.form['preferencies_tsmr-instalador_de_xarxes_i_infraestructura_it'],
+        }
+    elif(grup=="ASIR"):
+        preferencies: dict = {
+            'BD': request.form['preferencies_asir-administrador_de_base_de_dades'],
+            'Redes': request.form['preferencies_asir-administrador_de_xarxes'],
+            'Ciberseguridad': request.form['preferencies_asir-ciberseguretat'],
+            'Sistemas': request.form['preferencies_asir-administrador_de_sistemes'],
+            'Consultor': request.form['preferencies_asir-consultor_tic'],
+            'Hardware': request.form['preferencies_asir-tecnic_de_hardware'],
+            'HelpDesk': request.form['preferencies_asir-tecnic_de_soport_helpdesk_l2'],
+            'Auditor': request.form['preferencies_asir-auditor_tic'],
+            'Monitorizador': request.form['preferencies_asir-tecnic_de_monitoritzacio_de_xarxes'],
+        }
+    # tipo_de_practica: str = request.form['tipo_de_practica_del_alumne']
+    observacions: str = request.form['observacions']
+    # aporta_empresa: bool = request.form['aporta_empresa_el_alumne']
+    # erasmus: bool = request.form['erasmus_del_alumne']
 
     resultat: str = controlador_alumnes.actualitzar_alumne(
-        alumne,
+        usuari,
         nom_i_cognom, 
         grup, 
         poblacio, 
         mobilitat, 
         preferencies, 
-        tipo_de_practica, 
+        #tipo_de_practica, 
         observacions, 
-        aporta_empresa, 
-        erasmus
+        #aporta_empresa, 
+        #erasmus
         )
 
     if resultat=="L'alumne ha sigut actualitzat.":
         resposta: Response = jsonify(success=True, message=resultat)
+        flash(resultat)
+        return redirect(url_for('usuaris_bp.home'))
+        #return resposta
     else:
         resposta: Response = jsonify(success=False, message=resultat)
-    return resposta
+        flash(resultat)
+        return redirect(url_for('alumnes_bp.perfil'))
+        #return resposta
 
 
 @alumnes_bp.route('/esborrar_alumnes', methods=['DELETE'])
