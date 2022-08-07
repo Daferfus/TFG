@@ -22,7 +22,7 @@
       <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>
       <a href="{{ url_for('assignacions_bp.assginacio') }}"><button>Assignació d'Alumne-Empresa-Professor</button></a>
       {% elif current_user.rol == "Professor" %}
-      <a href="{{ url_for('professors_bp.perfil') }}"><button>Perfil</button></a>
+      <a href="{{ url_for('professors_bp.perfil_professor') }}"><button>Perfil</button></a>
       <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>
       {% elif current_user.rol == "Empresa" %}
       <a href="{{ url_for('empreses_bp.perfil_empresa') }}"><button>Perfil</button></a>

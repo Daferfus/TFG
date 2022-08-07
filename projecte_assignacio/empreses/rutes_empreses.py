@@ -1,4 +1,3 @@
-import json
 from urllib.request import Request
 
 from flask import Blueprint, Response, request, flash, redirect, url_for, render_template, jsonify

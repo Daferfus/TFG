@@ -1,6 +1,7 @@
 import mongoengine as me
 
 class Professor(me.Document):
+    nom_de_usuari: str = me.StringField(required=True)
     nom: str = me.StringField(required=True)
     cognoms: str = me.StringField(required=True)
     titulacions: dict = me.DictField(required=True)

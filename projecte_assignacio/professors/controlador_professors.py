@@ -1,10 +1,12 @@
 from projecte_assignacio.professors.model_professors import Professor
+from projecte_assignacio.usuaris import controlador_usuaris
 import pandas as pd
 import os
 ###############################
 ######### Professors ##########
 ###############################
 def insertar_professor(
+    nom_de_usuari: str,
     nom_del_professor: str,
     cognoms_del_professor: str,
     titulacions_del_professor: dict,
@@ -29,10 +31,11 @@ def insertar_professor(
     Returns:
         str: Resultat de l'operació.
     """
-    professor_existent: Professor|None = recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor)
+    professor_existent: Professor|None = recuperar_dades_del_professor(nom_de_usuari)
 
     if professor_existent is None:
         professor: Professor = Professor(
+            nom_de_usuari=nom_de_usuari,
             nom=nom_del_professor, 
             cognoms=cognoms_del_professor, 
             titulacions=titulacions_del_professor, 
@@ -43,7 +46,7 @@ def insertar_professor(
             assignacions=assignacions_del_professor,
         )
         professor.save()
-        professor_insertat: Professor|None = recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor)
+        professor_insertat: Professor|None = recuperar_dades_del_professor(nom_de_usuari)
 
         if professor_insertat:
             return "El professor s'ha insertat amb èxit."
@@ -54,8 +57,7 @@ def insertar_professor(
 
 
 def actualitzar_professor(
-    nom_de_professor_per_a_filtrar: str,
-    cognoms_de_professor_per_a_filtrar: str,
+    usuari: str,
     nom_del_professor: str,
     cognoms_del_professor: str,
     titulacions_del_professor: dict,
@@ -76,7 +78,7 @@ def actualitzar_professor(
     Returns:
         str: Resultat de l'operació.
     """
-    resultat: int = Professor.objects(nom=nom_de_professor_per_a_filtrar, cognoms=cognoms_de_professor_per_a_filtrar).update(__raw__=
+    resultat: int = Professor.objects(nom_de_usuari=usuari).update(__raw__=
             {"$set": {
                 "nom": nom_del_professor,
                 "cognoms": cognoms_del_professor,
@@ -84,6 +86,36 @@ def actualitzar_professor(
                 "hores_alliberades": hores_alliberades_del_professor,
                 "hores_restants": hores_restants_del_professor
                 }
+            }
+        )
+    if resultat > 0:
+            return "El professor ha sigut actualitzat."
+    else:
+        return "No s'ha canviat res del professor."
+
+def actualitzar_ratis(
+    usuari: str,
+    rati_fct: str,
+    rati_dual: str
+) -> str:
+    """Actualitza les dades d'un professor donat.
+
+    Args:
+        nom_de_professor_per_a_filtrar (str): Nom del professor a actualitzar.
+        cognoms_de_professor_per_a_filtrar (str): Cognoms del professor a actualitzar.
+        nom_del_professor (str): Nou nom del professor.
+        cognoms_del_professor (str): Nous cognoms del professor.
+        titulacions_del_professor (dict): Noves titulacions del professor.
+        hores_alliberades_del_professor (int): Noves hores alliberades del professor.
+        hores_restants_del_professor (str): Noves hores restants del professor.
+
+    Returns:
+        str: Resultat de l'operació.
+    """
+    resultat: int = Professor.objects(nom_de_usuari=usuari).update(__raw__=
+            {"$set": {
+                "rati_fct": rati_fct,
+                "rati_dual": rati_dual                }
             }
         )
     if resultat > 0:
@@ -133,7 +165,7 @@ def recuperar_dades_de_professors() -> list[Professor]:
     """
     return Professor.objects()
     
-def recuperar_dades_del_professor(nom_del_professor: str, cognoms_del_professor: str) -> Professor:
+def recuperar_dades_del_professor(usuari: str) -> Professor:
     """Retorna un professor donat.
 
     Args:
@@ -143,7 +175,7 @@ def recuperar_dades_del_professor(nom_del_professor: str, cognoms_del_professor:
     Returns:
         Professor: Professor retornat.
     """
-    professor = Professor.objects(nom=nom_del_professor, cognoms=cognoms_del_professor).first()
+    professor = Professor.objects(nom_de_usuari=usuari).first()
     return professor
 
 def importar_professors(nom_del_fitxer: str) -> str:
@@ -184,16 +216,22 @@ def importar_professors(nom_del_fitxer: str) -> str:
             professor["Titulacions"] = titulacions
 
         resultat: str = insertar_professor(
-            professor["NOM"],
-            professor["NOM"],
-            professor["Titulacions"],
-            professor["HORES"],
-            professor["HORES"],
+            nom_de_usuari=professor["NOM"],
+            nom_del_professor=professor["NOM"],
+            cognoms_del_professor=professor["NOM"],
+            titulacions_del_professor=professor["Titulacions"],
+            hores_alliberades_del_professor=professor["HORES"],
+            hores_restants_del_professor=professor["HORES"],
         )
         nombre_de_fila+=1
         
         if resultat == "El professor s'ha insertat amb èxit.":
             contador_de_insertats+=1
+            controlador_usuaris.registrar_usuari(
+                nom_de_usuari=professor["NOM"], 
+                contrasenya_de_usuari=professor["NOM"]+"_2022", 
+                rol_de_usuari="Professor"
+            )
         elif resultat == "Ja existeix un professor amb aquest nom i cognoms.":
             quantitat_de_professors_ja_insertats+=1
     if contador_de_insertats == 0 and quantitat_de_professors_ja_insertats == 0:
