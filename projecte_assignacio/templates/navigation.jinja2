@@ -19,8 +19,7 @@
       <a href="{{ url_for('alumnes_bp.llistat') }}"><button>Llistat d'Alumnes</button></a>
       <a href="{{ url_for('professors_bp.llistat') }}"><button>Llistat de Professors</button></a>
       <a href="{{ url_for('empreses_bp.llistat') }}"><button>Llistat d'Empreses</button></a>
-      <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>
-      <a href="{{ url_for('assignacions_bp.assginacio') }}"><button>Assignació d'Alumne-Empresa-Professor</button></a>
+      <a href="{{ url_for('assignacions_bp.assignacio') }}"><button>Assignació d'Alumne-Empresa-Professor</button></a>
       {% elif current_user.rol == "Professor" %}
       <a href="{{ url_for('professors_bp.perfil_professor') }}"><button>Perfil</button></a>
       <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>

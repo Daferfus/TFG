@@ -150,19 +150,20 @@ def realitzar_assignacio_automatica():
     tipo_resultado = funcio[0].Solve()
 
     for alumne in alumnes:
-        sid = alumne["Nom"]
+        sid = alumne.nom_i_cognoms
         for v in funcio[2][sid] :
             if v.SolutionValue() > 0:
                 # print(v, v.SolutionValue(), funcio[3].GetCoefficient(v))
-                parts_de_assignacio = v.split("-")
+                print(v)
+                parts_de_assignacio = str(v).split("-")
                 parts_de_practica = parts_de_assignacio[1].split("(")  
-                assignacio = {"Alumne": parts_de_assignacio[0], "Pràctica": parts_de_assignacio[1], "Professor": ""}
-                resultat: int = Alumne.objects(nom_i_cognoms=parts_de_assignacio[0]).update(__raw__=[
+                assignacio = {"Alumne": parts_de_assignacio[0], "Pràctica": parts_de_assignacio[1]}
+                resultat: int = Alumne.objects(nom_de_usuari=alumne.nom_de_usuari).update(__raw__=
                     {"$set": {
                         "assignacio": assignacio
                         }
                     }
-                ],)
+                ,)
 
                 empresa: Empresa = Empresa.objects(nom=parts_de_practica[0]).get()
                 empresa.assignacions.append(assignacio)
@@ -291,12 +292,16 @@ def definir_funcio_objectiu(solver, variable_practiques_alumne, alumnes: list[Al
             punt_desti = empresa.poblacio
             nombre_de_practiques = len(empresa.practiques)
 
+            if punt_partida in distancies["Punt de Partida"] and punt_desti in distancies["Punt de Destí"]:
+                while nombre_de_practiques > 0:
+                    distancia_alumne_practica.append(float(distancies["Distancia"]))
+                    nombre_de_practiques = nombre_de_practiques - 1
             # Recopilem les distàncies.
-            for ciutats, distancia in distancies.items():
-                if punt_partida in ciutats and punt_desti in ciutats:
-                    while nombre_de_practiques > 0:
-                        distancia_alumne_practica.append(float(distancia));
-                        nombre_de_practiques = nombre_de_practiques - 1
+            # for clau, valor in distancies.items():
+            #     if punt_partida in valor and punt_desti in valor:
+            #         while nombre_de_practiques > 0:
+            #             distancia_alumne_practica.append(float(distancia));
+            #             nombre_de_practiques = nombre_de_practiques - 1
                     # while
                 # if
             # for

@@ -40,6 +40,10 @@ class BetterTagListField(TagListField):
 class PractiquesForm(FlaskForm):
     """Formulari de pràctiques."""
 
+    tutor_centre = StringField(
+        'Tutor del Centre'
+    )
+    
     nom = StringField(
         'Nom',
         [

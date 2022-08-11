@@ -31,6 +31,7 @@ header {
         border-radius: 4px;
         background-color: #eaeaea;
         text-decoration: none;
+        cursor: pointer;
     }// button
     
     div div.navbar {
@@ -62,7 +63,7 @@ nav#menu{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 80vh;    
+    min-height: 80vh;
 }
 .form-wrapper {
     display: flex;
@@ -80,6 +81,7 @@ div.marge_vertical{
         border-radius: 4px;
         background-color: #ebebeb;
         border-width: thin;
+        margin-bottom: 3.5rem;
     }
 }
 
@@ -139,3 +141,19 @@ footer {
 ul#disponibilitat_de_cotxe{
     list-style-type: none;
 }
+
+@media screen and (min-width: 1024px) {
+    body {
+      background-color: whitesmoke;
+      .container{
+        background-color: white;
+        margin: auto;
+        width: 80%;
+        }
+      .form-wrapper {
+        background-color: white;
+        margin: auto;
+        width: 80%;
+        }
+    }
+  }

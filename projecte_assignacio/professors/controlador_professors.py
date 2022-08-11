@@ -49,6 +49,11 @@ def insertar_professor(
         professor_insertat: Professor|None = recuperar_dades_del_professor(nom_de_usuari)
 
         if professor_insertat:
+            controlador_usuaris.registrar_usuari(
+                nom_de_usuari=nom_de_usuari, 
+                contrasenya_de_usuari=nom_de_usuari+"_2022", 
+                rol_de_usuari="Professor"
+            )
             return "El professor s'ha insertat amb èxit."
         else:
             return "Ha ocorregut un problema durant la inserció."
@@ -139,7 +144,7 @@ def esborrar_professors() -> str:
         return "Ha ocorregut un problema durant el esborrament."
 
 
-def esborrar_professor(nom_del_professor: str, cognoms_del_professor: str) -> str:
+def esborrar_professor(usuari: str) -> str:
     """Esborra un professor donat.
 
     Args:
@@ -149,9 +154,9 @@ def esborrar_professor(nom_del_professor: str, cognoms_del_professor: str) -> st
     Returns:
         str: Resultat de l'operació.
     """
-    Professor.objects(nom=nom_del_professor, cognoms=cognoms_del_professor).delete()
+    Professor.objects(nom_de_usuari=usuari).delete()
 
-    professor: Professor = recuperar_dades_del_professor(nom_del_professor, cognoms_del_professor)
+    professor: Professor = recuperar_dades_del_professor(usuari)
     if professor:
         return "Ha ocorregut un problema durant el esborrament."
     else:
@@ -227,11 +232,6 @@ def importar_professors(nom_del_fitxer: str) -> str:
         
         if resultat == "El professor s'ha insertat amb èxit.":
             contador_de_insertats+=1
-            controlador_usuaris.registrar_usuari(
-                nom_de_usuari=professor["NOM"], 
-                contrasenya_de_usuari=professor["NOM"]+"_2022", 
-                rol_de_usuari="Professor"
-            )
         elif resultat == "Ja existeix un professor amb aquest nom i cognoms.":
             quantitat_de_professors_ja_insertats+=1
     if contador_de_insertats == 0 and quantitat_de_professors_ja_insertats == 0:

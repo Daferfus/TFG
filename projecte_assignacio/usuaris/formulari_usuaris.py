@@ -5,11 +5,12 @@ from wtforms.validators import DataRequired, Length
 
 class UsuarisForm(FlaskForm):
     """Formulari d'usuaris."""
-    nom_de_usuari = StringField(
+
+    nom = StringField(
         'Usuari',
         [DataRequired()]
     )
-    contrasenya_de_usuari = PasswordField(
+    contrasenya = PasswordField(
         'Contrasenya',
         [
             DataRequired(),
@@ -17,4 +18,5 @@ class UsuarisForm(FlaskForm):
             message=('La contrassenya ha de tindre un mínim de 8 caràcters.'))
         ]
     )
-    submit = SubmitField('Submit')
+    
+    submit = SubmitField('Iniciar Sessió')

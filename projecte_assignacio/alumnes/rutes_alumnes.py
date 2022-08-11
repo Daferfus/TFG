@@ -90,6 +90,56 @@ def perfil():
         template="perfil_alumne-template"
     )
 
+@alumnes_bp.route('/llistat_alumnes', methods=['GET'])
+def llistat():
+    dades_de_alumnes: list[Alumne]|None = controlador_alumnes.recuperar_dades_de_alumnes()
+    return render_template(
+        'llistat_alumnes.jinja2',
+        title="Llistat d'Alumnes",
+        alumnes=dades_de_alumnes,
+        template="llistat_alumnes-template"
+    )
+
+
+@alumnes_bp.route('/anyadir_alumne')
+def anyadir_alumne():
+    form = AlumnesForm()
+    if form.validate_on_submit():
+        print("woah");
+    return render_template(
+        'formulari_alumne.jinja2',
+        title="Anyadir Alumne",
+        accio="crear",
+        form=form,
+        template="formulari_alumne-template"
+    )
+
+@alumnes_bp.route('/editar_alumne/<string:usuari>')
+def editar_alumne(usuari: str):
+    alumne: Alumne = controlador_alumnes.recuperar_dades_del_alumne(usuari)
+    print(alumne.erasmus)
+    form = AlumnesForm(
+            nom_i_cognoms=alumne.nom_i_cognoms,
+            grup=alumne.grup,
+            ciutat_de_residencia=alumne.poblacio,
+            disponibilitat_de_cotxe=alumne.mobilitat,
+            tipo_de_practica=alumne.tipo_de_practica,
+            accedeix_a_fct=alumne.accedeix_a_fct,
+            observacions=alumne.observacions,
+            aporta_empresa=alumne.aporta_empresa,
+            es_erasmus=alumne.erasmus
+        )
+    if form.validate_on_submit():
+        print("woah");
+    return render_template(
+        'formulari_alumne.jinja2',
+        title="Editar Alumne",
+        accio="editar",
+        cicle=alumne.grup,
+        nom_de_usuari=usuari,
+        form=form,
+        template="formulari_alumne-template"
+    )
 @alumnes_bp.route('/recuperar_dades_de_alumnes', methods=['GET'])
 def iniciar_recerca_de_alumnes() -> Response:
     """Crida a la funció per a obtindre les dades de tots els alumnes.
@@ -131,33 +181,43 @@ def recollir_dades_alumne() -> Response:
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    nom_i_cognom: str = request.form['nom_i_cognom_del_alumne']
-    grup: str = request.form['grup_del_alumne']
-    poblacio: str = request.form['poblacio_del_alumne']
-    mobilitat: str = request.form['mobilitat_del_alumne']
-    preferencies: dict = json.loads(request.form['preferencies_del_alumne'])
-    tipo_de_practica: str = request.form['tipo_de_practica_del_alumne']
-    observacions: str = request.form['observacions_del_alumne']
-    aporta_empresa: bool = request.form['aporta_empresa_el_alumne']
-    erasmus: bool = request.form['erasmus_del_alumne']
+    nom_i_cognoms: str = request.form['nom_i_cognoms']
+    grup: str = request.form['grup']
+    poblacio: str = request.form['ciutat_de_residencia']
+    mobilitat: str = request.form['disponibilitat_de_cotxe']
+    if 'preferencies_del_alumne' in request.form:
+        preferencies: dict = json.loads(request.form['preferencies_del_alumne'])
+    else:
+        preferencies: dict = dict()
+    tipo_de_practica: str = request.form['tipo_de_practica']
+    accedeix_a_fct: str = request.form['accedeix_a_fct']
+    observacions: str = request.form['observacions']
+    aporta_empresa: bool = request.form['aporta_empresa']
+    es_erasmus: bool = request.form['es_erasmus']
     
     resultat: str = controlador_alumnes.insertar_alumne(
-        nom_i_cognom, 
+        nom_i_cognoms,
+        nom_i_cognoms, 
         grup, 
         poblacio, 
         mobilitat, 
         preferencies, 
         tipo_de_practica, 
+        accedeix_a_fct,
         observacions, 
         aporta_empresa, 
-        erasmus
+        es_erasmus
         )
     if resultat == "L'alumne s'ha insertat amb èxit.":
         resposta: Response = jsonify(success=True, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('usuaris_bp.home'))
+        #return resposta
     else:
         resposta: Response = jsonify(success=False, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('usuaris_bp.anyadir_alumne'))
+        #return resposta
 
 @alumnes_bp.route('/importar_alumnes', methods=['POST'])
 def recollir_fitxer_alumnes() -> Response:
@@ -209,7 +269,7 @@ def recollir_nom_de_alumne(grup: str, usuari: str) -> Response:
     poblacio: str = request.form['ciutat_de_residencia']
     mobilitat: str = request.form['disponibilitat_de_cotxe']
 
-    if(grup=="DAM"):
+    if(grup=="DAM" and 'preferencies_dam-desenvolupador_backend' in request.form):
         preferencies: dict = {
             "Backend": request.form['preferencies_dam-desenvolupador_backend'],
             "Multiplataforma": request.form['preferencies_dam-desenvolupador_software_multiplataforma'],
@@ -219,7 +279,7 @@ def recollir_nom_de_alumne(grup: str, usuari: str) -> Response:
             "Documentacion": request.form['preferencies_dam-tecnic_qa_i_documentacio'],
             "ERP": request.form['preferencies_dam-consultor_erp']
         }
-    elif(grup=="DAW"):
+    elif(grup=="DAW" and 'preferencies_daw-desenvolupador_backend' in request.form):
         preferencies: dict = {
             'Backend': request.form['preferencies_daw-desenvolupador_backend'],
             'Frontend': request.form['preferencies_daw-desenvolupador_frontend'],
@@ -229,14 +289,14 @@ def recollir_nom_de_alumne(grup: str, usuari: str) -> Response:
             'Devops': request.form['preferencies_daw-devops'],
             'Moviles': request.form['preferencies_daw-desenvolupador_de_aplicacions_mobils'],
         },
-    elif(grup=="TSMR"):
+    elif(grup=="TSMR" and 'preferencies_tsmr-tecnic_de_microinformatica' in request.form):
         preferencies: dict = {
             'Tecnico': request.form['preferencies_tsmr-tecnic_de_microinformatica'],
             'Asesor': request.form['preferencies_tsmr-asesor_de_microinformatica'],
             'HelpDesk': request.form['preferencies_tsmr-tecnic_de_soport_helpdesk_l1'],
             'Instalador': request.form['preferencies_tsmr-instalador_de_xarxes_i_infraestructura_it'],
         }
-    elif(grup=="ASIR"):
+    elif(grup=="ASIR" and 'preferencies_asir-administrador_de_xarxes' in request.form):
         preferencies: dict = {
             'BD': request.form['preferencies_asir-administrador_de_base_de_dades'],
             'Redes': request.form['preferencies_asir-administrador_de_xarxes'],
@@ -248,10 +308,15 @@ def recollir_nom_de_alumne(grup: str, usuari: str) -> Response:
             'Auditor': request.form['preferencies_asir-auditor_tic'],
             'Monitorizador': request.form['preferencies_asir-tecnic_de_monitoritzacio_de_xarxes'],
         }
-    # tipo_de_practica: str = request.form['tipo_de_practica_del_alumne']
+    else:
+        preferencies: dict = {'BD': 1}
+        tipo_de_practica: str = request.form['tipo_de_practica']
+        accedeix_a_fct: str = request.form['accedeix_a_fct']
+        aporta_empresa: str = request.form['aporta_empresa']
+        erasmus: bool = request.form['es_erasmus']
+    
     observacions: str = request.form['observacions']
-    # aporta_empresa: bool = request.form['aporta_empresa_el_alumne']
-    # erasmus: bool = request.form['erasmus_del_alumne']
+
 
     resultat: str = controlador_alumnes.actualitzar_alumne(
         usuari,
@@ -259,11 +324,12 @@ def recollir_nom_de_alumne(grup: str, usuari: str) -> Response:
         grup, 
         poblacio, 
         mobilitat, 
-        preferencies, 
-        #tipo_de_practica, 
+        preferencies,
+        tipo_de_practica,
+        accedeix_a_fct,
         observacions, 
-        #aporta_empresa, 
-        #erasmus
+        aporta_empresa, 
+        erasmus
         )
 
     if resultat=="L'alumne ha sigut actualitzat.":
@@ -293,8 +359,8 @@ def eliminacio_de_alumnes() -> Response:
         resposta: Response = jsonify(success=False, message=resultat)
         return resposta
 
-@alumnes_bp.route('/esborrar_alumne/<string:alumne>', methods=['DELETE'])
-def eliminacio_de_alumne(alumne: str) -> Response:
+@alumnes_bp.route('/esborrar_alumne/<string:usuari>', methods=['POST'])
+def eliminacio_de_alumne(usuari: str) -> Response:
     """Crida a la funció per a esborrar un alumne donat.
 
     Args:
@@ -303,10 +369,14 @@ def eliminacio_de_alumne(alumne: str) -> Response:
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    resultat: str = controlador_alumnes.esborrar_alumne(alumne)
+    resultat: str = controlador_alumnes.esborrar_alumne(usuari)
     if resultat == "S'ha esborrat amb èxit l'alumne.":
         resposta: Response = jsonify(success=True, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('usuaris_bp.home'))
+        #return resposta
     else:
         resposta: Response = jsonify(success=False, message=resultat)
+        flash(resultat)
+        return redirect(url_for('alumnes_bp.llistat'))
         return resposta

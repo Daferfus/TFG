@@ -39,6 +39,52 @@ def perfil_empresa():
         template="perfil_empresa-template"
     )
 
+@empreses_bp.route('/llistat_empreses', methods=['GET'])
+def llistat():
+    dades_de_empreses: list[Empresa]|None = controlador_empreses.recuperar_dades_de_empreses()
+    return render_template(
+        'llistat_empreses.jinja2',
+        title="Llistat d'Empreses",
+        empreses=dades_de_empreses,
+        template="llistat_empreses-template"
+    )
+
+
+@empreses_bp.route('/anyadir_empresa/<string:nombre_de_empresa>')
+def anyadir_empresa(nombre_de_empresa: str):
+    form = EmpresesForm()
+    if form.validate_on_submit():
+        print("woah");
+    return render_template(
+        'formulari_empresa.jinja2',
+        title="Anyadir Empresa",
+        accio="crear",
+        nombre_de_empresa=nombre_de_empresa,
+        form=form,
+        template="formulari_empresa-template"
+    )
+
+@empreses_bp.route('/editar_empresa/<string:usuari>')
+def editar_empresa(usuari: str):
+    empresa: Empresa = controlador_empreses.recuperar_dades_de_la_empresa(usuari)
+    form = EmpresesForm(
+            nom=empresa.nom,
+            poblacio=empresa.poblacio,
+            telefon=empresa.telefon,
+            correu=empresa.correu,
+            nom_de_persona_de_contacte=empresa.persona_de_contacte
+        )
+    if form.validate_on_submit():
+        print("woah");
+    return render_template(
+        'formulari_empresa.jinja2',
+        title="Editar Alumne",
+        accio="editar",
+        nom_de_usuari=usuari,
+        form=form,
+        template="formulari_empresa-template"
+    )
+
 @empreses_bp.route('/practiques')
 def practiques():
     empresa: Empresa = controlador_empreses.recuperar_dades_de_la_empresa(current_user.nom)
@@ -118,32 +164,38 @@ def iniciar_recerca_de_la_empresa(usuari: str) -> Response:
         resposta: Response = jsonify(success=True, message=dades_de_la_empresa)
         return resposta
 
-@empreses_bp.route('/insertar_empresa', methods=['POST'])
-def recollir_dades_empresa() -> Response:
+@empreses_bp.route('/insertar_empresa/<int:nombre_de_empresa>', methods=['POST'])
+def recollir_dades_empresa(nombre_de_empresa: int) -> Response:
     """Crida a la funció per a insertar una empresa.
 
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    nom: str = request.form['nom_de_empresa'] 
-    poblacio: str = request.form['poblacio_de_empresa'] 
-    telefon: int = request.form['telefon_de_empresa'] 
-    correu: str = request.form['correu_de_empresa'] 
-    persona_de_contacte: str = request.form['persona_de_contacte_en_la_empresa']
-
+    nom: str = request.form['nom'] 
+    poblacio: str = request.form['poblacio'] 
+    telefon: int = request.form['telefon'] 
+    correu: str = request.form['correu'] 
+    persona_de_contacte: str = request.form['nom_de_persona_de_contacte']
+    
     resultat: str = controlador_empreses.insertar_empresa(
-        nom, 
+        "empresa"+str(nombre_de_empresa),
+        nom,
         poblacio, 
         telefon, 
         correu,
         persona_de_contacte
         )
+
     if resultat == "L'empresa s'ha insertat amb èxit.":
         resposta: Response = jsonify(success=True, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('empreses_bp.llistat'))
+        #return resposta
     else:
         resposta: Response = jsonify(success=False, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('empreses_bp.anyadir_empresa', nombre_de_empresa=nombre_de_empresa))
+        #return resposta
 
 @empreses_bp.route('/importar_empreses', methods=['POST'])
 def recollir_fitxer_empreses() -> Response:
@@ -232,8 +284,8 @@ def eliminacio_de_empreses() -> Response:
         resposta: Response = jsonify(success=False, message=resultat)
         return resposta
 
-@empreses_bp.route('/esborrar_empresa/<string:empresa>', methods=['DELETE'])
-def eliminacio_de_empresa(empresa: str):
+@empreses_bp.route('/esborrar_empresa/<string:usuari>', methods=['POST'])
+def eliminacio_de_empresa(usuari: str):
     """Esborra una empresa donada.
 
     Args:
@@ -242,12 +294,16 @@ def eliminacio_de_empresa(empresa: str):
     Returns:
         str: Resultat de l'operació.
     """
-    resultat: str = controlador_empreses.esborrar_empresa(empresa)
+    resultat: str = controlador_empreses.esborrar_empresa(usuari)
     if resultat == "S'ha esborrat amb èxit l'empresa.":
         resposta = jsonify(success=True, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('empreses_bp.llistat'))
+        #return resposta
     else:
         resposta = jsonify(succes=False, message=resultat)
+        flash(resultat)
+        return redirect(url_for('empreses_bp.editar_empresa'))
         return resposta
 
 

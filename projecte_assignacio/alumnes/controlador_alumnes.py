@@ -16,9 +16,10 @@ def insertar_alumne(
     mobilitat_del_alumne: str,
     preferencies_del_alumne: dict[str, int],
     tipo_de_practica_del_alumne: str = "",
+    accedeix_a_fct_el_alumne: bool = False,
     observacions_del_alumne: str = "",
     aporta_empresa_el_alumne: bool = False,
-    erasmus_del_alumne: bool = False,
+    es_erasmus_el_alumne: bool = False,
     distancies_del_alumne: list[dict[str, str, float]] = [],
     assignacio_del_alumne: dict[str, str , str] = {}
 ) -> str:   
@@ -42,6 +43,7 @@ def insertar_alumne(
     """
     alumne_existent: Alumne|None = recuperar_dades_del_alumne(nom_de_usuari_del_alumne)
 
+    print(mobilitat_del_alumne);
     if alumne_existent is None:
         alumne: Alumne = Alumne(
             nom_de_usuari=nom_de_usuari_del_alumne,
@@ -51,9 +53,10 @@ def insertar_alumne(
             mobilitat=mobilitat_del_alumne, 
             tipo_de_practica=tipo_de_practica_del_alumne, 
             preferencies=preferencies_del_alumne, 
+            accedeix_a_fct=accedeix_a_fct_el_alumne,
             observacions=observacions_del_alumne, 
             aporta_empresa=aporta_empresa_el_alumne, 
-            erasmus=erasmus_del_alumne, 
+            erasmus=es_erasmus_el_alumne, 
             distancies=distancies_del_alumne, 
             assignacio=assignacio_del_alumne
         )
@@ -61,6 +64,7 @@ def insertar_alumne(
         alumne_insertat: Alumne|None = recuperar_dades_del_alumne(nom_i_cognoms_del_alumne)
 
         if alumne_insertat:
+            controlador_usuaris.registrar_usuari(nom_de_usuari=alumne.nom_de_usuari, contrasenya_de_usuari=alumne.grup+"_"+alumne.nom_de_usuari+"_2022", rol_de_usuari="Alumne")
             return "L'alumne s'ha insertat amb èxit."
         else:
             return "Ha ocorregut un problema durant la inserció."
@@ -74,10 +78,11 @@ def actualitzar_alumne(
     poblacio_del_alumne: str,
     mobilitat_del_alumne: str,
     preferencies_del_alumne: dict[str, int],
-    #tipo_de_practica_del_alumne: str ="",
+    tipo_de_practica_del_alumne: str ="",
+    accedeix_a_fct: str = "",
     observacions_del_alumne: str = "",
-    #aporta_empresa_el_alumne: bool = False,
-    #erasmus_del_alumne: bool = False
+    aporta_empresa_el_alumne: str = "",
+    erasmus_del_alumne: str = ""
 ) -> str:   
     """Actualitza les dades d'un alumne donat.
 
@@ -103,11 +108,12 @@ def actualitzar_alumne(
             "poblacio": poblacio_del_alumne,
             "mobilitat": mobilitat_del_alumne,
             "preferencies": preferencies_del_alumne,
-            #"tipo_de_practica": tipo_de_practica_del_alumne,
+            "tipo_de_practica": tipo_de_practica_del_alumne,
             "preferencies": preferencies_del_alumne,
+            "accedeix_a_fct": accedeix_a_fct,
             "observacions": observacions_del_alumne,
-            #"aporta_empresa": aporta_empresa_el_alumne,
-            #"erasmus": erasmus_del_alumne
+            "aporta_empresa": aporta_empresa_el_alumne,
+            "erasmus": erasmus_del_alumne
             }
         }
     )
@@ -246,7 +252,6 @@ def importar_alumnes(nom_deL_fitxer: str, cicle: str):
                 preferencies_del_alumne=alumne["Preferències"]
             )
 
-            controlador_usuaris.registrar_usuari(nom_de_usuari=alumne["Nom"], contrasenya_de_usuari=cicle+"_"+alumne["Nom"]+"_2022", rol_de_usuari="Alumne")
             if resultat == "L'alumne s'ha insertat amb èxit.":
                 contador_de_insertats+=1
             elif resultat == "Ja existeix un alumne amb aquest nom i cognoms.":

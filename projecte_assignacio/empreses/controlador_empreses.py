@@ -32,7 +32,7 @@ def insertar_empresa(
         str: Resultat de l'operació.
     """
     empresa_existent: Empresa|None = recuperar_dades_de_la_empresa(nom_de_usuari_de_empresa)
-
+    print(empresa_existent)
     if empresa_existent is None:
         empresa: Empresa = Empresa(
             nom_de_usuari=nom_de_usuari_de_empresa,
@@ -48,6 +48,11 @@ def insertar_empresa(
         empresa_insertada: Empresa|None = recuperar_dades_de_la_empresa(nom_de_usuari_de_empresa)
 
         if empresa_insertada:
+            controlador_usuaris.registrar_usuari(
+                nom_de_usuari=nom_de_usuari_de_empresa, 
+                contrasenya_de_usuari=nom_de_usuari_de_empresa+"_2022", 
+                rol_de_usuari="Empresa"
+            )
             return "L'empresa s'ha insertat amb èxit."
         else:
             return "Ha ocorregut un problema durant la inserció."
@@ -105,7 +110,7 @@ def esborrar_empreses() -> str:
     else:
         return "Ha ocorregut un problema durant el esborrament."
 
-def esborrar_empresa(nom_de_la_empresa: str) -> str:
+def esborrar_empresa(usuari: str) -> str:
     """Esborra una empresa donada.
 
     Args:
@@ -114,9 +119,9 @@ def esborrar_empresa(nom_de_la_empresa: str) -> str:
     Returns:
         str: Resultat de l'operació.
     """
-    Empresa.objects(nom=nom_de_la_empresa).delete()
+    Empresa.objects(nom_de_usuari=usuari).delete()
 
-    empresa: Empresa = recuperar_dades_de_la_empresa(nom_de_la_empresa)
+    empresa: Empresa = recuperar_dades_de_la_empresa(usuari)
     if empresa:
         return "Ha ocorregut un problema durant el esborrament."
     else:
@@ -271,12 +276,6 @@ def importar_empreses(nom_del_fitxer: str) -> str:
                     poblacio_de_empresa=empresa["Ciutat"],
                     practiques_de_la_empresa=practiques
                 )      
-                controlador_usuaris.registrar_usuari(
-                    nom_de_usuari="empresa"+str(nombre_de_fila), 
-                    contrasenya_de_usuari="empresa"+str(nombre_de_fila)+"_2022", 
-                    rol_de_usuari="Empresa"
-                )
-                print("empresa"+str(nombre_de_fila)+"_2022")
         nombre_de_fila+=1
         if resultat == "L'empresa s'ha insertat amb èxit.":
             contador_de_insertats+=1

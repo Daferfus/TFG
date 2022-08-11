@@ -1,14 +1,24 @@
 import json
-from unittest import result
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify, request, render_template
 from projecte_assignacio.assignacions import controlador_assignacions
-
+from projecte_assignacio.alumnes import controlador_alumnes
+from projecte_assignacio.alumnes.model_alumnes import Alumne
 # Blueprint Configuration
 assignacions_bp = Blueprint(
     'assignacions_bp', __name__,
     template_folder='templates',
     static_folder='static'
 )
+
+@assignacions_bp.route('/assignacio')
+def assignacio():
+    alumnes: Alumne = controlador_alumnes.recuperar_dades_de_alumnes()
+    return render_template(
+        'assignacio.jinja2',
+        title="Projecte d'Assignació",
+        assignacions=alumnes,
+        description="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
+    )
 
 @assignacions_bp.route('/insertar_assignacio_manual/<string:alumne>/<string:nom_de_professor>/<string:cognoms_de_professor>/<string:empresa>', methods=['POST'])
 def recollir_dades_assignacio(alumne: str, nom_de_professor: str, cognoms_de_professor: str, empresa: str) -> Response:
@@ -100,7 +110,7 @@ def eliminacio_de_assignacio(alumne: str, nom_de_professor: str, cognoms_de_prof
         resposta: Response = jsonify(success=True, message=resultat)
         return resposta
 
-@assignacions_bp.route('/realitzar_assignacio_automatica', methods=['POST'])
+@assignacions_bp.route('/realitzar_assignacio_automatica', methods=['GET'])
 def assignar_automaticament() -> Response:
     """Crida a la funció que assigna automàticament d'alumnes i professors a pràctiques d'empresa.
 

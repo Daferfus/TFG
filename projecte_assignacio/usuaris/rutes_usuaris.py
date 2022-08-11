@@ -1,48 +1,94 @@
+#####################################################
+## Autor: David Fernández Fuster                   ##
+## Data: 11/08/2022                                ## 
+## Funció: Conté les rutes centrades en el usuari. ##
+#####################################################
+
+################
+## Llibreries ##
+################
 import json
+
+
+#############
+##  Flask  ##
+#############
 from flask_login import logout_user, current_user
 from flask import Blueprint, Response, flash, redirect, request, jsonify, render_template, url_for
+
+
+##############
+##  Mòduls  ##
+##############
 from projecte_assignacio.usuaris import controlador_usuaris
 from projecte_assignacio import login_manager
 from projecte_assignacio.usuaris.model_usuaris import Usuari
-
 from .formulari_usuaris import UsuarisForm
 
-# Blueprint Configuration
+
+############################
+## Configuració Blueprint ##
+############################
 usuaris_bp = Blueprint(
     'usuaris_bp', __name__,
     template_folder='templates',
     static_folder='static'
 )
 
-@usuaris_bp.route('/')
-def home():
-    """Landing page."""
-    return render_template(
-        'home.jinja2',
-        title="Projecte d'Assignació",
-        description="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
-    )
 
-@usuaris_bp.route('/inici_de_sessio', methods=["GET", "POST"])
-def mostrar_pantalla_de_inici_de_sessio():
-    form = UsuarisForm()
-    if form.validate_on_submit():
-        print("woah");
-    return render_template(
-        "inici_de_sessio.jinja2",
-        form=form,
-        template="inici_de_sessio-template"
-    )
-@usuaris_bp.route('/hola')
-def hola() -> str:
+###################################
+## Funcions de Retorn de Pàgines ##
+###################################
+@usuaris_bp.route('/prova', methods=["GET"])
+def provar_funcionament_de_flask() -> str:
     """Funció de prova per a verificar el funcionament de l'aplicació.
 
     Returns:
         str: Cadena de text de verificació.
     """
     return 'Hola Món!'
+## ()
+
+@usuaris_bp.route('/', methods=["GET"])
+def mostrar_pagina_de_inici() -> str:
+    """Mostra la pàgina de inici.
+
+    Returns:
+        str: Pàgina de inici.
+    """
+    return render_template(
+        'home.jinja2',
+        titol="Projecte d'Assignació",
+        descripcio="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
+    )
+## ()
 
 
+@usuaris_bp.route('/inici_de_sessio', methods=["GET", "POST"])
+def mostrar_pagina_de_inici_de_sessio() -> str:
+    """Mostra la pàgina de inici de sessió.
+
+    Returns:
+        str: Pàgina de inici de sessió.
+    """
+    form: object = UsuarisForm()
+
+    ## Valida que les dades estiguen correctes.
+    ## D'estar-ho, es continua en la funció que executa el formulari.
+    if form.validate_on_submit():
+        pass
+    ## if
+
+    return render_template(
+        "inici_de_sessio.jinja2",
+        form=form,
+        template="inici_de_sessio-template"
+    )
+## ()
+
+#####################################
+## Funcions de Retorn de Resposta  ##
+#####################################
 @usuaris_bp.route('/recuperar_dades_de_usuaris', methods=['GET'])
 def iniciar_recerca_de_usuaris() -> Response:
     """Crida a la funció per a obtindre les dades de tots els usuaris.

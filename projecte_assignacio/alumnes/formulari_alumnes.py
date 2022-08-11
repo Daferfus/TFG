@@ -1,7 +1,7 @@
 """Form object declaration."""
 from flask_wtf import FlaskForm
 from projecte_assignacio.alumnes.formulari_preferencies import PreferenciesASIR, PreferenciesDAM, PreferenciesDAW, PreferenciesTSMR
-from wtforms import StringField, RadioField, FormField, TextAreaField, SubmitField
+from wtforms import StringField, RadioField, SelectField, FormField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired
 
 
@@ -15,6 +15,15 @@ class AlumnesForm(FlaskForm):
             
         ]
     )
+
+    grup = StringField(
+        'Grup',
+        [
+            DataRequired(),
+            
+        ]
+    )
+
     ciutat_de_residencia = StringField(
         'Ciutat de Residencia',
         [
@@ -25,6 +34,34 @@ class AlumnesForm(FlaskForm):
 
     disponibilitat_de_cotxe = RadioField(
         'Disponibilitat de Cotxe', 
+        choices=[
+            ('Sí','Sí'),('No','No')
+        ]
+    )
+
+    tipo_de_practica = SelectField(
+        'Tipo de Pràctica', 
+        choices=[
+            ('FCT','FCT'),('DUAL','DUAL')
+        ]
+    )
+
+    accedeix_a_fct = RadioField(
+        'Accedeix a FCT', 
+        choices=[
+            ('Sí','Sí'),('No','No')
+        ]
+    )
+    
+    aporta_empresa = RadioField(
+        'Aporta Empresa', 
+        choices=[
+            ('Sí','Sí'),('No','No')
+        ]
+    )
+
+    es_erasmus = RadioField(
+        'És Erasmus', 
         choices=[
             ('Sí','Sí'),('No','No')
         ]

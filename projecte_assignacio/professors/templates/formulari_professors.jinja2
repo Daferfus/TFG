@@ -1,0 +1,87 @@
+
+{% extends 'layout.jinja2' %}
+
+
+{% block content %}
+  
+
+  <div class="form-wrapper">
+    {% include 'messages.jinja2' %}
+    <h1 id="titol_de_seccio">{{ title }}</h1>
+    {% if accio=="crear" %}
+        <form method="POST" action="{{ url_for('professors_bp.recollir_dades_professor', usuari=nom_de_usuari) }}">
+    {% elif accio=="editar" %}
+        <form method="POST" action="{{ url_for('professors_bp.recollir_nom_de_professor', usuari=nom_de_usuari) }}">
+    {% endif %}
+    
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.nom.label }}
+          <br>
+          <br>
+          {{ form.nom }}
+        </div>
+        {% if form.nom.errors %}
+          <ul class="errors">
+            {% for error in form.nom.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.cognoms.label }}
+          <br>
+          <br>
+          {{ form.cognoms }}
+        </div>
+        {% if form.cognoms.errors %}
+          <ul class="errors">
+            {% for error in form.cognoms.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+    <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.titulacions.label }}
+          <br>
+          <br>
+          {{ form.titulacions }}
+        </div>
+        {% if form.titulacions %}
+          <ul class="errors">
+            {% for error in form.titulacions.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+    <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.hores_alliberades_setmanalment.label }}
+          <br>
+          <br>
+          {{ form.hores_alliberades_setmanalment }}
+        </div>
+        {% if form.hores_alliberades_setmanalment.errors %}
+            <ul class="errors">
+            {% for error in form.hores_alliberades_setmanalment.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </fieldset>
+
+      <div class="marge_vertical" align="center">
+        {{ form.submit }}
+      </div>
+      </form>
+  </div>
+
+{% endblock %}

@@ -45,6 +45,49 @@ def ajustos():
         template="ajustos_professor-template"
     )
 
+@professors_bp.route('/llistat_professors', methods=['GET'])
+def llistat():
+    dades_de_professors: list[Professor]|None = controlador_professors.recuperar_dades_de_professors()
+    return render_template(
+        'llistat_professors.jinja2',
+        title="Llistat de Professors",
+        professors=dades_de_professors,
+        template="llistat_professors-template"
+    )
+
+
+@professors_bp.route('/anyadir_professor')
+def anyadir_professor():
+    form = ProfessorsForm()
+    if form.validate_on_submit():
+        print("woah");
+    return render_template(
+        'formulari_professors.jinja2',
+        title="Anyadir Professor",
+        accio="crear",
+        form=form,
+        template="formulari_professor-template"
+    )
+
+@professors_bp.route('/editar_professor/<string:usuari>')
+def editar_professor(usuari: str):
+    professor: Professor = controlador_professors.recuperar_dades_del_professor(usuari)
+    form = ProfessorsForm(
+            nom=professor.nom,
+            cognoms=professor.cognoms,
+            titulacions=professor.titulacions,
+            hores_alliberades_setmanalment=professor.hores_alliberades
+        )
+    if form.validate_on_submit():
+        print("woah");
+    return render_template(
+        'formulari_professors.jinja2',
+        title="Editar Professor",
+        accio="editar",
+        nom_de_usuari=usuari,
+        form=form,
+        template="formulari_professors-template"
+    )
 @professors_bp.route('/recuperar_dades_de_professors', methods=['GET'])
 def iniciar_recerca_de_professors() -> Response:
     """Crida a la funció per a obtindre les dades de tots els professors.
@@ -87,13 +130,16 @@ def recollir_dades_professor() -> Response:
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    nom: str = request.form['nom_del_professor']
-    cognoms: str = request.form['cognoms_del_professor'] 
-    titulacions: dict = json.loads(request.form["titulacions_del_professor"]) 
-    hores_alliberades: int = request.form["hores_alliberades_del_professor"] 
-    hores_restants: int = request.form["hores_alliberades_del_professor"]
+    nom: str = request.form['nom']
+    cognoms: str = request.form['cognoms'] 
+    titulacions: dict = {
+        "Titulacions": request.form["titulacions"]
+    } 
+    hores_alliberades: int = request.form["hores_alliberades_setmanalment"] 
+    hores_restants: int = request.form["hores_alliberades_setmanalment"]
     
     resultat: str = controlador_professors.insertar_professor(
+        nom,
         nom, 
         cognoms, 
         titulacions, 
@@ -102,10 +148,14 @@ def recollir_dades_professor() -> Response:
         )
     if resultat == "El professor s'ha insertat amb èxit.":
         resposta: Response = jsonify(success=True, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('usuaris_bp.home'))
+        #return resposta
     else:
         resposta: Response = jsonify(success=False, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('usuaris_bp.home'))
+        #return resposta
 
 
 @professors_bp.route('/importar_professors', methods=['POST'])
@@ -232,8 +282,8 @@ def eliminacio_de_professors() -> Response:
         resposta = jsonify(success=False, message=resultat)
         return resposta
 
-@professors_bp.route('/esborrar_professor/<string:nom_del_professor>/<string:cognoms_del_professor>', methods=['DELETE'])
-def eliminacio_de_professor(nom_del_professor: str, cognoms_del_professor: str) -> Response:
+@professors_bp.route('/esborrar_professor/<string:usuari>', methods=['POST'])
+def eliminacio_de_professor(usuari: str) -> Response:
     """Esborra un professor donat.
 
     Args:
@@ -243,10 +293,14 @@ def eliminacio_de_professor(nom_del_professor: str, cognoms_del_professor: str) 
     Returns:
         str: Resultat de l'operació.
     """
-    resultat: str = controlador_professors.esborrar_professor(nom_del_professor, cognoms_del_professor)
+    resultat: str = controlador_professors.esborrar_professor(usuari)
     if resultat == "S'ha esborrat amb èxit el professor.":
         resposta = jsonify(success=True, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('professors_bp.llistat'))
+        #return resposta
     else:
         resposta = jsonify(succes=False, message=resultat)
-        return resposta
+        flash(resultat)
+        return redirect(url_for('professors_bp.llistat'))
+        #return resposta
