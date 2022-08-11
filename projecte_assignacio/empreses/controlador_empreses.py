@@ -1,6 +1,6 @@
 import os
 from projecte_assignacio.empreses.model_empreses import Empresa
-from projecte_assignacio.usuaris import controlador_usuaris
+from projecte_assignacio.usuaris import rutes_usuaris
 import pandas as pd
 
 
@@ -48,7 +48,7 @@ def insertar_empresa(
         empresa_insertada: Empresa|None = recuperar_dades_de_la_empresa(nom_de_usuari_de_empresa)
 
         if empresa_insertada:
-            controlador_usuaris.registrar_usuari(
+            rutes_usuaris.registrar_usuari(
                 nom_de_usuari=nom_de_usuari_de_empresa, 
                 contrasenya_de_usuari=nom_de_usuari_de_empresa+"_2022", 
                 rol_de_usuari="Empresa"

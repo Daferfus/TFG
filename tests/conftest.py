@@ -1,7 +1,7 @@
 from curses.ascii import EM
 from shelve import DbfilenameShelf
 import sys
-sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\problema_assignacio")
+sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\projecte_assignacio")
 from projecte_assignacio import init_app
 
 import pytest

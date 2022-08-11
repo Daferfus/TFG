@@ -8,17 +8,17 @@
   <div class="form-wrapper">
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">Inici de Sessió</h1>
-    <form method="POST" action="{{ url_for('usuaris_bp.comprovar_dades_del_usuari') }}">
+    <form method="POST" action="{{ url_for('usuaris_bp.autenticar') }}">
 
       <fieldset class="form-field">
       <div class="marge_vertical" align='center'>
-      {{ form.nom_de_usuari.label }}
+      {{ form.nom.label }}
       </div>
       <br>
-      {{ form.nom_de_usuari }}
-        {% if form.nom_de_usuari.errors %}
+      {{ form.nom }}
+        {% if form.nom.errors %}
         <ul class="errors">
-          {% for error in form.nom_de_usuari.errors %}
+          {% for error in form.nom.errors %}
             <li>{{ error }}</li>
           {% endfor %}
         </ul>
@@ -27,13 +27,13 @@
 
       <fieldset class="form-field">
         <div align="center" class="marge_vertical">
-          {{ form.contrasenya_de_usuari.label }}
+          {{ form.contrasenya.label }}
         </div>
         <br>
-        {{ form.contrasenya_de_usuari }}
-        {% if form.contrasenya_de_usuari.errors %}
+        {{ form.contrasenya }}
+        {% if form.contrasenya.errors %}
           <ul class="errors">
-            {% for error in form.contrasenya_de_usuari.errors %}
+            {% for error in form.contrasenya.errors %}
               <li>{{ error }}</li>
             {% endfor %}
           </ul>

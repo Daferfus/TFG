@@ -1,6 +1,6 @@
 <header>
   <span id="home">
-    <a href="{{ url_for('usuaris_bp.home') }}"><img id="logo" src="{{ url_for('static', filename='./img/logo.png') }}" alt="Logo de la Institució."></a>
+    <a href="{{ url_for('mostrar_pagina_de_inici') }}"><img id="logo" src="{{ url_for('static', filename='./img/logo.png') }}" alt="Logo de la Institució."></a>
   </span>
   {% if current_user.is_authenticated %}
   <a href="javascript:void(0);" class="icon" onclick="myFunction()">
@@ -11,7 +11,7 @@
     </div>
   </a>
   {% else %}
-  <a href="{{ url_for('usuaris_bp.mostrar_pantalla_de_inici_de_sessio') }}"><button id="iniciar_sessio">Iniciar Sessió</button></a>
+  <a href="{{ url_for('usuaris_bp.mostrar_pagina_de_inici_de_sessio') }}"><button id="iniciar_sessio">Iniciar Sessió</button></a>
   {% endif %}
 </header>
 <nav id="menu">
@@ -29,5 +29,5 @@
       {% else %}
       <a href="{{ url_for('alumnes_bp.perfil') }}"><button>Perfil</button></a>
       {% endif %}
-      <a href="{{ url_for('usuaris_bp.logout') }}"><button>Tancar Sessió</button></a>
+      <a href="{{ url_for('usuaris_bp.tancar_sessio') }}"><button>Tancar Sessió</button></a>
 </nav>

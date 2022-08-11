@@ -1,8 +1,8 @@
-#####################################################
-## Autor: David Fernández Fuster                   ##
-## Data: 11/08/2022                                ## 
-## Funció: Conté les rutes centrades en el usuari. ##
-#####################################################
+##########################################################################
+## Autor: David Fernández Fuster                                        ##
+## Data: 11/08/2022                                                     ## 
+## Funció: Conté les rutes que desencandenen accions sobre els usuaris. ##
+##########################################################################
 
 ################
 ## Llibreries ##
@@ -13,18 +13,15 @@ import json
 #############
 ##  Flask  ##
 #############
-from flask_login import logout_user, current_user
-from flask import Blueprint, Response, flash, redirect, request, jsonify, render_template, url_for
-
+from flask_login import login_user, logout_user, current_user
+from flask import current_app as app, Blueprint, Response, flash, redirect, request, jsonify, render_template, url_for
+from munch import DefaultMunch
 
 ##############
 ##  Mòduls  ##
 ##############
-from projecte_assignacio.usuaris import controlador_usuaris
-from projecte_assignacio import login_manager
 from projecte_assignacio.usuaris.model_usuaris import Usuari
 from .formulari_usuaris import UsuarisForm
-
 
 ############################
 ## Configuració Blueprint ##
@@ -39,31 +36,6 @@ usuaris_bp = Blueprint(
 ###################################
 ## Funcions de Retorn de Pàgines ##
 ###################################
-@usuaris_bp.route('/prova', methods=["GET"])
-def provar_funcionament_de_flask() -> str:
-    """Funció de prova per a verificar el funcionament de l'aplicació.
-
-    Returns:
-        str: Cadena de text de verificació.
-    """
-    return 'Hola Món!'
-## ()
-
-@usuaris_bp.route('/', methods=["GET"])
-def mostrar_pagina_de_inici() -> str:
-    """Mostra la pàgina de inici.
-
-    Returns:
-        str: Pàgina de inici.
-    """
-    return render_template(
-        'home.jinja2',
-        titol="Projecte d'Assignació",
-        descripcio="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
-    )
-## ()
-
-
 @usuaris_bp.route('/inici_de_sessio', methods=["GET", "POST"])
 def mostrar_pagina_de_inici_de_sessio() -> str:
     """Mostra la pàgina de inici de sessió.
@@ -86,186 +58,297 @@ def mostrar_pagina_de_inici_de_sessio() -> str:
     )
 ## ()
 
-#####################################
-## Funcions de Retorn de Resposta  ##
-#####################################
-@usuaris_bp.route('/recuperar_dades_de_usuaris', methods=['GET'])
-def iniciar_recerca_de_usuaris() -> Response:
-    """Crida a la funció per a obtindre les dades de tots els usuaris.
+######################################
+## Funcions de Retorn d'Informació  ##
+######################################
+@usuaris_bp.route('/usuaris', methods=['GET'])
+def obtindre_dades_de_usuaris() -> list[Usuari]:
+    """Retorna una llista d'usuaris.
 
     Returns:
-        Response: Dades de tots els usuaris.
+        list[Usuari]: Llista d'usuaris.
     """
-    dades_de_usuaris: list[Usuari] = controlador_usuaris.recuperar_dades_de_usuaris()
-    if dades_de_usuaris is None:
-        resposta: Response = jsonify(success=False, message="No s'ha trovat cap usuari.")
+    dades_de_usuaris: list[Usuari] =  Usuari.objects()
+    if len(dades_de_usuaris) > 0:
+        resposta: Response = jsonify(
+                success=True, 
+                message=dades_de_usuaris
+                )
         return resposta
     else:
-        resposta: Response = jsonify(success=True, message=dades_de_usuaris)
+        resposta: Response = jsonify(
+            success=False, 
+            message=dades_de_usuaris
+            )
         return resposta
+## ()
 
-@usuaris_bp.route('/recuperar_dades_del_usuari/<string:usuari>', methods=['GET'])
-def iniciar_recerca_del_usuari(usuari: str) -> Response:
-    """Crida a la funció per a obtindre les dades d'un usuari determinat.
+@usuaris_bp.route('/usuari/<string:usuari>', methods=['GET'])
+def obtindre_dades_del_usuari(usuari: str) -> Usuari:
+    """Retorna un usuari donat.
 
     Args:
-        usuari (str): Nom del usuari a buscar.
+        usuari (str): Nom del usuari a retornar.
 
     Returns:
-        Response: Dades del usuari.
+        Usuari: Usuari a obtindre.
     """
-    dades_del_usuari: Usuari = controlador_usuaris.recuperar_dades_del_usuari(usuari)
-    if dades_del_usuari is None:
-        resposta: Response = jsonify(success=False, message="No s'ha trovat l'usuari.")
+    dades_de_usuari: Usuari|None = Usuari.objects(nom=usuari).first()
+    if dades_de_usuari:
+        resposta: Response = jsonify(
+                success=True, 
+                message=dades_de_usuari
+                )
         return resposta
     else:
-        resposta: Response = jsonify(success=True, message=dades_del_usuari)
+        resposta: Response = jsonify(
+            success=False, 
+            message=dades_de_usuari
+            )
         return resposta
+## ()
+## ()
+##############################################################
+##############################################################
 
-@usuaris_bp.route('/registrar_usuari', methods=['POST'])
-def recollir_dades_usuari() -> Response:
-    """Crida a la funció per a registrar un usuari.
+#######################################
+## Funcions de Modificació de Dades  ##
+#######################################
+@usuaris_bp.route('/registrar', methods=['POST'])
+def registrar_usuari() -> Response:
+    """Inserta un usuari en la base de dades de no existir.
+
+    Args:
+        nom (str): el nom del usuari.
+        contrasenya (str): contrasenya no xifrada del usuari.
+        rol (str): rol que tindrà l'usuari en l'aplicació (Alumne, Professor, Empresa o Coordinador)
 
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    nom: str = request.form['nom_de_usuari'] 
-    contrasenya: str = request.form['contrasenya_de_usuari'] 
-    rol: str = request.form['rol_de_usuari'] 
- 
-    resultat: str = controlador_usuaris.registrar_usuari(
-        nom, 
-        contrasenya, 
-        rol
+    ## Paràmetres POST:
+    nom: str = request.form['nom'] 
+    contrasenya: str = request.form['contrasenya'] 
+    rol: str = request.form['rol'] 
+
+    ## Verificació d'existència:
+    resposta: Response = obtindre_dades_del_usuari(nom)
+    usuari_existent: Usuari = json.loads(resposta.get_data(as_text=True))["message"]
+    if usuari_existent is None:
+
+        ## Inserció:
+        usuari: Usuari = Usuari(
+            nom=nom, 
+            contrasenya=contrasenya, 
+            rol=rol
         )
-    if resultat == "L'usuari s'ha registrat amb èxit.":
-        resposta: Response = jsonify(success=True, message=resultat)
-        return resposta
+        usuari.establir_contrasenya(contrasenya)
+        usuari.save()
+
+        ## Verificació de la inserció:
+        usuari_insertat: Usuari = obtindre_dades_del_usuari(nom) 
+        if usuari_insertat:
+            resposta: Response = jsonify(
+                success=True, 
+                message="L'usuari "+nom+" s'ha registrat amb èxit."
+                )
+            return resposta
+        else:
+            resposta: Response = jsonify(
+                success=False, 
+                message="Ha ocorregut un problema durant el registre."
+                )
+            return resposta
+        ## if
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
+        resposta: Response = jsonify(
+            success=False, 
+            message="Ja existeix un usuari amb aquest nom."
+            )
         return resposta
+    ## if
+## ()
 
-@usuaris_bp.route('/autenticar_usuari', methods=['POST'])
-def comprovar_dades_del_usuari() -> Response:
-    """Crida a la funció per a autenticar un usuari.
+@usuaris_bp.route('/autenticar', methods=['POST'])
+def autenticar() -> Response:
+    """Autentica un usuari.
 
+    Args:
+        nom (str): Nom del usuari a autenticar.
+        contrasenya (str): Contrasenya del usuari a autenticar.
+       
     Returns:
         Response: Informació sobre el resultat de la petició.
-    """   
-    nom: str = request.form['nom_de_usuari'] 
-    contrasenya: str = request.form['contrasenya_de_usuari']
-    resultat: str = controlador_usuaris.autenticar_usuari(nom, contrasenya)
+    """
+    ## Paràmetres POST:
+    nom: str = request.form['nom'] 
+    contrasenya: str = request.form['contrasenya']
     
-        
-    if resultat == "Usuari autenticat.":
-        resposta: Response = jsonify(success=True, message=resultat)
-        #return resposta
-        flash(resultat)
-        return redirect(url_for('usuaris_bp.home'))
+    ## Validació:
+    resposta: Response = obtindre_dades_del_usuari(nom)
+    usuari: Usuari|None = Usuari.objects(nom=nom).first()
+    if usuari and usuari.validar_contraseya(contrasenya=contrasenya):
+        login_user(usuari)
+        resposta: Response = jsonify(
+            success=True, 
+            message="Usuari Autenticat."
+            )
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            flash(json.loads(resposta.get_data(as_text=True))["message"])
+            return redirect(url_for('mostrar_pagina_de_inici'))
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
-        flash(resultat)
-        return redirect(url_for('usuaris_bp.mostrar_pantalla_de_inici_de_sessio'))
-        #return resposta
+        resposta: Response = jsonify(
+            success=False, 
+            message="Les credencials no son valides."
+            )
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            flash(json.loads(resposta.get_data(as_text=True))["message"])
+            return redirect(url_for('usuaris_bp.mostrar_pagina_de_inici_de_sessio'))
+    ## if
+## ()
 
-@usuaris_bp.route('/logout', methods=['GET'])
-def logout() -> Response:
-    """Tanca la sessió del usuari actual.
+@usuaris_bp.route('/tancar_sessio', methods=['GET'])
+def tancar_sessio() -> Response:
+    """Tanca la sessió de l'usuari actual.
 
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
     logout_user()
 
+    ## Validació:
     if current_user.is_authenticated:
-        resposta: Response = jsonify(success=False, message="No s'ha tancat la sessió amb èxit.")
-        flash(json.loads(resposta.get_data(as_text=True))["message"])
-        # return resposta
+        resposta: Response = jsonify(
+            success=False, 
+            message="No s'ha tancat la sessió amb èxit."
+            )
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            flash(json.loads(resposta.get_data(as_text=True))["message"])
+            return redirect(url_for('mostrar_pagina_de_inici'))
     else:
-        resposta: Response = jsonify(success=True, message="S'ha tancat la sessió amb èxit.")
-        flash(json.loads(resposta.get_data(as_text=True))["message"])
-        return redirect(url_for('usuaris_bp.home'))
-        #return resposta
+        resposta: Response = jsonify(
+            success=True, 
+            message="S'ha tancat la sessió amb èxit."
+            )
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            flash(json.loads(resposta.get_data(as_text=True))["message"])
+            return redirect(url_for('mostrar_pagina_de_inici'))
+    ## if
+## ()
+
 
 @usuaris_bp.route('/actualitzar_usuari/<string:usuari>', methods=["PUT"])
-def recollir_nom_de_usuari(usuari: str) -> Response:
-    """Crida a la funció per a actualitzar un usuari donat.
+def actualitzar_usuari(usuari: str) -> Response:
+    """Actualitza les dades d'un usuari donat.
 
     Args:
-        usuari (str): Usuari a actualitzar.
+        usuari (str): nom antic del usuari, per a temes de recerca.
+        nom (str): nou nom del usuari.
+        contrasenya (str): nova contrasenya del usuari.
+        rol (str): nou rol del usuari.
 
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    nom: str = request.form['nom_de_usuari'] 
-    contrasenya: str = request.form['contrasenya_de_usuari'] 
-    rol: str = request.form['rol_de_usuari'] 
- 
-    resultat: str = controlador_usuaris.actualitzar_credencials_del_usuari(
-        usuari,
-        nom, 
-        contrasenya, 
-        rol
-        )
+    ## Paràmetres PUT:
+    nom: str = request.form['nom'] 
+    contrasenya: str = request.form['contrasenya'] 
+    rol: str = request.form['rol'] 
 
-    if resultat=="L'usuari ha sigut actualitzat.":
-        resposta: Response = jsonify(success=True, message=resultat)
+    ## Verificació d'existència:
+    usuari: Usuari|None = Usuari.objects(nom=usuari).first()
+    if usuari:        
+        
+        ## Actualització:
+        usuari.nom = nom
+        usuari.establir_contrasenya(contrasenya)
+        usuari.rol = rol
+        usuari.save()
+        
+        ## Validació:
+        usuari_actualitzat: Usuari = Usuari.objects(nom=nom, rol=rol).first()
+        if usuari_actualitzat and usuari.validar_contraseya(contrasenya=contrasenya):
+            resposta: Response = jsonify(
+                success=True, 
+                message="L'usuari ha sigut actualitzat."
+                )
+            return resposta
+        else:
+            resposta: Response = jsonify(
+                success=False, 
+                message="Error al actualitzar."
+                )
+            return resposta
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
-    return resposta
+        resposta: Response = jsonify(
+            success=False, 
+            message="L'usuari no existeix."
+            )
+        return resposta
+    ## if
+## ()
 
 @usuaris_bp.route('/esborrar_usuaris', methods=['DELETE'])
-def eliminacio_de_usuaris() -> Response:
-    """Crida la funció per a esborrar tots els usuaris.
+def esborrar_usuaris() -> Response:
+    """Esborra tots els usuaris.
 
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    resultat: str = controlador_usuaris.esborrar_usuaris()
+    Usuari.objects.delete()
 
-    if resultat == "S'ha esborrat amb èxit tots els usuaris.":
-        resposta = jsonify(success=True, message=resultat)
+    ## Validació:
+    resultat: Response = obtindre_dades_de_usuaris()
+    usuaris: list[Usuari] = json.loads(resultat.get_data())["message"]    
+    if len(usuaris) == 0:
+        resposta = jsonify(
+            success=True, 
+            message="S'ha esborrat amb èxit tots els usuaris."
+            )
         return resposta
     else:
-        resposta = jsonify(success=False, message=resultat)
+        resposta = jsonify(
+            success=False, 
+            message="Ha ocorregut un problema durant el esborrament."
+            )
         return resposta
+    ## if
+## ()
 
 @usuaris_bp.route('/esborrar_usuari/<string:usuari>', methods=['DELETE'])
-def eliminacio_de_usuari(usuari: str) -> Response:
-    """Crida a la funció per a esborrar un usuari determinat.
+def esborrar_usuari(usuari: str) -> Response:
+    """Esborra un usuari donat.
 
     Args:
-        usuari (str): Usuari a esborrar.
-
+        usuari (str): Nom del usuari a esborrar.
+    
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    resultat: str = controlador_usuaris.esborrar_usuari(usuari)
-    
-    if resultat == "S'ha esborrat amb èxit l'usuari.":
-        resposta = jsonify(success=True, message=resultat)
+    Usuari.objects(nom=usuari).delete()
+
+    ## Validació:
+    resposta: Response = obtindre_dades_del_usuari(usuari)
+    usuari: Usuari = json.loads(resposta.get_data())["message"]
+    if usuari is None:
+        resposta = jsonify(
+            success=True, 
+            message="S'ha esborrat amb èxit l'usuari."
+        )
         return resposta
     else:
-        resposta = jsonify(succes=False, message=resultat)
+        resposta = jsonify(
+            succes=False, 
+            message="Ha ocorregut un problema durant el esborrament."
+            )
         return resposta
-
-@login_manager.user_loader
-def load_user(id_de_usuari: str) -> Usuari:
-    """Cada volta que l'usuari accedeix a una ruta, manté la seua sessió iniciada.
-
-    Args:
-        id_de_usuari (str): El nombre d'identificació de l'usuari en la base de dades.
-
-    Returns:
-        Usuari: El usuari actual.
-    """
-    if id_de_usuari is not None:
-        return Usuari.objects(pk=id_de_usuari).first()
-    return None
-
-
-# @login_manager.unauthorized_handler
-# def unauthorized():
-#     """Redirect unauthorized users to Login page."""
-#     flash('You must be logged in to view that page.')
-#     return redirect(url_for('auth_bp.login'))
+    ## if
+## ()

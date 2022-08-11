@@ -33,12 +33,13 @@ def init_app():
     
     with app.app_context():
         # Include our Routes
-        from .usuaris import rutes_usuaris as usuaris
+        from .usuaris import sessio, rutes_usuaris as usuaris
         from .alumnes import rutes_alumnes as alumnes
         from .professors import rutes_professors as professors
         from .empreses import rutes_empreses as empreses
         from .assignacions import rutes_assignacions as assignacions
         from .assets import compile_static_assets
+        from . import rutes
         
         # Register Blueprints
         app.register_blueprint(usuaris.usuaris_bp)

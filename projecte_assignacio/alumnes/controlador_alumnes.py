@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from projecte_assignacio.alumnes.model_alumnes import Alumne
-from projecte_assignacio.usuaris import controlador_usuaris
+from projecte_assignacio.usuaris import rutes_usuaris
 import csv
 
 
@@ -64,7 +64,7 @@ def insertar_alumne(
         alumne_insertat: Alumne|None = recuperar_dades_del_alumne(nom_i_cognoms_del_alumne)
 
         if alumne_insertat:
-            controlador_usuaris.registrar_usuari(nom_de_usuari=alumne.nom_de_usuari, contrasenya_de_usuari=alumne.grup+"_"+alumne.nom_de_usuari+"_2022", rol_de_usuari="Alumne")
+            rutes_usuaris.registrar_usuari(nom_de_usuari=alumne.nom_de_usuari, contrasenya_de_usuari=alumne.grup+"_"+alumne.nom_de_usuari+"_2022", rol_de_usuari="Alumne")
             return "L'alumne s'ha insertat amb èxit."
         else:
             return "Ha ocorregut un problema durant la inserció."

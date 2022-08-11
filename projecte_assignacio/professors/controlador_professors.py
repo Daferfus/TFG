@@ -1,5 +1,5 @@
 from projecte_assignacio.professors.model_professors import Professor
-from projecte_assignacio.usuaris import controlador_usuaris
+from projecte_assignacio.usuaris import rutes_usuaris
 import pandas as pd
 import os
 ###############################
@@ -49,7 +49,7 @@ def insertar_professor(
         professor_insertat: Professor|None = recuperar_dades_del_professor(nom_de_usuari)
 
         if professor_insertat:
-            controlador_usuaris.registrar_usuari(
+            rutes_usuaris.registrar_usuari(
                 nom_de_usuari=nom_de_usuari, 
                 contrasenya_de_usuari=nom_de_usuari+"_2022", 
                 rol_de_usuari="Professor"
