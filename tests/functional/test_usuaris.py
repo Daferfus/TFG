@@ -1,7 +1,28 @@
+##########################################################################
+## Autor: David Fernández Fuster                                        ##
+## Data: 11/08/2022                                                     ## 
+## Funció: Conté les rutes que desencandenen accions sobre els alumnes. ##
+##########################################################################
+
+################
+## Llibreries ##
+################
 import json
+
+#############
+##  Flask  ##
+#############
 from flask import Response
+
+##############
+##  Mòduls  ##
+##############
 from projecte_assignacio.usuaris.model_usuaris import Usuari
 
+
+#############
+##  Tests  ##
+#############
 def test_esborrar_usuaris_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
@@ -10,7 +31,7 @@ def test_esborrar_usuaris_amb_fixture(test_client):
     """    
     resposta: Response = test_client.delete('/esborrar_usuaris')
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
-
+## ()
 
 def test_registrar_usuari_amb_fixture(test_client):
     """
@@ -27,7 +48,7 @@ def test_registrar_usuari_amb_fixture(test_client):
     assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
     segona_resposta: Response = test_client.post('/registrar', data=dades)
     assert json.loads(segona_resposta.get_data(as_text=True))["message"] == "Ja existeix un usuari amb aquest nom."
-
+## ()
 
 def test_autenticar_usuari_amb_fixture(test_client):
     """
@@ -41,9 +62,9 @@ def test_autenticar_usuari_amb_fixture(test_client):
         }
     resposta: Response = test_client.post('/autenticar', data=dades)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
+## ()
 
-
-def test_logout_amb_fixture(test_client):
+def test_tancar_sessio_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició de tancar sessió
@@ -51,7 +72,7 @@ def test_logout_amb_fixture(test_client):
     """    
     resposta: Response = test_client.get('/tancar_sessio')
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
-
+## ()
 
 def test_obtindre_dades_de_usuaris_amb_fixture(test_client):
     """
@@ -62,7 +83,7 @@ def test_obtindre_dades_de_usuaris_amb_fixture(test_client):
     resposta: Response = test_client.get('/usuaris')
     usuari: list[Usuari] = json.loads(resposta.get_data(as_text=True))["message"]
     assert usuari[0]["nom"] == "Mikaeru Softo"
-
+## ()
 
 def test_actualitzar_usuari_amb_fixture(test_client):
     """
@@ -70,12 +91,16 @@ def test_actualitzar_usuari_amb_fixture(test_client):
     QUAN s'haja executat la petició d'actualitzar usuari
     LLAVORS comprovar que el nom ja no siga el mateix.
     """    
-    dades: dict = {'nom': 'Michael Soft', 'contrasenya': 'Machete1@', "rol": "Alumne"}
+    dades: dict = {
+        'nom': 'Michael Soft', 
+        'contrasenya': 'Machete1@', 
+        "rol": "Alumne"
+        }
     primera_resposta: Response = test_client.put('/actualitzar_usuari/Mikaeru Softo', data=dades)
     assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
     segona_resposta: Response = test_client.put('/actualitzar_usuari/Mikaeru Softo', data=dades)
     assert json.loads(segona_resposta.get_data(as_text=True))["success"] == False
-
+## ()
 
 def test_esborrar_usuari_amb_fixture(test_client):
     """
@@ -85,7 +110,7 @@ def test_esborrar_usuari_amb_fixture(test_client):
     """    
     resposta: Response = test_client.delete('/esborrar_usuari/Michael Soft')
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
-
+## ()
 
 def test_obtindre_dades_del_usuari_amb_fixture(test_client):
     """
@@ -96,3 +121,6 @@ def test_obtindre_dades_del_usuari_amb_fixture(test_client):
     resposta: Response = test_client.get('/usuari/Michael Soft')
     usuari: Usuari|None = json.loads(resposta.get_data(as_text=True))["message"]
     assert usuari is None
+## ()
+##############################################################
+##############################################################

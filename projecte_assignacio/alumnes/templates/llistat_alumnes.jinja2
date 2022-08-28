@@ -7,23 +7,69 @@
 
   <div class="container">
     {% include 'messages.jinja2' %}
+    
     <h1 id="titol_de_seccio">{{ title }}</h1>
-    <form method="POST" action="{{ url_for('alumnes_bp.recollir_fitxer_alumnes') }}">
-        <button type="file">Importar Alumnes</button>
-    </form>
+    
+    <div class="botons">
+      <form method="POST" action="{{ url_for('alumnes_bp.importar_alumnes') }}">
+          <button type="file" id="izquierda">Importar Alumnes</button>
+      </form>
+      <a href="{{ url_for('alumnes_bp.exportar_alumnes') }}">
+        <button type="file" id="derecha">Exportar Alumnes</button>
+      </a>
+    </div>
+    
+    {{ form.filtrar.label }}
+    {{ form.filtrar }}
+    
     <table>
-    {% for alumne in alumnes %}
+    {% for alumne in alumnes.items %}
         <tr>
             <td>{{ alumne.nom_i_cognoms }}</td>
-            <td><a href="{{ url_for('alumnes_bp.editar_alumne', usuari=alumne.nom_de_usuari) }}"><button>Editar</button></a>
-            <td>
-              <form method="POST" action="{{ url_for('alumnes_bp.eliminacio_de_alumne', usuari=alumne.nom_de_usuari) }}">
-                <button type="submit">Eliminar</button>
+            <td class="editar"><a href="{{ url_for('alumnes_bp.editar_alumne', usuari=alumne.nom_de_usuari) }}"><button>🖊</button></a>
+            <td class="borrar">
+              <form method="POST" action="{{ url_for('alumnes_bp.esborrar_alumne', usuari=alumne.nom_de_usuari) }}">
+                <button type="submit">🗑️</button>
               </form>
         </tr>
     {% endfor %}
     </table>
-    <a href="{{ url_for('alumnes_bp.anyadir_alumne') }}"><button>Anyadir Alumne</button>
-  </div>
+    
+    <div class=pagination>
+      <ul>
+      {% if alumnes.has_prev %}
+        <li>
+            <a href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.prev_num) }}">Anterior</a>
+        </li>
+      {% endif %}
 
+      <!-- all page numbers -->
+      {% for page_num in alumnes.iter_pages() %}
+          {% if page_num %}
+              {% if page_num != alumnes.page %}
+                  <li>
+                      <a href="{{ url_for('alumnes_bp.llistat', pagina=page_num) }}">{{ page_num }}</a>
+                  </li>
+              {% else %}
+                  <li class="active">
+                      <a href="#">{{ page_num }}</a>
+                  </li>
+              {% endif %}
+        {% else %}
+            <li>
+                <span class="ellipsis" style="white-space; nowrap; overflow: hidden; text-overflow: ellipsis">…</span>
+            </li>
+        {% endif %}
+      {% endfor %}
+
+      <!-- next page -->
+      {% if alumnes.has_next %}
+      <li>
+          <a href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.next_num) }}">Siguiente</a>
+      </li>
+      {% endif %}
+    </ul>
+    </div>
+
+  </div>
 {% endblock %}

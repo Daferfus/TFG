@@ -1,7 +1,17 @@
+<!--
+  Autor: David Fernández Fuster.
+  Data: 13/08/2022.
+  Renderitza: Header y Nav.
+-->
 <header>
+  <!-- Logo -->
   <span id="home">
-    <a href="{{ url_for('mostrar_pagina_de_inici') }}"><img id="logo" src="{{ url_for('static', filename='./img/logo.png') }}" alt="Logo de la Institució."></a>
+    <a href="{{ url_for('mostrar_pagina_de_inici') }}">
+      <img id="logo" src="{{ url_for('static', filename='./img/logo.png') }}" alt="Logo de la Institució.">
+    </a>
   </span>
+  
+  <!-- Icona de la Barra de Navegació -->
   {% if current_user.is_authenticated %}
   <a href="javascript:void(0);" class="icon" onclick="myFunction()">
     <div>
@@ -10,24 +20,61 @@
       <div class="navbar"></div>
     </div>
   </a>
+
+  <!-- Botó d'Inici de Sessió -->
   {% else %}
-  <a href="{{ url_for('usuaris_bp.mostrar_pagina_de_inici_de_sessio') }}"><button id="iniciar_sessio">Iniciar Sessió</button></a>
+  <a href="{{ url_for('usuaris_bp.mostrar_pagina_de_inici_de_sessio') }}">
+    <button id="iniciar_sessio">Iniciar Sessió</button>
+  </a>
   {% endif %}
 </header>
+
+<!-- Menú -->
 <nav id="menu">
+      <!-- Coordinador -->
       {% if current_user.rol == "Coordinador" %}
-      <a href="{{ url_for('alumnes_bp.llistat') }}"><button>Llistat d'Alumnes</button></a>
-      <a href="{{ url_for('professors_bp.llistat') }}"><button>Llistat de Professors</button></a>
-      <a href="{{ url_for('empreses_bp.llistat') }}"><button>Llistat d'Empreses</button></a>
-      <a href="{{ url_for('assignacions_bp.assignacio') }}"><button>Assignació d'Alumne-Empresa-Professor</button></a>
+      <a href="{{ url_for('alumnes_bp.llistat') }}">
+        <button>Llistat d'Alumnes</button>
+      </a>
+      <a href="{{ url_for('professors_bp.llistat') }}">
+        <button>Llistat de Professors</button>
+      </a>
+      <a href="{{ url_for('empreses_bp.llistat') }}">
+        <button>Llistat d'Empreses</button>
+      </a>
+      <a href="{{ url_for('assignacions_bp.assignacio') }}">
+        <button>Assignació d'Alumne-Empresa-Professor</button>
+      </a>
+
+      <!-- Professor -->
       {% elif current_user.rol == "Professor" %}
-      <a href="{{ url_for('professors_bp.perfil_professor') }}"><button>Perfil</button></a>
-      <a href="{{ url_for('professors_bp.ajustos') }}"><button>Ajustos de Configuració</button></a>
+      <a href="{{ url_for('professors_bp.perfil_professor') }}">
+        <button>Perfil</button>
+      </a>
+      <a href="{{ url_for('professors_bp.ajustos') }}">
+        <button>Ajustos de Configuració</button>
+      </a>
+
+      <!-- Empresa -->
       {% elif current_user.rol == "Empresa" %}
-      <a href="{{ url_for('empreses_bp.perfil_empresa') }}"><button>Perfil</button></a>
-      <a href="{{ url_for('empreses_bp.practiques') }}"><button>Pràctiques</button></a>
+      <a href="{{ url_for('empreses_bp.perfil_empresa') }}">
+        <button>Perfil</button>
+      </a>
+      <a href="{{ url_for('empreses_bp.practiques') }}">
+        <button>Pràctiques</button>
+      </a>
+
+      <!-- Alumne -->
       {% else %}
-      <a href="{{ url_for('alumnes_bp.perfil') }}"><button>Perfil</button></a>
+      <a href="{{ url_for('alumnes_bp.perfil') }}">
+        <button>Perfil</button>
+      </a>
       {% endif %}
-      <a href="{{ url_for('usuaris_bp.tancar_sessio') }}"><button>Tancar Sessió</button></a>
+
+      <!-- Tancar Sessió (opció compartida) -->
+      <a href="{{ url_for('usuaris_bp.tancar_sessio') }}">
+        <button>Tancar Sessió</button>
+      </a>
 </nav>
+<!------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------->

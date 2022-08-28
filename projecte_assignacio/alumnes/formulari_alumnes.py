@@ -1,12 +1,16 @@
 """Form object declaration."""
 from flask_wtf import FlaskForm
 from projecte_assignacio.alumnes.formulari_preferencies import PreferenciesASIR, PreferenciesDAM, PreferenciesDAW, PreferenciesTSMR
-from wtforms import StringField, RadioField, SelectField, FormField, TextAreaField, SubmitField
+from wtforms import StringField, SearchField, RadioField, SelectField, FormField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired
 
 
 class AlumnesForm(FlaskForm):
     """Formulari d'alumnes."""
+
+    filtrar = SearchField(
+        'Filtrar'
+    )
 
     nom_i_cognoms = StringField(
         'Nom i Cognoms',

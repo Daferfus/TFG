@@ -9,9 +9,9 @@
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
     {% if accio=="crear" %}
-        <form method="POST" action="{{ url_for('alumnes_bp.recollir_dades_alumne', usuari=nom_de_usuari) }}">
+        <form method="POST" action="{{ url_for('alumnes_bp.insertar_alumne', usuari=nom_de_usuari) }}">
     {% elif accio=="editar" %}
-        <form method="POST" action="{{ url_for('alumnes_bp.recollir_nom_de_alumne', grup=cicle, usuari=nom_de_usuari) }}">
+        <form method="POST" action="{{ url_for('alumnes_bp.actualitzar_alumne', grup=cicle, usuari=nom_de_usuari) }}">
     {% endif %}
     
       <fieldset class="form-field">

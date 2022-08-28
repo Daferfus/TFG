@@ -1,3 +1,9 @@
+<!--
+  Autor: David Fernández Fuster.
+  Data: 13/08/2022.
+  Renderitza: Missatges flash (resultats de les peticions).
+  Variable: flash()
+-->
 {% for message in get_flashed_messages() %}
     <div class="missatge">
         <button
@@ -9,3 +15,5 @@
         {{ message }}
     </div>
 {% endfor %}
+<!------------------------------------------------------------
+------------------------------------------------------------->

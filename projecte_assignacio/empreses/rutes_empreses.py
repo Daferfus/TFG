@@ -1,25 +1,61 @@
+###########################################################################
+## Autor: David Fernández Fuster                                         ##
+## Data: 23/08/2022                                                      ## 
+## Funció: Conté les rutes que desencandenen accions sobre les empreses. ##
+###########################################################################
+
+################
+## Llibreries ##
+################
+import json
+import os
+import pandas as pd
+from munch import DefaultMunch
 from urllib.request import Request
 
-from flask import Blueprint, Response, request, flash, redirect, url_for, render_template, jsonify
+
+#############
+##  Flask  ##
+#############
+from flask import current_app as app, Blueprint, Response, make_response, request, flash, redirect, url_for, render_template, jsonify
 from flask_login import current_user
-from projecte_assignacio.empreses import controlador_empreses
+
+
+##############
+##  Mòduls  ##
+##############
 from projecte_assignacio.empreses.formulari_empreses import EmpresesForm
 from projecte_assignacio.empreses.formulari_practiques import PractiquesForm
 from projecte_assignacio.empreses.model_empreses import Empresa
+from projecte_assignacio.usuaris.model_usuaris import Usuari
 
-# Blueprint Configuration
+
+############################
+## Configuració Blueprint ##
+############################
 empreses_bp = Blueprint(
     'empreses_bp', __name__,
     template_folder='templates',
     static_folder='static'
 )
 
-@empreses_bp.route('/perfil_empresa', methods=["GET", "POST"])
-def perfil_empresa():
-    empresa: Empresa = controlador_empreses.recuperar_dades_de_la_empresa(current_user.nom)
+
+###################################
+## Funcions de Retorn de Pàgines ##
+###################################
+@empreses_bp.route('/perfil_empresa', methods=["GET"])
+def perfil_empresa() -> str:
+    """Mostra la pàgina de perfil de l'empresa.
+
+    Returns:
+        str: Pàgina de perfil de l'empresa.
+    """    
+    empresa: Empresa = Empresa.objects(nom_de_usuari=current_user.nom).first()
     resposta = "No"
+
     if len(empresa.practiques) > 0:
         resposta = "Sí"
+    ## if
         
     form = EmpresesForm(
             nom=empresa.nom,
@@ -29,8 +65,11 @@ def perfil_empresa():
             nom_de_persona_de_contacte=empresa.persona_de_contacte,
             volen_practica=resposta
         )
+    
     if form.validate_on_submit():
-        print("woah");
+        pass
+    ## if
+    
     return render_template(
         'perfil_empresa.jinja2',
         title="Perfil",
@@ -38,23 +77,42 @@ def perfil_empresa():
         form=form,
         template="perfil_empresa-template"
     )
+## ()
+
 
 @empreses_bp.route('/llistat_empreses', methods=['GET'])
-def llistat():
-    dades_de_empreses: list[Empresa]|None = controlador_empreses.recuperar_dades_de_empreses()
+@empreses_bp.route('/llistat_empreses/pagina/<int:pagina>')
+def llistat(pagina=1) -> str:
+    """Mostra una pàgina on s'enllista les empreses de forma paginada.
+
+    Args:
+        pagina (int, optional): Nombre de pàgina del llistat d'empreses. Defaults to 1.
+        
+    Returns:
+        str: Llista d'empreses en la pàgina indicada.
+    """    
+    dades_de_empreses: list[Empresa]|None = Empresa.objects.paginate(page=pagina, per_page=5)
     return render_template(
         'llistat_empreses.jinja2',
         title="Llistat d'Empreses",
         empreses=dades_de_empreses,
         template="llistat_empreses-template"
     )
+## ()
 
-
-@empreses_bp.route('/anyadir_empresa/<string:nombre_de_empresa>')
+@empreses_bp.route('/anyadir_empresa/<string:nombre_de_empresa>', methods=["GET"])
 def anyadir_empresa(nombre_de_empresa: str):
+    """Mostra el formulari d'inserció d'empresa.
+
+    Returns:
+        str: Pàgina amb el formulari d'inserció d'empresa.
+    """
     form = EmpresesForm()
+    
     if form.validate_on_submit():
-        print("woah");
+        pass
+    ## if
+
     return render_template(
         'formulari_empresa.jinja2',
         title="Anyadir Empresa",
@@ -63,10 +121,20 @@ def anyadir_empresa(nombre_de_empresa: str):
         form=form,
         template="formulari_empresa-template"
     )
+## ()
 
-@empreses_bp.route('/editar_empresa/<string:usuari>')
+@empreses_bp.route('/editar_empresa/<string:usuari>', methods=["GET"])
 def editar_empresa(usuari: str):
-    empresa: Empresa = controlador_empreses.recuperar_dades_de_la_empresa(usuari)
+    """Mostra el formulari d'edició d'empresa.
+
+    Args:
+        usuari (str): Nom d'usuari de l'empresa a editar.
+
+    Returns:
+        str: Pàgina amb el formulari d'edició d'empresa.
+    """
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
+    
     form = EmpresesForm(
             nom=empresa.nom,
             poblacio=empresa.poblacio,
@@ -74,8 +142,11 @@ def editar_empresa(usuari: str):
             correu=empresa.correu,
             nom_de_persona_de_contacte=empresa.persona_de_contacte
         )
+    
     if form.validate_on_submit():
-        print("woah");
+        pass
+    ## if
+
     return render_template(
         'formulari_empresa.jinja2',
         title="Editar Alumne",
@@ -84,10 +155,17 @@ def editar_empresa(usuari: str):
         form=form,
         template="formulari_empresa-template"
     )
+## ()
 
-@empreses_bp.route('/practiques')
-def practiques():
-    empresa: Empresa = controlador_empreses.recuperar_dades_de_la_empresa(current_user.nom)
+@empreses_bp.route('/practiques', methods=["GET"])
+def practiques() -> str:
+    """Mostra una pàgina on s'enllista les pràctiques de la empresa en sessió.
+
+    Returns:
+        str: Llista de pràcticques en la pàgina indicada.
+    """    
+    empresa: Empresa = Empresa.objects(nom_de_usuari=current_user.nom).first()
+
     return render_template(
         'practiques_empresa.jinja2',
         title="Pràctiques",
@@ -95,12 +173,21 @@ def practiques():
         practiques_de_empresa=empresa.practiques,
         template="practiques_empresa-template"
     )
+## ()
 
-@empreses_bp.route('/anyadir_practica')
-def anyadir_practica():
+@empreses_bp.route('/anyadir_practica', methods=["GET"])
+def anyadir_practica() -> str:
+    """Mostra el formulari d'inserció de pràctica.
+
+    Returns:
+        str: Pàgina amb el formulari d'inserció de pràctica.
+    """
     form = PractiquesForm()
+
     if form.validate_on_submit():
-        print("woah");
+        pass
+    ## if
+
     return render_template(
         'practica_empresa.jinja2',
         title="Anyadir Pràctica",
@@ -109,18 +196,32 @@ def anyadir_practica():
         form=form,
         template="practica_empresa-template"
     )
+## ()
+
 @empreses_bp.route('/editar_practica/<int:nombre_de_practica>')
 def editar_practica(nombre_de_practica: int):
-    empresa: Empresa = controlador_empreses.recuperar_dades_de_la_empresa(current_user.nom)
+    """Mostra el formulari d'edició de pràctica.
+
+    Args:
+        usuari (str): Nom d'usuari de l'empresa a editar.
+
+    Returns:
+        str: Pàgina amb el formulari d'edició de pràctica.
+    """
+    empresa: Empresa = Empresa.objects(nom_de_usuari=current_user.nom).first()
     practica = empresa.practiques[nombre_de_practica]
+
     form = PractiquesForm(
             nom=practica["Nom"],
             titulacio=practica["Titulacio"],
             descripcio=practica["Descripcio"],
             tecnologies_i_frameworks=practica["Tecnologies i Frameworks"]
         )
+
     if form.validate_on_submit():
-        print("woah");
+        pass
+    ## if
+
     return render_template(
         'practica_empresa.jinja2',
         title="Editar Pràctica",
@@ -130,42 +231,88 @@ def editar_practica(nombre_de_practica: int):
         form=form,
         template="practica_empresa-template"
     )
+## ()
+##############################################################
+##############################################################
 
-@empreses_bp.route('/recuperar_dades_de_empreses', methods=['GET'])
-def iniciar_recerca_de_empreses() -> Response:
-    """Crida a la funció per a obtindre les dades de totes les empreses.
+######################################
+## Funcions de Retorn d'Informació  ##
+######################################
+@empreses_bp.route('/empreses', methods=['GET'])
+def obtindre_dades_de_empreses() -> Response:
+    """Retorna una llista d'empreses.
 
     Returns:
-        Response: Dades de totess les empreses.
+        Response: Llista d'empreses.
     """
-    dades_de_empreses: list[Empresa] = controlador_empreses.recuperar_dades_de_empreses()
-    if dades_de_empreses is None:
-        resposta: Response = jsonify(success=False, message="No s'ha trovat cap empresa.")
+    empreses: list[Empresa]|None = Empresa.objects()
+    
+    headers: dict[str, str] = {"Content-Type": "application/json"}
+    if empreses is None:
+        resposta: Response = make_response(
+            jsonify(
+                success=True, 
+                message="No s'ha trovat cap professor."
+            ), 
+            200, 
+            headers
+        )
         return resposta
     else:
-        resposta: Response = jsonify(success=True, message=dades_de_empreses)
+        resposta: Response = make_response(
+            jsonify(
+                success=True, 
+                message=empreses
+            ), 
+            200, 
+            headers
+        )
         return resposta
+    ## if
+## ()
 
-@empreses_bp.route('/recuperar_dades_de_la_empresa/<string:usuari>', methods=['GET'])
-def iniciar_recerca_de_la_empresa(usuari: str) -> Response:
-    """Crida a la funció per a obtindre les dades d'una empresa determinada.
+@empreses_bp.route('/empresa/<string:usuari>', methods=['GET'])
+def obtindre_dades_de_la_empresa(usuari: str) -> Response:
+    """Retorna una empresa donada.
 
     Args:
-        empresa (str): Nom de la empresa a buscar.
+        usuari (str): nom d'usuari de la empresa a retornar.
 
     Returns:
-        Response: Dades de la empresa.
+        Response: Dades de l'empresa.
     """    
-    dades_de_la_empresa: Empresa = controlador_empreses.recuperar_dades_de_la_empresa(usuari)
-    if dades_de_la_empresa is None:
-        resposta: Response = jsonify(success=False, message="No s'ha trovat la empresa.")
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
+    headers: dict[str, str] = {"Content-Type": "application/json"}
+    if empresa is None:
+        resposta: Response =  make_response(
+            jsonify(
+            success=False, 
+            message=empresa
+            ),
+            200,
+            headers
+        )
         return resposta
     else:
-        resposta: Response = jsonify(success=True, message=dades_de_la_empresa)
+        resposta: Response = make_response(
+            jsonify(
+            success=True, 
+            message=empresa
+            ),
+            200,
+            headers
+        )
         return resposta
+    ## if
+## ()
+##############################################################
+##############################################################
 
+#######################################
+## Funcions de Modificació de Dades  ##
+#######################################
 @empreses_bp.route('/insertar_empresa/<int:nombre_de_empresa>', methods=['POST'])
-def recollir_dades_empresa(nombre_de_empresa: int) -> Response:
+def insertar_empresa(nombre_de_empresa: int) -> Response:
     """Crida a la funció per a insertar una empresa.
 
     Returns:
@@ -177,29 +324,70 @@ def recollir_dades_empresa(nombre_de_empresa: int) -> Response:
     correu: str = request.form['correu'] 
     persona_de_contacte: str = request.form['nom_de_persona_de_contacte']
     
-    resultat: str = controlador_empreses.insertar_empresa(
-        "empresa"+str(nombre_de_empresa),
-        nom,
-        poblacio, 
-        telefon, 
-        correu,
-        persona_de_contacte
-        )
+    resposta: Response = obtindre_dades_de_la_empresa("empresa"+str(nombre_de_empresa))
+    empresa_existent: Empresa|None = json.loads(resposta.get_data(as_text=True))["message"]
 
-    if resultat == "L'empresa s'ha insertat amb èxit.":
-        resposta: Response = jsonify(success=True, message=resultat)
-        flash(resultat)
-        return redirect(url_for('empreses_bp.llistat'))
-        #return resposta
+    if empresa_existent is None:
+        empresa: Empresa = Empresa(
+            nom_de_usuari="empresa"+str(nombre_de_empresa),
+            nom=nom, 
+            poblacio=poblacio, 
+            telefon=telefon, 
+            correu=correu, 
+            persona_de_contacte=persona_de_contacte, 
+            practiques=[],
+            assignacions=[]
+        )
+        empresa.save()
+        empresa_insertada: Empresa|None = obtindre_dades_de_la_empresa("empresa"+str(nombre_de_empresa))
+
+        if empresa_insertada:
+            dades: dict[str, str] = {
+                "nom": empresa.nom_de_usuari,
+                "contrasenya": empresa.nom_de_usuari+"_2022",
+                "rol": "Empresa"
+            }
+            app.post('/registrar', data=dades)
+            resposta: Response = jsonify(
+                success=True, 
+                message="L'empresa s'ha insertat amb èxit."
+            )
+            flash(json.loads(resposta.get_data(as_text=True))["message"])
+            if app.config["DEBUG"]:
+                return resposta
+            else:
+                return redirect(url_for('usuaris_bp.home'))
+        else:
+            resposta: Response = jsonify(
+                success=False, 
+                message="Ha ocorregut un problema durant la inserció."
+            )
+            flash(json.loads(resposta.get_data(as_text=True))["message"])
+            if app.config["DEBUG"]:
+                return resposta
+            else:
+                return redirect(url_for('empreses_bp.anyadir_empresa'))
+        ## if
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
-        flash(resultat)
-        return redirect(url_for('empreses_bp.anyadir_empresa', nombre_de_empresa=nombre_de_empresa))
-        #return resposta
+        resposta: Response = jsonify(
+                success=False, 
+                message="Ja existeix una empresa amb aquest usuari."
+            )
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+                return resposta
+        else:
+            return redirect(url_for('empreses_bp.anyadir_empresa'))
+        ## if
+    ## if
+## ()
 
 @empreses_bp.route('/importar_empreses', methods=['POST'])
-def recollir_fitxer_empreses() -> Response:
-    """Crida a la funció per a importar empreses a partir d'un arxiu.
+def importar_empreses() -> Response:
+    """Inserta cada empresa trovada en un fitxer.
+
+    Args:
+        nom_del_fitxer (str): Ubicació local del fitxer.
 
     Returns:
         Response: Informació sobre el resultat de la petició.
@@ -208,39 +396,140 @@ def recollir_fitxer_empreses() -> Response:
     nom_del_fitxer: str = './projecte_assignacio/empreses/static/file/empreses.xls'
     f.save(nom_del_fitxer)
     
-    resultat: str = controlador_empreses.importar_empreses(nom_del_fitxer)
-    
-    if resultat == "Ha ocorregut un problema durant l'operació.":
-        resposta: Response = jsonify(sucess=False, message=resultat)
+    df = pd.read_excel(nom_del_fitxer)
+    empreses: list[dict] = []
+    ciutat_empreses: list[dict] = []
+    nombre_de_fila: int = 0
+
+    contador_de_insertats: int = 0
+    quantitat_de_empreses_ja_insertats: int = 0
+
+    while nombre_de_fila < len(df):
+        empresa: dict = {}
+        preferencies: dict = {}
+        nombre_de_practiques: int = 0
+        for columna in df:
+            ## Nombre de pràctiques que ofereix.
+            if columna == "TSMR" or columna == "ASIR" or columna == "DAM" or columna == "DAW":
+                if not pd.isnull(df.loc[nombre_de_fila, columna]):
+                    preferencies[columna]: int = df.loc[nombre_de_fila, columna]
+                    nombre_de_practiques+=int(df.loc[nombre_de_fila, columna])
+                    empresa["Preferencies"]: dict = preferencies
+                    empresa["Practiques"]: int = nombre_de_practiques
+            else:
+                if not pd.isnull(df.loc[nombre_de_fila, columna]):
+                    empresa[columna]: str = df.loc[nombre_de_fila, columna]
+        ## for
+
+        ## Si ofereix pràctiques s'anyadix al diccionari.
+        if empresa["Practiques"] != 0:
+            if "Ciutat" in empresa:
+                empreses.append(empresa)
+                if empresa["Ciutat"] not in ciutat_empreses:
+                    ciutat_empreses.append(empresa["Ciutat"])
+                practiques: list = list()
+                contador_practiques:int = 0
+                for x, y in empresa["Preferencies"].items():
+                    while(y>0):
+                        contador_practiques+=1
+                        practica: dict = dict()
+                        practica["Nom"] = "Pràctica"+str(contador_practiques)
+                        practica["Titulacio"] = x
+                        practica["Descripcio"] = ""
+                        practica["Tecnologies i Frameworks"] = list()
+                        practiques.append(practica)
+                        y-=1
+
+                empresa: Empresa = Empresa(
+                    nom_de_usuari="empresa"+str(nombre_de_fila),
+                    nom=empresa["Empresa"], 
+                    poblacio=empresa["Ciutat"], 
+                    telefon=0, 
+                    correu="", 
+                    persona_de_contacte="", 
+                    practiques=practiques,
+                    assignacions=[]
+                )
+                empresa.save()
+
+                    
+                usuari: Usuari = Usuari(
+                    nom=empresa.nom, 
+                    contrasenya=empresa.nom+"_2022", 
+                    rol="Empresa"
+                )
+                usuari.establir_contrasenya(empresa.nom+"_2022")
+                resultat = usuari.save()
+                    
+                if len(resultat) > 0:
+                    contador_de_insertats+=1
+                else:
+                    quantitat_de_empreses_ja_insertats+=1
+                ## if
+            ## while
+        ## if
+        nombre_de_fila+=1
+    ## while
+
+    if contador_de_insertats == 0 and quantitat_de_empreses_ja_insertats == 0:
+        resposta: Response = jsonify(sucess=False, message="Ha ocorregut un problema durant l'operació.")
         return resposta
     else:
-        resposta: Response = jsonify(success=True, message=resultat)
+        resposta: Response = jsonify(success=True, message="S'han insertat " +str(contador_de_insertats)+ " de " +str(len(df))+ " empreses." +str(quantitat_de_empreses_ja_insertats)+ " ja estaven insertades.")
         return resposta
+    ## if
+## ()
 
 @empreses_bp.route('/exportar_empreses', methods=['GET'])
-def descarregar_fitxer_empreses() -> Response:
-    """Crida a la funció per a exportar empreses de la base de dades.
-
+def exportar_empreses() -> Response:
+    """Exporta les empreses de la base de dades a un fitxer xlsx.
+    
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    resultat:bool = controlador_empreses.exportar_empreses()
-    if resultat:
-        resposta: Response = jsonify(success=resultat, message="S'han exportat amb èxit les dades de les empreses.")
+    resposta: Response = obtindre_dades_de_empreses()
+    empreses: list[Empresa]|None = DefaultMunch.fromDict(json.loads(resposta.get_data(as_text=True))["message"])
+
+    empreses_dict: list[dict] = []
+
+    for empresa in empreses:
+        empresa_dict: dict = {
+            "Nom": empresa.nom,
+            "Població": empresa.poblacio,
+            "Telefon": empresa.telefon,
+            "Correu": empresa.correu,
+            "Persona de Contacte": empresa.persona_de_contacte,
+            "Pràctiques": str(empresa.practiques),
+            "Assignacions": empresa.assignacions
+        }
+        empreses_dict.append(empresa_dict)
+    
+    dades = pd.DataFrame.from_dict(empreses_dict)
+    dades.to_excel("empreses_ex.xlsx",header=True)
+
+    if os.path.exists("empreses_ex.xlsx"):
+        resposta: Response = jsonify(success=True, message="S'han exportat amb èxit les dades de les empreses.")
         return resposta
     else:
-        resposta: Response = jsonify(success=resultat, message="Hi ha hagut un problema durant l'exportació.")
+        resposta: Response = jsonify(success=False, message="Hi ha hagut un problema durant l'exportació.")
     return resposta
+    ## if
+## ()
 
 @empreses_bp.route('/actualitzar_empresa/<string:usuari>', methods=["POST"])
-def recollir_nom_de_empresa(usuari: str) -> Response:
-    """Crida a la funció per a actualitzar una empresa donada.
+def actualitzar_empresa(usuari: str) -> Response:
+    """Actualitza les dades d'una empresa donada.
 
     Args:
-        empresa (str): Nom de la empresa a actualitzar.
+        nom_de_empresa_per_a_filtrar (str): Nom de la empresa a actualitzar.
+        nom_de_empresa (str): Nou nom de la empresa.
+        poblacio_de_empresa (str): Nova població de la empresa.
+        telefon_de_empresa (int): Nou telefon de l'empresa.
+        correu_de_empresa (str): Nou correu de l'empresa.
+        persona_de_contacte_en_la_empresa (str): Nova persona de contacte en l'empresa.
 
     Returns:
-        Response: Informació sobre el resultat de la petició.
+        str: Resultat de l'operació.
     """
     nom: str = request.form['nom'] 
     poblacio: str = request.form['poblacio'] 
@@ -248,74 +537,102 @@ def recollir_nom_de_empresa(usuari: str) -> Response:
     correu: str = request.form['correu'] 
     persona_de_contacte: str = request.form['nom_de_persona_de_contacte']
 
-    resultat: str = controlador_empreses.actualitzar_empresa(
-        usuari,
-        nom, 
-        poblacio, 
-        telefon, 
-        correu,
-        persona_de_contacte
-        )
+    resultat: int = Empresa.objects(nom_de_usuari=usuari).update(__raw__=
+        {"$set": {
+            "nom": nom,
+            "poblacio": poblacio,
+            "telefon": telefon,
+            "correu": correu,
+            "persona_de_contacte": persona_de_contacte,
+            }
+        }
+    )
 
-    if resultat=="L'empresa ha sigut actualitzada.":
-        resposta: Response = jsonify(success=True, message=resultat)
-        flash(resultat)
-        return redirect(url_for('usuaris_bp.home'))
-        #return resposta
+    if resultat > 0:
+        resposta: Response = jsonify(success=True, message="L'empresa ha sigut actualitzada.")
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('mostrar_pagina_de_inici'))
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
-        flash(resultat)
-        return redirect(url_for('empreses_bp.perfil_empresa'))
-        return resposta
+        resposta: Response = jsonify(success=False, message="No s'ha canviat res de l'empresa.")
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('empreses_bp.perfil'))
+    ## if
+## ()
 
 
 @empreses_bp.route('/esborrar_empreses', methods=['DELETE'])
-def eliminacio_de_empreses() -> Response:
-    """Crida a la funció per a esborrar totes les empreses.
+def esborrar_empreses() -> Response:
+    """Esborra totes les empreses.
 
     Returns:
-        Response: Informació sobre el resultat de la petició.
+        str: Resultat de l'operació.
     """
-    resultat: str = controlador_empreses.esborrar_empreses()
-    if resultat == "S'ha esborrat amb èxit totes les empreses.":
-        resposta: Response = jsonify(success=True, message=resultat)
+    Empresa.objects.delete()
+
+    empreses: list[Empresa] = obtindre_dades_de_empreses()
+    if len(json.loads(empreses.get_data(as_text=True))["message"]) == 0:
+        resposta: Response = jsonify(
+            success=True, 
+            message="S'ha esborrat amb èxit totes les empreses."
+            )
         return resposta
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
+        resposta: Response = jsonify(
+            success=False, 
+            message="Ha ocorregut un problema durant el esborrament."
+            )
         return resposta
+    ## if
+## ()
 
 @empreses_bp.route('/esborrar_empresa/<string:usuari>', methods=['POST'])
-def eliminacio_de_empresa(usuari: str):
+def esborrar_empresa(usuari: str):
     """Esborra una empresa donada.
 
     Args:
-        empresa (str): Nom de la empresa a esborrar.
+        nom_del_professor (str): Nom del professor a esborrar.
+        cognoms_del_professor (str): Cognoms del professor a esborrar.
     
     Returns:
         str: Resultat de l'operació.
     """
-    resultat: str = controlador_empreses.esborrar_empresa(usuari)
-    if resultat == "S'ha esborrat amb èxit l'empresa.":
-        resposta = jsonify(success=True, message=resultat)
-        flash(resultat)
-        return redirect(url_for('empreses_bp.llistat'))
-        #return resposta
+    Empresa.objects(nom_de_usuari=usuari).delete()
+
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
+    if empresa:
+        resposta: Response = jsonify(success=False, message="Ha ocorregut un problema durant el esborrament.")
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('mostrar_pagina_de_inici'))
+        ## if
     else:
-        resposta = jsonify(succes=False, message=resultat)
-        flash(resultat)
-        return redirect(url_for('empreses_bp.editar_empresa'))
-        return resposta
-
-
+        resposta: Response = jsonify(success=True, message="S'ha esborrat amb èxit l'empresa.")
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('empreses_bp.llistat'))
+        ## if
+    ## if
+## ()
 @empreses_bp.route('/insertar_practica/<string:usuari>', methods=['POST'])
-def recollir_dades_practica(usuari: str) -> Response:
-    """Crida a la funció per a insertar una pràctica.
+def insertar_practica(usuari: str) -> Response:
+    """Anyadix una pràctica a la llista de pràctiques ofertada per l'empresa.
 
     Args:
-        empresa (str): Nom de l'empresa que ofertarà la pràctica.
+        nom_de_empresa_per_a_filtrar (str): Nom de l'empresa que oferta la pràctica.
+        practica_de_la_empresa (dict): Pràctica a anyadir.
 
     Returns:
-        Response: Informació sobre el resultat de la petició.
+        str: Resultat de l'operació.
     """
     practiques: dict = {
         "Nom": request.form['nom'],
@@ -324,27 +641,32 @@ def recollir_dades_practica(usuari: str) -> Response:
         "Tecnologies i Frameworks": request.form["tecnologies_i_frameworks"]
     }
 
-    resultat: str = controlador_empreses.insertar_practica(
-        usuari,
-        practiques
-    )
-    if resultat=="Pràctica insertada.":
-        resposta: Response = jsonify(success=True, message=resultat)
-        return resposta
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).get()
+    if empresa:
+        practica_existeix: Empresa = Empresa.objects(nom_de_usuari=usuari, practiques=practiques).first()
+        if practica_existeix:
+            resposta: Response = jsonify(success=False, message="La pràctica ja existeix.")
+            return resposta
+        else:
+            empresa.practiques.append(practiques)
+            empresa.save()
+            resposta: Response = jsonify(success=True, message="Pràctica insertada.")
+            return resposta
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
+        resposta: Response = jsonify(success=False, message="L'empresa no existeix.")
         return resposta
 
 @empreses_bp.route('/actualitzar_practica/<string:usuari>/<int:nombre_de_practica>', methods=["POST"])
-def recollir_nom_de_la_practica(usuari: str, nombre_de_practica: int) -> Response:
-    """Crida a la funció per a actualitzar una pràctica donada.
+def actualitzar_practica(usuari: str, nombre_de_practica: int) -> Response:
+    """Actualitza una pràctica donada.
 
     Args:
-        empresa (str): Nom de l'empresa que ofereix la pràctica.
-        practica_a_actualitzar (dict): Pràctica que es vol actualitzar.
+        nom_de_empresa_per_a_filtrar (str): Empresa de la que es vol actualitzar la pràctica.
+        practica_a_filtrar (dict): Pràctica a actualitzar.
+        practica_de_la_empresa (dict): Nova informació de la pràctica.
 
     Returns:
-        Response: Informació sobre el resultat de la petició.
+        str: Resultat de l'operació.
     """
     practica_actualitzada: dict = {
         "Nom": request.form['nom'],
@@ -353,43 +675,52 @@ def recollir_nom_de_la_practica(usuari: str, nombre_de_practica: int) -> Respons
         "Tecnologies i Frameworks": request.form['tecnologies_i_frameworks'],
     }
     practica_a_actualitzar: int = nombre_de_practica
-    resultat: str = controlador_empreses.actualitzar_practica(
-        usuari,
-        practica_a_actualitzar,
-        practica_actualitzada
-    )
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
+    empresa.practiques[practica_a_actualitzar] = practica_actualitzada
+    empresa.save()
 
-    if resultat=="La pràctica ha sigut actualitzada.":
-        resposta: Response = jsonify(success=True, message=resultat)
-        flash(resultat)
-        return redirect(url_for('usuaris_bp.home'))
-        #return resposta
+    practica_existeix: Empresa = Empresa.objects(nom_de_usuari=usuari, practiques=practica_actualitzada).first()
+
+    if practica_existeix:
+        resposta: Response = jsonify(success=True, message="La pràctica ha sigut actualitzada.")
+        flash("La pràctica ha sigut actualitzada.")
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('mostrar_pagina_de_inici'))
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
-        flash(resultat)
-        return redirect(url_for('empreses_bp.editar_practica'))
-        #return resposta
-
+        resposta: Response = jsonify(success=False, message="No s'ha canviat res de la pràctica.")
+        flash("No s'ha canviat res de la pràctica.")
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('empreses_bp.editar_practica'))
 
 @empreses_bp.route('/esborrar_practica/<string:usuari>/<int:nombre_de_practica>', methods=['POST'])
-def eliminacio_de_practica(usuari: str, nombre_de_practica: int) -> Response:
+def esborrar_practica(usuari: str, nombre_de_practica: int) -> Response:
     """Esborra una pràctica donada.
 
     Args:
-        empresa (str): Nom de l'empresa que ofereix la pràctica.
-        practica (dict): La pràctica a esborrar.
+        nom_de_empresa_per_a_filtrar (str): Empresa de la que es vol esborrar la pràctica.
+        practica_de_la_empresa (dict): Pràctica a esborrar.
 
     Returns:
-        Response: Informació sobre el resultat de la petició.
+        str: Resultat de l'operació.
     """
-    resultat: str = controlador_empreses.esborrar_practica(usuari, nombre_de_practica)
-    if resultat=="La pràctica ha sigut esborrada.":
-        resposta: Response = jsonify(success=True, message=resultat)
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
+    resultat = empresa.practiques.pop(nombre_de_practica)
+    empresa.save()
+    if resultat:
+        resposta: Response = jsonify(success=True, message="La pràctica ha sigut esborrada.")
         flash(resultat)
-        return redirect(url_for('empreses_bp.practiques'))
-        #return resposta
+        if app.config["DEBUG"]:
+            return resposta
+        else:        
+            return redirect(url_for('empreses_bp.practiques'))
     else:
-        resposta: Response = jsonify(success=False, message=resultat)
+        resposta: Response = jsonify(success=False, message="No s'ha trovat la pràctica a esborrar.")
         flash(resultat)
-        return redirect(url_for('empreses_bp.practiques'))
-        #return resposta
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('empreses_bp.practiques'))

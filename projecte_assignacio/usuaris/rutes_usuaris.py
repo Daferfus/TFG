@@ -36,7 +36,7 @@ usuaris_bp = Blueprint(
 ###################################
 ## Funcions de Retorn de Pàgines ##
 ###################################
-@usuaris_bp.route('/inici_de_sessio', methods=["GET", "POST"])
+@usuaris_bp.route('/inici_de_sessio', methods=["GET"])
 def mostrar_pagina_de_inici_de_sessio() -> str:
     """Mostra la pàgina de inici de sessió.
 
@@ -57,6 +57,8 @@ def mostrar_pagina_de_inici_de_sessio() -> str:
         template="inici_de_sessio-template"
     )
 ## ()
+##############################################################
+##############################################################
 
 ######################################
 ## Funcions de Retorn d'Informació  ##
@@ -106,7 +108,7 @@ def obtindre_dades_del_usuari(usuari: str) -> Usuari:
             message=dades_de_usuari
             )
         return resposta
-## ()
+    ## if
 ## ()
 ##############################################################
 ##############################################################
@@ -185,7 +187,6 @@ def autenticar() -> Response:
     contrasenya: str = request.form['contrasenya']
     
     ## Validació:
-    resposta: Response = obtindre_dades_del_usuari(nom)
     usuari: Usuari|None = Usuari.objects(nom=nom).first()
     if usuari and usuari.validar_contraseya(contrasenya=contrasenya):
         login_user(usuari)
@@ -197,7 +198,7 @@ def autenticar() -> Response:
             return resposta
         else:
             flash(json.loads(resposta.get_data(as_text=True))["message"])
-            return redirect(url_for('mostrar_pagina_de_inici'))
+            return redirect(url_for('usuaris_bp.mostrar_pagina_de_inici_de_sessio'))
     else:
         resposta: Response = jsonify(
             success=False, 
@@ -352,3 +353,5 @@ def esborrar_usuari(usuari: str) -> Response:
         return resposta
     ## if
 ## ()
+##############################################################
+##############################################################

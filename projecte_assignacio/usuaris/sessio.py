@@ -1,6 +1,17 @@
+########################################################
+## Autor: David Fernández Fuster                      ##
+## Data: 11/08/2022                                   ## 
+## Funció: Conté les funcions de gestió de la sessió. ##
+########################################################
+
+###########
+## Flask ##
+###########
 from flask import Response, flash, redirect, url_for
 
-
+############
+## Mòduls ##
+############
 from projecte_assignacio import login_manager
 from projecte_assignacio.usuaris.model_usuaris import Usuari
 
@@ -20,7 +31,8 @@ def load_user(id_de_usuari: str) -> Usuari:
     if id_de_usuari is not None:
         return Usuari.objects(pk=id_de_usuari).first()
     return None
-
+    ## if
+## ()
 
 @login_manager.unauthorized_handler
 def unauthorized() -> Response:
@@ -31,3 +43,6 @@ def unauthorized() -> Response:
     """
     flash('Tens que estar autenticat per a accedir a la pàgina.')
     return redirect(url_for('usuaris_bp.mostrar_pagina_de_inici_de_sessio'))
+## ()
+##############################################################
+##############################################################

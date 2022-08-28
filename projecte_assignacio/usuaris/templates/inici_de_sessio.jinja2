@@ -1,4 +1,9 @@
-
+<!--
+  Autor: David Fernández Fuster.
+  Data: 13/08/2022.
+  Renderitza: Formulari d'Inici de Sessió.
+  Variables: form - formulari_usuaris.py
+-->
 {% extends 'layout.jinja2' %}
 
 
@@ -8,14 +13,21 @@
   <div class="form-wrapper">
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">Inici de Sessió</h1>
-    <form method="POST" action="{{ url_for('usuaris_bp.autenticar') }}">
 
+    <!-- formulari_usuaris.py -->
+    <form method="POST" action="{{ url_for('usuaris_bp.autenticar') }}">
+      
+      <!-- Nom -->
       <fieldset class="form-field">
       <div class="marge_vertical" align='center'>
       {{ form.nom.label }}
       </div>
       <br>
       {{ form.nom }}
+        <!-- 
+        Es valida: 
+          - si camp omplit,
+        -->
         {% if form.nom.errors %}
         <ul class="errors">
           {% for error in form.nom.errors %}
@@ -25,12 +37,19 @@
         {% endif %}
       </fieldset>
 
+      <!-- Contrasenya -->
       <fieldset class="form-field">
         <div align="center" class="marge_vertical">
           {{ form.contrasenya.label }}
         </div>
         <br>
         {{ form.contrasenya }}
+
+        <!-- 
+        Es valida: 
+          - si camp omplit,
+          - longitud (min. 8)
+        -->
         {% if form.contrasenya.errors %}
           <ul class="errors">
             {% for error in form.contrasenya.errors %}
@@ -40,6 +59,7 @@
         {% endif %}
       </fieldset>
 
+      <!-- Botó Iniciar Sessió -->
       <div class="marge_vertical" align="center">
         {{ form.submit }}
       </div>
@@ -47,3 +67,5 @@
   </div>
 
 {% endblock %}
+<!-----------------------------------------------------------------
+------------------------------------------------------------------>
