@@ -18,7 +18,8 @@ class Config:
     LESS_BIN = 'lessc'
     ASSETS_AUTO_BUILD = True
 class ProdConfig(Config):
-    FLASK_ENV = 'production'
+    #FLASK_ENV = 'production'
+    FLASK_ENV = 'development'
     DEBUG = False
     TESTING = False
     MONGODB_SETTINGS = {

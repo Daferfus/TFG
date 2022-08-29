@@ -42,13 +42,13 @@
       <a href="{{ url_for('empreses_bp.llistat') }}">
         <button>Llistat d'Empreses</button>
       </a>
-      <a href="{{ url_for('assignacions_bp.assignacio') }}">
+      <a href="{{ url_for('assignacions_bp.mostrar_panel_de_assignacio') }}">
         <button>Assignació d'Alumne-Empresa-Professor</button>
       </a>
 
       <!-- Professor -->
       {% elif current_user.rol == "Professor" %}
-      <a href="{{ url_for('professors_bp.perfil_professor') }}">
+      <a href="{{ url_for('professors_bp.mostrar_perfil') }}">
         <button>Perfil</button>
       </a>
       <a href="{{ url_for('professors_bp.ajustos') }}">
@@ -57,7 +57,7 @@
 
       <!-- Empresa -->
       {% elif current_user.rol == "Empresa" %}
-      <a href="{{ url_for('empreses_bp.perfil_empresa') }}">
+      <a href="{{ url_for('empreses_bp.mostrar_perfil') }}">
         <button>Perfil</button>
       </a>
       <a href="{{ url_for('empreses_bp.practiques') }}">
@@ -66,7 +66,7 @@
 
       <!-- Alumne -->
       {% else %}
-      <a href="{{ url_for('alumnes_bp.perfil') }}">
+      <a href="{{ url_for('alumnes_bp.mostrar_perfil') }}">
         <button>Perfil</button>
       </a>
       {% endif %}

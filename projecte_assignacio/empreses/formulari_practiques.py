@@ -8,13 +8,17 @@ class TagListField(Field):
     widget = widgets.TextInput()
     def _value(self):
         if self.data:
+            if type(self.data) == str:
+                self.process_formdata(self.data)
             return ', '.join(self.data)
         else:
             return ''
 
     def process_formdata(self, valuelist):
         if valuelist:
-            self.data = [x.strip() for x in valuelist[0].split(',')]
+            print(valuelist)
+            self.data = [x.strip() for x in valuelist.split(',')]
+            print(self.data)
         else:
             self.data = []
 
@@ -27,7 +31,6 @@ class BetterTagListField(TagListField):
         super(BetterTagListField, self).process_formdata(valuelist)
         if self.remove_duplicates:
             self.data = list(self._remove_duplicates(self.data))
-
     @classmethod
     def _remove_duplicates(cls, seq):
         """Remove duplicates in a case insensitive, but case preserving manner"""
@@ -36,6 +39,7 @@ class BetterTagListField(TagListField):
             if item.lower() not in d:
                 d[item.lower()] = True
                 yield item
+
 
 class PractiquesForm(FlaskForm):
     """Formulari de pràctiques."""
@@ -71,4 +75,4 @@ class PractiquesForm(FlaskForm):
         ]
     )
 
-    submit = SubmitField('Submit')
+    submit = SubmitField('Afegir Pràctica')

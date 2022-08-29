@@ -40,19 +40,23 @@ professors_bp = Blueprint(
 ## Funcions de Retorn de Pàgines ##
 ###################################
 @professors_bp.route('/perfil_professor', methods=["GET"])
-def perfil_professor() -> str:
+def mostrar_perfil() -> str:
     """Mostra la pàgina de perfil del professor.
 
     Returns:
         str: Pàgina de perfil del professor
     """    
-    professor: Professor = controlador_professors.recuperar_dades_del_professor(current_user.nom)    
-    form = ProfessorsForm(
+    professor: Professor = DefaultMunch.fromDict(
+        json.loads(
+            obtindre_dades_del_professor(current_user.nom).get_data(as_text=True)
+        )["message"]
+    )    
+    form: object = ProfessorsForm(
             nom=professor.nom,
             cognoms=professor.cognoms,
             titulacions=professor.titulacions,
             hores_alliberades_setmanalment=professor.hores_alliberades
-        )
+    )
     
     if form.validate_on_submit():
         pass
@@ -74,7 +78,24 @@ def ajustos() -> str:
     Returns:
         str: Pàgina amb els ratis d'alumnes per hora.
     """
-    form = ProfessorsForm()
+    professor: Professor = DefaultMunch.fromDict(
+    json.loads(
+            obtindre_dades_del_professor(current_user.nom).get_data(as_text=True)
+        )["message"]
+    )
+    res_fct = [int(i) for i in professor.rati_fct.split() if i.isdigit()]    
+    res_dual = [int(i) for i in professor.rati_dual.split() if i.isdigit()]    
+    
+    form = ProfessorsForm(
+        ajustos_fct={
+          'quantitat_alumnes': res_fct[0],
+          'hores_alliberades': res_fct[1]
+        },
+        ajustos_dual={
+          'quantitat_alumnes': res_dual[0],
+          'hores_alliberades': res_dual[1],
+        }
+    )
     return render_template(
         'ajustos_professor.jinja2',
         title="Ajustos",
@@ -99,6 +120,7 @@ def llistat(pagina=1) -> str:
     return render_template(
         'llistat_professors.jinja2',
         title="Llistat de Professors",
+        form=ProfessorsForm(),
         professors=dades_de_professors,
         template="llistat_professors-template"
     )
@@ -514,9 +536,25 @@ def ratis(usuari: str) -> Response:
             }
         )
     if resultat > 0:
-            return "El professor ha sigut actualitzat."
+        if app.config["DEBUG"]:
+            resposta: Response = jsonify(
+                success=True, 
+                message="Les ratios s'han ajustat."
+            )
+            return resposta
+        else:
+            flash("Les ratios s'han ajustat.")
+            return redirect(url_for('mostrar_pagina_de_inici'))
     else:
-        return "No s'ha canviat res del professor."
+        if app.config["DEBUG"]:
+            resposta: Response = jsonify(
+                success=True, 
+                message="Les ratios no s'han ajustat."
+            )
+            return resposta
+        else:
+            flash("Les ratios no s'han ajustat.")
+            return redirect(url_for('professors_bp.ratis'))
     ## if
 ## ()
 

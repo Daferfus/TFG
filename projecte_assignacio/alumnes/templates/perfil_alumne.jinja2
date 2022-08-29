@@ -8,104 +8,96 @@
   <div class="form-wrapper">
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
-    <form method="POST" action="{{ url_for('alumnes_bp.recollir_nom_de_alumne', grup=cicle, usuari=nom_de_usuari) }}">
-    <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          {{ form.grup }}
-        </div>
-        {% if form.nom_i_cognoms.errors %}
-          <ul class="errors">
-            {% for error in form.nom_i_cognoms.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </fieldset>
-      <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          {{ form.nom_i_cognoms.label }}
-          <br>
-          <br>
-          {{ form.nom_i_cognoms }}
-        </div>
-        {% if form.nom_i_cognoms.errors %}
-          <ul class="errors">
-            {% for error in form.nom_i_cognoms.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </fieldset>
+    <form method="POST" action="{{ url_for('alumnes_bp.actualitzar_alumne', grup=cicle, usuari=nom_de_usuari) }}">
+      <div class="flex">
+        <div class="flex-izquierdo">
+          <fieldset class="form-field">
+            <div align="center" class="marge_vertical">
+              {{ form.nom_i_cognoms.label }}
+              <br>
+              <br>
+              {{ form.nom_i_cognoms }}
+            </div>
+            {% if form.nom_i_cognoms.errors %}
+              <ul class="errors">
+                {% for error in form.nom_i_cognoms.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </fieldset>
 
-      <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          {{ form.ciutat_de_residencia.label }}
-          <br>
-          <br>
-          {{ form.ciutat_de_residencia }}
+          <fieldset class="form-field">
+            <div align="center" class="marge_vertical">
+              {{ form.ciutat_de_residencia.label }}
+              <br>
+              <br>
+              {{ form.ciutat_de_residencia }}
+            </div>
+            {% if form.ciutat_de_residencia.errors %}
+              <ul class="errors">
+                {% for error in form.ciutat_de_residencia.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </fieldset>
+        
+          <fieldset class="form-field">
+            <div align="center" class="marge_vertical">
+              {{ form.disponibilitat_de_cotxe.label }}
+              <br>
+              <br>
+              {{ form.disponibilitat_de_cotxe }}
+            </div>
+            {% if form.disponibilitat_de_cotxe %}
+              <ul class="errors">
+                {% for error in form.disponibilitat_de_cotxe.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </fieldset>
         </div>
-        {% if form.ciutat_de_residencia.errors %}
-          <ul class="errors">
-            {% for error in form.ciutat_de_residencia.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </fieldset>
-
-    <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          {{ form.disponibilitat_de_cotxe.label }}
-          <br>
-          <br>
-          {{ form.disponibilitat_de_cotxe }}
+        <div class="flex-derecho">
+          <fieldset class="form-field">
+            <div align="center" class="marge_vertical">
+              <label>Preferències</label>
+              <br>
+              <br>
+              {% if cicle == "DAM" %}
+              {{ form.preferencies_dam }}
+              {% elif cicle == "DAW" %}
+              {{ form.preferencies_daw }}
+              {% elif cicle == "TSMR" %}
+              {{ form.preferencies_tsmr }}
+              {% elif cicle == "ASIR" %}
+              {{ form.preferencies_asir }}
+              {% endif %}
+            </div>
+          </fieldset>
         </div>
-        {% if form.disponibilitat_de_cotxe %}
-          <ul class="errors">
-            {% for error in form.disponibilitat_de_cotxe.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </fieldset>
-
-    <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          Preferències
-          <br>
-          <br>
-          {% if cicle == "DAM" %}
-          {{ form.preferencies_dam }}
-          {% elif cicle == "DAW" %}
-          {{ form.preferencies_daw }}
-          {% elif cicle == "TSMR" %}
-          {{ form.preferencies_tsmr }}
-          {% elif cicle == "ASIR" %}
-          {{ form.preferencies_asir }}
-          {% endif %}
-        </div>
-      </fieldset>
-
-        <fieldset class="form-field">
-          <div align="center" class="marge_vertical">
-            {{ form.observacions.label }}
-            <br>
-            <br>
-            {{ form.observacions }}
-          </div>
-          {% if form.observacions.errors %}
-            <ul class="errors">
-              {% for error in form.observacions.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-      </fieldset>
-
-      <div class="marge_vertical" align="center">
-        {{ form.submit }}
       </div>
-      </form>
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.observacions.label }}
+          <br>
+          <br>
+          {{ form.observacions }}
+        </div>
+        {% if form.observacions.errors %}
+          <ul class="errors">
+            {% for error in form.observacions.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+    </fieldset>
+
+    <div class="marge_vertical" align="center">
+      {{ form.submit }}
+    </div>
+    </form>
   </div>
 
 {% endblock %}

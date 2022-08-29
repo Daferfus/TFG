@@ -22,10 +22,10 @@
     {{ form.filtrar.label }}
     {{ form.filtrar }}
     
-    <table>
+    <table class="llistat">
     {% for alumne in alumnes.items %}
         <tr>
-            <td>{{ alumne.nom_i_cognoms }}</td>
+            <td>{{ alumne.nom_i_cognoms }} ({{ alumne.grup }})</td>
             <td class="editar"><a href="{{ url_for('alumnes_bp.editar_alumne', usuari=alumne.nom_de_usuari) }}"><button>🖊</button></a>
             <td class="borrar">
               <form method="POST" action="{{ url_for('alumnes_bp.esborrar_alumne', usuari=alumne.nom_de_usuari) }}">
@@ -34,12 +34,13 @@
         </tr>
     {% endfor %}
     </table>
-    
+    <a href="{{ url_for('alumnes_bp.anyadir_alumne') }}"><button class="anyadir">Afegir Alumne</button>
+
     <div class=pagination>
       <ul>
       {% if alumnes.has_prev %}
         <li>
-            <a href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.prev_num) }}">Anterior</a>
+            <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.prev_num) }}">Anterior</a>
         </li>
       {% endif %}
 
@@ -48,11 +49,11 @@
           {% if page_num %}
               {% if page_num != alumnes.page %}
                   <li>
-                      <a href="{{ url_for('alumnes_bp.llistat', pagina=page_num) }}">{{ page_num }}</a>
+                      <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=page_num) }}">{{ page_num }}</a>
                   </li>
               {% else %}
                   <li class="active">
-                      <a href="#">{{ page_num }}</a>
+                      <a class="pag" href="#">{{ page_num }}</a>
                   </li>
               {% endif %}
         {% else %}
@@ -65,7 +66,7 @@
       <!-- next page -->
       {% if alumnes.has_next %}
       <li>
-          <a href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.next_num) }}">Siguiente</a>
+          <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.next_num) }}">Siguiente</a>
       </li>
       {% endif %}
     </ul>

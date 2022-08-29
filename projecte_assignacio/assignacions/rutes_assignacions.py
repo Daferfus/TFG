@@ -16,7 +16,7 @@ assignacions_bp = Blueprint(
 )
 
 @assignacions_bp.route('/assignacio')
-def assignacio():
+def mostrar_panel_de_assignacio():
     alumnes: Alumne = rutes_alumnes.obtindre_dades_de_alumnes()
     return render_template(
         'assignacio.jinja2',

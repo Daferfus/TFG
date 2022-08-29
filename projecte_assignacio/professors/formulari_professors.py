@@ -1,7 +1,8 @@
 """Form object declaration."""
+from tkinter import E
 from flask_wtf import FlaskForm
 from projecte_assignacio.professors.formulari_ajustos import AjustosDUAL, AjustosFCT
-from wtforms import StringField, IntegerField, SubmitField, Field, widgets, FormField
+from wtforms import SearchField, StringField, IntegerField, SubmitField, Field, widgets, FormField
 from wtforms.validators import DataRequired
 
 
@@ -9,13 +10,17 @@ class TagListField(Field):
     widget = widgets.TextInput()
     def _value(self):
         if self.data:
+            if type(self.data) == str:
+                self.process_formdata(self.data)
             return ', '.join(self.data)
         else:
             return ''
 
     def process_formdata(self, valuelist):
         if valuelist:
-            self.data = [x.strip() for x in valuelist[0].split(',')]
+            print(valuelist)
+            self.data = [x.strip() for x in valuelist.split(',')]
+            print(self.data)
         else:
             self.data = []
 
@@ -28,7 +33,6 @@ class BetterTagListField(TagListField):
         super(BetterTagListField, self).process_formdata(valuelist)
         if self.remove_duplicates:
             self.data = list(self._remove_duplicates(self.data))
-
     @classmethod
     def _remove_duplicates(cls, seq):
         """Remove duplicates in a case insensitive, but case preserving manner"""
@@ -40,6 +44,10 @@ class BetterTagListField(TagListField):
 
 class ProfessorsForm(FlaskForm):
     """Formulari de pràctiques."""
+
+    filtrar = SearchField(
+        'Filtrar'
+    )
 
     nom = StringField(
         'Nom',
@@ -64,10 +72,10 @@ class ProfessorsForm(FlaskForm):
     )
 
     hores_alliberades_setmanalment = IntegerField(
-        'Hores Alliberades Setmanalment'
+        'Hores Alliberades'
     )
 
     ajustos_fct = FormField(AjustosFCT)
     ajustos_dual = FormField(AjustosDUAL)
     
-    submit = SubmitField('Submit')
+    submit = SubmitField('Actualitzar')

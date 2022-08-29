@@ -42,19 +42,23 @@ alumnes_bp = Blueprint(
 ###################################
 ## Funcions de Retorn de Pàgines ##
 ###################################
-@alumnes_bp.route('/perfil', methods=["GET"])
-def perfil() -> str:
+@alumnes_bp.route('/perfil_alumne', methods=["GET"])
+def mostrar_perfil() -> str:
     """Mostra la pàgina de perfil de l'alumne que ha iniciat la sessió.
 
     Returns:
         str: Pàgina de perfil de l'alumne que ha iniciat la sessió.
     """    
-    alumne: Alumne = obtindre_dades_del_alumne(current_user.nom)
+    alumne: Alumne = DefaultMunch.fromDict(
+        json.loads(
+            obtindre_dades_del_alumne(current_user.nom).get_data(as_text=True)
+        )["message"]
+    )
     if(alumne.grup == "DAM"):
         form = AlumnesForm(
             nom_i_cognoms=alumne.nom_i_cognoms,
             ciutat_de_residencia=alumne.poblacio,
-            disponibilitat_de_cotxe=alumne.mobilitat.encode("windows-1252").decode("utf-8"),
+            disponibilitat_de_cotxe=alumne.mobilitat,
             preferencies_dam={
                 'desenvolupador_backend': alumne.preferencies["Backend"],
                 'desenvolupador_software_multiplataforma': alumne.preferencies["Multiplataforma"],
@@ -70,7 +74,7 @@ def perfil() -> str:
         form = AlumnesForm(
             nom_i_cognoms=alumne.nom_i_cognoms,
             ciutat_de_residencia=alumne.poblacio,
-            disponibilitat_de_cotxe=alumne.mobilitat.encode("windows-1252").decode("utf-8"),
+            disponibilitat_de_cotxe=alumne.mobilitat,
             preferencies_daw={
                 'desenvolupador_backend': alumne.preferencies["Backend"],
                 'desenvolupador_frontend': alumne.preferencies["Frontend"],
@@ -86,7 +90,7 @@ def perfil() -> str:
         form = AlumnesForm(
             nom_i_cognoms=alumne.nom_i_cognoms,
             ciutat_de_residencia=alumne.poblacio,
-            disponibilitat_de_cotxe=alumne.mobilitat.encode("windows-1252").decode("utf-8"),
+            disponibilitat_de_cotxe=alumne.mobilitat,
             preferencies_tsmr={
                 'tecnic_de_microinformatica': alumne.preferencies["Tecnico"],
                 'asesor_de_microinformatica': alumne.preferencies["Asesor"],
@@ -99,7 +103,7 @@ def perfil() -> str:
         form = AlumnesForm(
             nom_i_cognoms=alumne.nom_i_cognoms,
             ciutat_de_residencia=alumne.poblacio,
-            disponibilitat_de_cotxe=alumne.mobilitat.encode("windows-1252").decode("utf-8"),
+            disponibilitat_de_cotxe=alumne.mobilitat,
             preferencies_asir={
                 'administrador_de_base_de_dades': alumne.preferencies["BD"],
                 'administrador_de_xarxes': alumne.preferencies["Redes"],
@@ -553,7 +557,11 @@ def actualitzar_alumne(grup: str, usuari: str) -> Response:
     nom_i_cognoms: str = request.form['nom_i_cognoms']
     poblacio: str = request.form['ciutat_de_residencia']
     mobilitat: str = request.form['disponibilitat_de_cotxe']
-
+    tipo_de_practica: str = ""
+    accedeix_a_fct: str = ""
+    aporta_empresa: str = ""
+    erasmus: str = ""
+    
     if(grup=="DAM" and 'preferencies_dam-desenvolupador_backend' in request.form):
         preferencies: dict = {
             "Backend": request.form['preferencies_dam-desenvolupador_backend'],

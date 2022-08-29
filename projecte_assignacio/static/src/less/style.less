@@ -37,7 +37,7 @@ header {
     div div.navbar {
         width: 35px;
         height: 5px;
-        background-color: black;
+        background-color: white;
         margin: 6px 0;
         margin-right: 25px;
     }// div
@@ -94,7 +94,7 @@ input#filtrar{
     margin-bottom: 13px;
 }
 
-table{
+table.llistat{
     width: 38%;
     border: solid 1px black;
 
@@ -125,6 +125,16 @@ table{
         padding-left: 1rem;
     }
 }
+button.anyadir{
+    width: 120px !important;
+    height: 48px !important;
+    border-radius: 4px;
+    background-color: #ebebeb;
+    border-width: thin;
+    margin-left: 17.4rem;
+    margin-bottom: 1.5rem;
+}
+
 .form-wrapper {
     display: flex;
     flex-direction: column;
@@ -173,6 +183,63 @@ p#descripcio_de_projecte{
     text-align: center;
     margin-top: 15px;
 }
+label{
+    font-size: 20px;
+}
+
+div.flex-derecho{
+    table{
+        tr{
+            height: 5rem;
+            th{
+                border-top: 1px solid black;
+                border-bottom: 1px solid black;
+                border-left: 1px solid black;
+                padding-left: 1rem;
+            }
+            td{
+                width: 5rem;
+                text-align: center;
+                border-top: 1px solid black;
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+            }
+        }
+    }
+}
+
+table#ajustos_fct{
+    tbody{
+        tr{
+            display: flex;
+            flex-direction: row-reverse;
+
+            input{
+                width: 2rem;
+                height: 1.5rem;
+            }
+        }
+        tr:last-child{
+            margin-right: 4.82rem
+        }
+    }
+}
+table#ajustos_dual{
+    tbody{
+        tr{
+            display: flex;
+            flex-direction: row-reverse;
+
+            input{
+                width: 2rem;
+                height: 1.5rem;
+            }
+        }
+        tr:last-child{
+            margin-right: 4.82rem
+        }
+    }
+}
 footer {
     margin-top: auto;
     left: 0;
@@ -202,14 +269,29 @@ ul#disponibilitat_de_cotxe{
     list-style-type: none;
 }
 
+ul#volen_practica{
+    list-style-type: none;
+}
+
+ul#accedeix_a_fct{
+    list-style-type: none;
+}
+ul#aporta_empresa{
+    list-style-type: none;
+}
+ul#es_erasmus{
+    list-style-type: none;
+}
+
 div.pagination {
     display: inline-block;
     text-align: center;
+    margin-bottom: 1.5rem;
     ul{
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
         list-style-type: none;
-        a {
+        a.pag {
             color: black;
             float: left;
             padding: 8px 16px;
@@ -226,14 +308,14 @@ div.pagination {
             border-radius: 5px;
     
         }
-        a:hover:not(.active) {
+        a.pag:hover:not(.active) {
             background-color: #ddd;
         }
-        a:first-child {
+        a.pag:first-child {
             border-top-left-radius: 5px;
             border-bottom-left-radius: 5px;
         }  
-        a:last-child {
+        a.pag:last-child {
             border-top-right-radius: 5px;
             border-bottom-right-radius: 5px;
         }
@@ -252,6 +334,23 @@ div.pagination {
         background-color: white;
         margin: auto;
         width: 80%;
+        
+        }
+
+        div.flex{
+            display: flex;
+            justify-content: space-between;
+
+            div.flex-izquierdo{
+                margin-right: 6rem;
+            }
+
+            div.flex-centro{
+                margin-right: 6rem;
+            }
         }
     }
-  }
+    textarea#observacions{
+        width: 100%;
+    }
+}

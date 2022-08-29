@@ -44,26 +44,21 @@ empreses_bp = Blueprint(
 ## Funcions de Retorn de Pàgines ##
 ###################################
 @empreses_bp.route('/perfil_empresa', methods=["GET"])
-def perfil_empresa() -> str:
+def mostrar_perfil() -> str:
     """Mostra la pàgina de perfil de l'empresa.
 
     Returns:
         str: Pàgina de perfil de l'empresa.
     """    
-    empresa: Empresa = Empresa.objects(nom_de_usuari=current_user.nom).first()
-    resposta = "No"
+    empresa: Empresa|None = Empresa.objects(nom_de_usuari=current_user.nom).first()
 
-    if len(empresa.practiques) > 0:
-        resposta = "Sí"
-    ## if
-        
     form = EmpresesForm(
             nom=empresa.nom,
             poblacio=empresa.poblacio,
             telefon=empresa.telefon,
             correu=empresa.correu,
             nom_de_persona_de_contacte=empresa.persona_de_contacte,
-            volen_practica=resposta
+            volen_practica=empresa.volen_practica
         )
     
     if form.validate_on_submit():
@@ -95,6 +90,7 @@ def llistat(pagina=1) -> str:
     return render_template(
         'llistat_empreses.jinja2',
         title="Llistat d'Empreses",
+        form = EmpresesForm(),
         empreses=dades_de_empreses,
         template="llistat_empreses-template"
     )
@@ -454,11 +450,12 @@ def importar_empreses() -> Response:
 
                     
                 usuari: Usuari = Usuari(
-                    nom=empresa.nom, 
-                    contrasenya=empresa.nom+"_2022", 
+                    nom="empresa"+str(nombre_de_fila), 
+                    contrasenya="empresa"+str(nombre_de_fila)+"_2022", 
                     rol="Empresa"
                 )
-                usuari.establir_contrasenya(empresa.nom+"_2022")
+                print(usuari.contrasenya)
+                usuari.establir_contrasenya("empresa"+str(nombre_de_fila)+"_2022")
                 resultat = usuari.save()
                     
                 if len(resultat) > 0:
@@ -646,15 +643,27 @@ def insertar_practica(usuari: str) -> Response:
         practica_existeix: Empresa = Empresa.objects(nom_de_usuari=usuari, practiques=practiques).first()
         if practica_existeix:
             resposta: Response = jsonify(success=False, message="La pràctica ja existeix.")
-            return resposta
+            if app.config["DEBUG"]:
+                return resposta
+            else:
+                flash(json.loads(resposta.get_data(as_text=True))["message"])
+                return redirect(url_for('empreses_bp.afegir_practica'))
         else:
             empresa.practiques.append(practiques)
             empresa.save()
             resposta: Response = jsonify(success=True, message="Pràctica insertada.")
-            return resposta
+            if app.config["DEBUG"]:
+                return resposta
+            else:
+                flash(json.loads(resposta.get_data(as_text=True))["message"])
+                return redirect(url_for('empreses_bp.practiques'))
     else:
         resposta: Response = jsonify(success=False, message="L'empresa no existeix.")
-        return resposta
+        if app.config["DEBUG"]:
+                return resposta
+        else:
+            flash(json.loads(resposta.get_data(as_text=True))["message"])
+            return redirect(url_for('mostrar_pagina_de_inici'))
 
 @empreses_bp.route('/actualitzar_practica/<string:usuari>/<int:nombre_de_practica>', methods=["POST"])
 def actualitzar_practica(usuari: str, nombre_de_practica: int) -> Response:

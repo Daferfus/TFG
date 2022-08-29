@@ -4,7 +4,7 @@ from wtforms import Form, IntegerField
 
 class AjustosFCT(Form):
     quantitat_alumnes = IntegerField(
-        "alumne de FCT per cada"
+        "alumnes de FCT per cada"
     )
     hores_alliberades = IntegerField(
         "hores alliberades"
@@ -12,7 +12,7 @@ class AjustosFCT(Form):
 
 class AjustosDUAL(Form):
     quantitat_alumnes = IntegerField(
-        "alumne de FCT per cada"
+        "alumnes de FCT per cada"
     )
     hores_alliberades = IntegerField(
         "hores alliberades"

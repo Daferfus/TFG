@@ -198,7 +198,14 @@ def autenticar() -> Response:
             return resposta
         else:
             flash(json.loads(resposta.get_data(as_text=True))["message"])
-            return redirect(url_for('usuaris_bp.mostrar_pagina_de_inici_de_sessio'))
+            if usuari.rol == "Alumne":
+                return redirect(url_for('alumnes_bp.mostrar_perfil'))
+            elif usuari.rol == "Professor":
+                return redirect(url_for('professors_bp.mostrar_perfil'))
+            elif usuari.rol == "Empresa":
+                return redirect(url_for('empreses_bp.mostrar_perfil'))
+            elif usuari.rol == "Coordinador":
+                return redirect(url_for('assignacions_bp.mostrar_panel_de_assignacio'))
     else:
         resposta: Response = jsonify(
             success=False, 

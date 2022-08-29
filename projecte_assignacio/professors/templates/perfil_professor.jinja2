@@ -6,77 +6,85 @@
   
 
   <div class="form-wrapper">
-    {% include 'messages.jinja2' %}
-    <h1 id="titol_de_seccio">{{ title }}</h1>
-    <form method="POST" action="{{ url_for('professors_bp.recollir_nom_de_professor', usuari=nom_de_usuari) }}">
-    <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          {{ form.nom.label }}
-          <br>
-          <br>
-          {{ form.nom }}
+      {% include 'messages.jinja2' %}
+      <h1 id="titol_de_seccio">{{ title }}</h1>
+      <form method="POST" action="{{ url_for('professors_bp.actualitzar_professor', usuari=nom_de_usuari) }}">
+      <div class="flex">
+        <div class="flex-izquierdo" style="margin-right: 6rem">
+          <fieldset class="form-field">
+              <div align="center" class="marge_vertical">
+                {{ form.nom.label }}
+                <br>
+                <br>
+                {{ form.nom }}
+              </div>
+              {% if form.nom.errors %}
+                <ul class="errors">
+                  {% for error in form.nom.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </fieldset>
         </div>
-        {% if form.nom.errors %}
-          <ul class="errors">
-            {% for error in form.nom.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </fieldset>
-
-      <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          {{ form.cognoms.label }}
-          <br>
-          <br>
-          {{ form.cognoms }}
+        <div class=flex-derecho>
+            <fieldset class="form-field">
+              <div align="center" class="marge_vertical">
+                {{ form.cognoms.label }}
+                <br>
+                <br>
+                {{ form.cognoms }}
+              </div>
+              {% if form.cognoms.errors %}
+                <ul class="errors">
+                  {% for error in form.cognoms.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </fieldset>
         </div>
-        {% if form.cognoms.errors %}
-          <ul class="errors">
-            {% for error in form.cognoms.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </fieldset>
-
-    <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          {{ form.titulacions.label }}
-          <br>
-          <br>
-          {{ form.titulacions }}
+      </div>
+      <div class="flex">
+        <div class="flex-izquierdo" style="margin-right: 6rem">
+          <fieldset class="form-field">
+              <div align="center" class="marge_vertical">
+                {{ form.titulacions.label }}
+                <br>
+                <br>
+                {{ form.titulacions }}
+              </div>
+              {% if form.titulacions %}
+                <ul class="errors">
+                  {% for error in form.titulacions.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+          </fieldset>
         </div>
-        {% if form.titulacions %}
-          <ul class="errors">
-            {% for error in form.titulacions.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </fieldset>
-
-    <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          {{ form.hores_alliberades_setmanalment.label }}
-          <br>
-          <br>
-          {{ form.hores_alliberades_setmanalment }}
-        </div>
-        {% if form.hores_alliberades_setmanalment.errors %}
-            <ul class="errors">
-            {% for error in form.hores_alliberades_setmanalment.errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    </fieldset>
-
+        <div class="flex-derecho">
+          <fieldset class="form-field">
+            <div align="center" class="marge_vertical">
+              {{ form.hores_alliberades_setmanalment.label }}
+              <br>
+              <br>
+              {{ form.hores_alliberades_setmanalment }}
+            </div>
+            {% if form.hores_alliberades_setmanalment.errors %}
+              <ul class="errors">
+                {% for error in form.hores_alliberades_setmanalment.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </fieldset>
+        </div>    
+      </div>
       <div class="marge_vertical" align="center">
         {{ form.submit }}
       </div>
-      </form>
+    </form>
   </div>
 
 {% endblock %}

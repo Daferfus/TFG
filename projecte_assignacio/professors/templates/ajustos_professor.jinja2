@@ -9,28 +9,32 @@
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
     <form method="POST" action="{{ url_for('professors_bp.ratis', usuari=nom_de_usuari) }}">
-    <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          <h2>FCT</h2>
-          <br>
-          <br>
-          {{ form.ajustos_fct }}
+      <div class="flex">
+        <div class="flex-izquierdo" style="margin-right: 6rem">
+          <fieldset class="form-field">
+              <div align="center" class="marge_vertical">
+                <h2>FCT</h2>
+                <br>
+                <br>
+                {{ form.ajustos_fct }}
+              </div>
+          </fieldset>
         </div>
-    </fieldset>
-
-    <fieldset class="form-field">
-        <div align="center" class="marge_vertical">
-          <h2>DUAL</h2>
-          <br>
-          <br>
-          {{ form.ajustos_dual }}
+        <div class="flex-derecho-ajustos">
+          <fieldset class="form-field">
+              <div align="center" class="marge_vertical">
+                <h2>DUAL</h2>
+                <br>
+                <br>
+                {{ form.ajustos_dual }}
+              </div>
+          </fieldset>
         </div>
-    </fieldset>
-    
+      </div>    
       <div class="marge_vertical" align="center">
         {{ form.submit }}
       </div>
-      </form>
-  </div>
+  </form>
+</div>
 
 {% endblock %}

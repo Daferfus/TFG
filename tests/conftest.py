@@ -23,7 +23,7 @@ from projecte_assignacio.empreses.model_empreses import Empresa
 
 @pytest.fixture(scope='module')
 def test_client():
-    flask_app = init_app()
+    flask_app = init_app('config.DevConfig')
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():
             yield testing_client

@@ -9,9 +9,9 @@
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
     {% if accio=="crear" %}
-        <form method="POST" action="{{ url_for('professors_bp.recollir_dades_professor', usuari=nom_de_usuari) }}">
+        <form method="POST" action="{{ url_for('professors_bp.ractualitzar_professor_professor', usuari=nom_de_usuari) }}">
     {% elif accio=="editar" %}
-        <form method="POST" action="{{ url_for('professors_bp.recollir_nom_de_professor', usuari=nom_de_usuari) }}">
+        <form method="POST" action="{{ url_for('professors_bp.esborrar_professor', usuari=nom_de_usuari) }}">
     {% endif %}
     
       <fieldset class="form-field">

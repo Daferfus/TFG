@@ -1,12 +1,16 @@
 """Form object declaration."""
 from flask_wtf import FlaskForm
 from projecte_assignacio.alumnes.formulari_preferencies import PreferenciesASIR, PreferenciesDAM, PreferenciesDAW, PreferenciesTSMR
-from wtforms import StringField, IntegerField, EmailField, RadioField, SubmitField
+from wtforms import SearchField, StringField, IntegerField, EmailField, RadioField, SubmitField
 from wtforms.validators import DataRequired
 
 
 class EmpresesForm(FlaskForm):
     """Formulari d'empreses."""
+
+    filtrar = SearchField(
+        'Filtrar'
+    )
 
     nom = StringField(
         'Nom',
@@ -51,4 +55,4 @@ class EmpresesForm(FlaskForm):
         ]
     )
 
-    submit = SubmitField('Submit')
+    submit = SubmitField('Actualitzar')

@@ -10,22 +10,20 @@
     <h1 id="titol_de_seccio">{{ title }}</h1>
     
     {% set count = namespace(value=0) %}
-    <table>
+    <table class="llistat">
     {% for practica in practiques_de_empresa %}
         <tr>
-            <td>{{ count.value }}</td>
-            <td>{{ practica["Nom"] }}</td>
-            <td>{{ practica["Titulacio"] }}</td>
-            <td><a href="{{ url_for('empreses_bp.editar_practica', nombre_de_practica=count.value) }}"><button>Editar</button></a>
+            <td>{{ practica["Nom"] }} ({{ practica["Titulacio"] }})</td>
+            <td><a href="{{ url_for('empreses_bp.editar_practica', nombre_de_practica=count.value) }}"><button>🖊</button></a>
             <td>
-              <form method="POST" action="{{ url_for('empreses_bp.eliminacio_de_practica', usuari=nom_de_usuari, nombre_de_practica=count.value) }}">
-                <button type="submit">Eliminar</button>
+              <form method="POST" action="{{ url_for('empreses_bp.esborrar_practica', usuari=nom_de_usuari, nombre_de_practica=count.value) }}">
+                <button type="submit">🗑️</button>
               </form>
         </tr>
         {% set count.value = count.value + 1 %}
     {% endfor %}
     </table>
-    <a href="{{ url_for('empreses_bp.anyadir_practica') }}"><button>Anyadir Pràctica</button>
+    <a href="{{ url_for('empreses_bp.anyadir_practica') }}"><button class="anyadir">Afegir Pràctica</button>
   </div>
 
 {% endblock %}

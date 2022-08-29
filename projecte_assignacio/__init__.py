@@ -13,14 +13,14 @@ login_manager = LoginManager()
 #sess = Session()
 
 
-def init_app():
+def init_app(configuracio):
     """Initialize the core application."""
     app = Flask(__name__, instance_relative_config=False)
     # Using a production configuration
     #app.config.from_object('config.ProdConfig')
 
     # Using a development configuration
-    app.config.from_object('config.DevConfig')
+    app.config.from_object(configuracio)
     assets = Environment()  # Create an assets environment
 
     # Initialize Plugins
