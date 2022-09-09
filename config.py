@@ -26,6 +26,10 @@ class ProdConfig(Config):
         "db": environ.get('PROD_MONGO_DB'),
         "host": environ.get('PROD_MONGO_URI')
         }
+    CELERY_CONFIG={
+        'broker_url': 'redis://localhost:6379/0',
+        'result_backend': 'redis://localhost:6379/0',
+    }
     ASSETS_DEBUG = False
 
 class DevConfig(Config):
@@ -37,3 +41,7 @@ class DevConfig(Config):
         "db": environ.get('DEV_MONGO_DB'),
         "host": environ.get('DEV_MONGO_URI')
         }
+    CELERY_CONFIG={
+        'broker_url': 'redis://localhost:6379/0',
+        'result_backend': 'redis://localhost:6379/0',
+    }

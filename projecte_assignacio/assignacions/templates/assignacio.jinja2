@@ -8,16 +8,14 @@
   <div class="container">
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
-    <table>
+    <table class="llistat">
     {% for alumne in alumnes %}
         <tr>
-            <td>{{ alumne.assignacio["Alumne"] }}</td>
-            <td>{{ alumne.assignacio["Pràctica"] }}</td>
-            <td>{{ alumne.assignacio.professor }}</td>
-            <td><a href="{{ url_for('alumnes_bp.editar_alumne', usuari=alumne.nom_de_usuari) }}"><button>Editar</button></a>
+            <td>{{ alumne.assignacio.Alumne }} - {{ alumne.assignacio.Pràctica }} - {{ alumne.assignacio.professor }}</td>
+            <td><a href="{{ url_for('alumnes_bp.editar_alumne', usuari=alumne.nom_de_usuari) }}"><button>🖊</button></a>
             <td>
-              <form method="POST" action="{{ url_for('alumnes_bp.eliminacio_de_alumne', usuari=alumne.nom_de_usuari) }}">
-                <button type="submit">Eliminar</button>
+              <form method="POST" action="{{ url_for('alumnes_bp.esborrar_alumne', usuari=alumne.nom_de_usuari) }}">
+                <button type="submit">🗑️</button>
               </form>
         </tr>
     {% endfor %}

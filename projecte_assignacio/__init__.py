@@ -4,6 +4,8 @@ from flask_redis import FlaskRedis
 from flask_login import LoginManager
 from flask_session import Session
 from flask_assets import Environment  # Import `Environment`
+from celery import Celery
+
 ################################
 ## Llibreries de Accés Global ##
 ################################
@@ -11,7 +13,7 @@ db = MongoEngine()
 r = FlaskRedis()
 login_manager = LoginManager()
 #sess = Session()
-
+celery = Celery(__name__, broker='redis://localhost:6379/0', result_backend='redis://localhost:6379/0')
 
 def init_app(configuracio):
     """Initialize the core application."""
@@ -29,7 +31,6 @@ def init_app(configuracio):
     assets.init_app(app)  # Initialize Flask-Assets
     login_manager.init_app(app)
     #sess.init_app(app)
-
     
     with app.app_context():
         # Include our Routes
@@ -50,7 +51,6 @@ def init_app(configuracio):
 
         # Compile static assets
         compile_static_assets(assets)  # Execute logic
-
         return app
 
 ####################################

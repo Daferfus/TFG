@@ -39,7 +39,6 @@ def calcular_distancia(alumnes: list[Alumne], empreses: list[Empresa]):
             }
         )
         distancies.append(distancies_alumne)
-    print(distancies)
     return distancies
 
 def definir_variables(alumnes: list[Alumne], empreses: list[Empresa], professors: list[Professor]):
@@ -88,7 +87,6 @@ def definir_variables(alumnes: list[Alumne], empreses: list[Empresa], professors
                 variable_practiques_professor[len(empresa.practiques)]: list = llistat_practiques
                 nombre_de_practiques-=1
 
-    print(variable_alumnes)
     return [variable_alumnes, variable_professors, practiques, solver, variable_practiques_alumne, variable_practiques_professor]
 
 def definir_restriccions(alumnes: list[Alumne], professors: list[Professor], practiques, solver, variable_alumnes, variable_professors, variable_practiques_alumne, variable_practiques_professor):
@@ -103,7 +101,7 @@ def definir_restriccions(alumnes: list[Alumne], professors: list[Professor], pra
     # Restricció de capacitat del professor.
     for professor in professors:
         variables = professor.nom
-        c = solver.Constraint(0, professor.hores_alliberades)
+        c = solver.Constraint(0, float(professor.hores_alliberades))
         for v in variable_professors[variables]:
             c.SetCoefficient(v, 1)
 
@@ -127,21 +125,19 @@ def definir_funcio_objectiu(solver, variable_practiques_alumne, alumnes: list[Al
     objective = solver.Objective()
     objective.SetMinimization()
 
-    print(alumnes)
     nombre_de_alumne: int = 0
     for alumne in alumnes:
         nombre_de_practica: int = 0
         sid = alumne.nom_i_cognoms
-        print(sid)
+        print(distancies[0][nombre_de_alumne])
         for key, val in distancies[0][nombre_de_alumne].items():
             print(key)
             if key=="Distancia":
                 print(float(val))
-                print(variable_alumnes[sid])
+                #print(variable_alumnes[sid])
                 objective.SetCoefficient(variable_alumnes[sid][nombre_de_practica], float(val))
                 nombre_de_practica+=1
-            # if
-        # for
+            # if        # for
         nombre_de_alumne+=1
     # for
     return [solver, objective, variable_alumnes]

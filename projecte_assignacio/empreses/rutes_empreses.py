@@ -402,6 +402,8 @@ def importar_empreses() -> Response:
 
     while nombre_de_fila < len(df):
         empresa: dict = {}
+        empresa["VolenPractica"]: str = "No"
+        empresa["Ciutat"]: str = ""
         preferencies: dict = {}
         nombre_de_practiques: int = 0
         for columna in df:
@@ -412,59 +414,65 @@ def importar_empreses() -> Response:
                     nombre_de_practiques+=int(df.loc[nombre_de_fila, columna])
                     empresa["Preferencies"]: dict = preferencies
                     empresa["Practiques"]: int = nombre_de_practiques
+                    if nombre_de_practiques > 0:
+                        empresa["VolenPractica"]: str = "Sí"
             else:
                 if not pd.isnull(df.loc[nombre_de_fila, columna]):
                     empresa[columna]: str = df.loc[nombre_de_fila, columna]
         ## for
 
         ## Si ofereix pràctiques s'anyadix al diccionari.
+        practiques: list = list()
+        practica: dict = dict()
         if empresa["Practiques"] != 0:
             if "Ciutat" in empresa:
                 empreses.append(empresa)
                 if empresa["Ciutat"] not in ciutat_empreses:
                     ciutat_empreses.append(empresa["Ciutat"])
-                practiques: list = list()
+
                 contador_practiques:int = 0
                 for x, y in empresa["Preferencies"].items():
                     while(y>0):
                         contador_practiques+=1
-                        practica: dict = dict()
+                        
                         practica["Nom"] = "Pràctica"+str(contador_practiques)
                         practica["Titulacio"] = x
                         practica["Descripcio"] = ""
                         practica["Tecnologies i Frameworks"] = list()
                         practiques.append(practica)
                         y-=1
-
-                empresa: Empresa = Empresa(
-                    nom_de_usuari="empresa"+str(nombre_de_fila),
-                    nom=empresa["Empresa"], 
-                    poblacio=empresa["Ciutat"], 
-                    telefon=0, 
-                    correu="", 
-                    persona_de_contacte="", 
-                    practiques=practiques,
-                    assignacions=[]
-                )
-                empresa.save()
+                    ## while
+                ## for
+            ## if
+        empresa: Empresa = Empresa(
+            nom_de_usuari="empresa"+str(nombre_de_fila),
+            nom=empresa["Empresa"], 
+            poblacio=empresa["Ciutat"], 
+            telefon=0, 
+            correu="", 
+            persona_de_contacte="", 
+            volen_practica=empresa["VolenPractica"],
+            practiques=practiques,
+            assignacions=[]
+        )
+        empresa.save()
 
                     
-                usuari: Usuari = Usuari(
-                    nom="empresa"+str(nombre_de_fila), 
-                    contrasenya="empresa"+str(nombre_de_fila)+"_2022", 
-                    rol="Empresa"
-                )
-                print(usuari.contrasenya)
-                usuari.establir_contrasenya("empresa"+str(nombre_de_fila)+"_2022")
-                resultat = usuari.save()
+        usuari: Usuari = Usuari(
+            nom="empresa"+str(nombre_de_fila), 
+            contrasenya="empresa"+str(nombre_de_fila)+"_2022", 
+            rol="Empresa"
+        )
+        
+        usuari.establir_contrasenya("empresa"+str(nombre_de_fila)+"_2022")
+        resultat = usuari.save()
                     
-                if len(resultat) > 0:
-                    contador_de_insertats+=1
-                else:
-                    quantitat_de_empreses_ja_insertats+=1
-                ## if
-            ## while
+        if len(resultat) > 0:
+            contador_de_insertats+=1
+        else:
+            quantitat_de_empreses_ja_insertats+=1
         ## if
+        
         nombre_de_fila+=1
     ## while
 

@@ -1,6 +1,8 @@
 import json
 from munch import DefaultMunch
-from flask import Blueprint, Response, jsonify, request, render_template
+from flask import Blueprint, Response, jsonify, request, render_template, flash, redirect, url_for
+
+from .. import celery
 from projecte_assignacio.assignacions import model_de_optimitzacio
 from projecte_assignacio.alumnes import rutes_alumnes
 from projecte_assignacio.empreses import rutes_empreses
@@ -8,6 +10,7 @@ from projecte_assignacio.professors import rutes_professors
 from projecte_assignacio.alumnes.model_alumnes import Alumne
 from projecte_assignacio.empreses.model_empreses import Empresa
 from projecte_assignacio.professors.model_professors import Professor
+
 # Blueprint Configuration
 assignacions_bp = Blueprint(
     'assignacions_bp', __name__,
@@ -15,13 +18,14 @@ assignacions_bp = Blueprint(
     static_folder='static'
 )
 
+
 @assignacions_bp.route('/assignacio')
 def mostrar_panel_de_assignacio():
-    alumnes: Alumne = rutes_alumnes.obtindre_dades_de_alumnes()
+    alumnes: list[Alumne]|None = Alumne.objects()
     return render_template(
         'assignacio.jinja2',
         title="Projecte d'Assignació",
-        assignacions=alumnes,
+        alumnes=alumnes,
         description="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
     )
 
@@ -140,6 +144,7 @@ def eliminacio_de_assignacio(alumne: str, nom_de_professor: str, cognoms_de_prof
         resposta: Response = jsonify(success=True, message="No s'ha esborrat l'assignació.")
         return resposta
 
+
 @assignacions_bp.route('/realitzar_assignacio_automatica', methods=['GET'])
 def assignar_automaticament() -> Response:
     """Crida a la funció que assigna automàticament d'alumnes i professors a pràctiques d'empresa.
@@ -147,6 +152,12 @@ def assignar_automaticament() -> Response:
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
+    assignar.delay()
+    flash("L'assignació automàtica s'està executant en segó plà."
+    +"Quan acabi se t'avisarà a través d'una notificació com aquesta.")
+    return redirect(url_for('assignacions_bp.mostrar_panel_de_assignacio'))
+@celery.task()
+def assignar():
     contador_de_assignacions: int = 0
 
     resposta_alumnes: Response = rutes_alumnes.obtindre_dades_de_alumnes()
@@ -185,8 +196,6 @@ def assignar_automaticament() -> Response:
                 if resultat > 0:
                     contador_de_assignacions+=1
     if contador_de_assignacions>0:
-        resposta: Response = jsonify(success=True, message="L'assignació automàtica a ocorregut sense cap problema.")
-        return resposta
+        return "L'assignació automàtica a ocorregut sense cap problema."
     else:
-        resposta: Response = jsonify(success=True, message="Ha ocorregut un problema durant l'assignació automàtica.")
-        return resposta
+        return "Ha ocorregut un problema durant l'assignació automàtica."
