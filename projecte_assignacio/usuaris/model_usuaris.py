@@ -24,6 +24,7 @@ class Usuari(UserMixin, me.Document):
     nom: str = me.StringField(required=True)
     contrasenya: str = me.StringField(required=True)
     rol: str = me.StringField(required=True)
+    distancies: list[dict] = me.ListField(required=True)
 
     def establir_contrasenya(self, contrasenya: str):
         """Crea una contrasenya xifrada.

@@ -12,16 +12,12 @@ from celery import Celery
 db = MongoEngine()
 r = FlaskRedis()
 login_manager = LoginManager()
-#sess = Session()
+sess = Session()
 celery = Celery(__name__, broker='redis://localhost:6379/0', result_backend='redis://localhost:6379/0')
 
 def init_app(configuracio):
     """Initialize the core application."""
     app = Flask(__name__, instance_relative_config=False)
-    # Using a production configuration
-    #app.config.from_object('config.ProdConfig')
-
-    # Using a development configuration
     app.config.from_object(configuracio)
     assets = Environment()  # Create an assets environment
 
@@ -30,7 +26,7 @@ def init_app(configuracio):
     r.init_app(app)
     assets.init_app(app)  # Initialize Flask-Assets
     login_manager.init_app(app)
-    #sess.init_app(app)
+    sess.init_app(app)
     
     with app.app_context():
         # Include our Routes

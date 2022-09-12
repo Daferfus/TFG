@@ -1,6 +1,20 @@
 import json
 from munch import DefaultMunch
-from flask import Blueprint, Response, jsonify, request, render_template, flash, redirect, url_for
+from flask import (
+    Blueprint, 
+    Response, 
+    jsonify, 
+    request, 
+    render_template, 
+    flash, 
+    redirect, 
+    url_for, 
+    session,
+    g
+)
+from flask_login import current_user
+
+from projecte_assignacio.usuaris.model_usuaris import Usuari
 
 from .. import celery
 from projecte_assignacio.assignacions import model_de_optimitzacio
@@ -145,35 +159,106 @@ def eliminacio_de_assignacio(alumne: str, nom_de_professor: str, cognoms_de_prof
         return resposta
 
 
-@assignacions_bp.route('/realitzar_assignacio_automatica', methods=['GET'])
+@assignacions_bp.route('/realitzar_assignacio_automatica', methods=['POST'])
 def assignar_automaticament() -> Response:
     """Crida a la funció que assigna automàticament d'alumnes i professors a pràctiques d'empresa.
 
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    assignar.delay()
+    distancies = session.get('distancies')
+    print(distancies)
+    tasca_de_assignacio = assignar.delay(distancies)
     flash("L'assignació automàtica s'està executant en segó plà."
     +"Quan acabi se t'avisarà a través d'una notificació com aquesta.")
-    return redirect(url_for('assignacions_bp.mostrar_panel_de_assignacio'))
-@celery.task()
-def assignar():
+    return jsonify({}), 202, {'Location': url_for('assignacions_bp.taskstatus',
+                                                  task_id=tasca_de_assignacio.id)}
+
+@assignacions_bp.route('/status/<task_id>')
+def taskstatus(task_id):
+    task = assignar.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        # job did not start yet
+        print("Fase 1")
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        if task.info.get('status', '') == 'Assignacions Realitzades':
+            session['distancies'] = current_user.distancies
+            print(session.get('distancies'))
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+            
+    else:
+        # something went wrong in the background job
+        print("Error")
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    return jsonify(response)
+
+@celery.task(bind=True)
+def assignar(self, distancies):
     contador_de_assignacions: int = 0
 
+    self.update_state(state='PROGRESS',
+                          meta={'current': 0, 'total': 100,
+                                'status': "Recopil·lant alumnes"})
     resposta_alumnes: Response = rutes_alumnes.obtindre_dades_de_alumnes()
     alumnes: list[Alumne]|None = DefaultMunch.fromDict(json.loads(resposta_alumnes.get_data(as_text=True))["message"])
+
+    self.update_state(state='PROGRESS',
+                            meta={'current': 15, 'total': 100,
+                                'status': "Recopil·lant professors"})
     resposta_professors: Response = rutes_professors.obtindre_dades_de_professors()
     professors: list[Professor]|None = DefaultMunch.fromDict(json.loads(resposta_professors.get_data(as_text=True))["message"])
+
+    self.update_state(state='PROGRESS',
+                          meta={'current': 30, 'total': 100,
+                                'status': "Recopil·lant empreses"})
     resposta_empreses = rutes_empreses.obtindre_dades_de_empreses()
     empreses: list[Empresa]|None = DefaultMunch.fromDict(json.loads(resposta_empreses.get_data(as_text=True))["message"])
     
-    distancies: list[dict] = model_de_optimitzacio.calcular_distancia(alumnes, empreses)
+    self.update_state(state='PROGRESS',
+                          meta={'current': 35, 'total': 100,
+                                'status': "Calculant distàncies alumne-pràctica"})
+    
+    if distancies == None:
+        distancies: list[dict] = model_de_optimitzacio.calcular_distancia(alumnes, empreses)
+    ## if
+    usuari: Usuari|None = Usuari.objects(nom="Soft").first()
+    usuari.distancies = distancies
+    usuari.save()
+    self.update_state(state='PROGRESS',
+                          meta={'current': 70, 'total': 100,
+                                'status': "Comprovant les distintes prosibil·litats"})
     variables: list = model_de_optimitzacio.definir_variables(alumnes, empreses, professors)
     restriccions: list = model_de_optimitzacio.definir_restriccions(alumnes, professors, variables[2], variables[3], variables[0], variables[1], variables[4], variables[5])
+
+    self.update_state(state='PROGRESS',
+                          meta={'current': 85, 'total': 100,
+                                'status': "Buscant assignacions més óptimes"})
     funcio = model_de_optimitzacio.definir_funcio_objectiu(restriccions[0], restriccions[1], alumnes, empreses, distancies, restriccions[2])
 
     tipo_resultado = funcio[0].Solve()
 
+
+    self.update_state(state='PROGRESS',
+                          meta={'current': 95, 'total': 100,
+                                'status': "Guardant assignacions més óptimes"})
     for alumne in alumnes:
         sid = alumne.nom_i_cognoms
         for v in funcio[2][sid] :
@@ -196,6 +281,7 @@ def assignar():
                 if resultat > 0:
                     contador_de_assignacions+=1
     if contador_de_assignacions>0:
-        return "L'assignació automàtica a ocorregut sense cap problema."
+        return {'current': 100, 'total': 100, 'status': "Assignacions Realitzades"}
     else:
         return "Ha ocorregut un problema durant l'assignació automàtica."
+        

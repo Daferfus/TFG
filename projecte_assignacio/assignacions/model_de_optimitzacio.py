@@ -9,6 +9,7 @@ from ortools.linear_solver import pywraplp
 from geopy import Nominatim
 import requests
 import json
+from flask import session, g
 
 ###################################
 ########## Assignacions ###########

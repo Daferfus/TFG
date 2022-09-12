@@ -1,52 +1,83 @@
-from curses.ascii import EM
-from shelve import DbfilenameShelf
-import sys
-sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\projecte_assignacio")
-from projecte_assignacio import init_app
+###################################################################
+## Autor: David Fernández Fuster                                 ##
+## Data: 09/09/2022                                              ## 
+## Funció: Funcions amb les dades base per a executar tests.     ##
+###################################################################
+from flask import Flask
+from flask_mongoengine import MongoEngine
 
 import pytest
-import random
-import uuid
-import bcrypt
-from flask import Flask
 
- 
-from flask_mongoengine import MongoEngine
-# from mockupdb import MockupDB, go, Command
-# from bson.objectid import ObjectId
-from json import dumps
+#############################################
+## Ruta sobre la que s'executen els tests. ##
+#############################################
+import sys
+sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\projecte_assignacio")
 
+from projecte_assignacio import init_app, celery
 from projecte_assignacio.usuaris.model_usuaris import Usuari
 from projecte_assignacio.alumnes.model_alumnes import Alumne
 from projecte_assignacio.professors.model_professors import Professor
 from projecte_assignacio.empreses.model_empreses import Empresa
+#############################################
+#############################################
 
 @pytest.fixture(scope='module')
 def test_client():
-    flask_app = init_app('config.DevConfig')
+    """Inicialitza el client Flask per al seu testeig.
+
+    Yields:
+        Flask Client: Client Flask inicialitzat.
+    """
+    flask_app: Flask = init_app('config.DevConfig')
     with flask_app.test_client() as testing_client:
         with flask_app.app_context():
             yield testing_client
+## ()
+
 
 @pytest.fixture(scope='module')
-def test_mongo():
-    db = MongoEngine()
-    app = Flask(__name__, instance_relative_config=False)
+def test_mongo() -> object:
+    """Inicialitza el client Flask amb una base de dades no persistent per al seu testeig.
+
+    Returns:
+        object: Client Flask amb la base de dades inicialitzada.
+    """
+    db: object = MongoEngine()
+    app: Flask = Flask(__name__, instance_relative_config=False)
     app.config.from_object('config.DevConfig')
     db.init_app(app)
     return db
+## ()
 
+# @pytest.fixture(scope='module')
+# def test_celery():
+#     return {
+#         'broker_url': 'memory://',
+#         'result_backend': 'redis://'
+#     }
 @pytest.fixture(scope='module')
-def nou_usuari():
+def nou_usuari() -> Usuari:
+    """Instancia un objecte Usuari per a provar les seues funcionalitats. 
+
+    Returns:
+        Usuari: Objecte de tipus Usuari.
+    """
     usuari = Usuari(
         nom='Mikaeru Softo', 
-        contrasenya=bcrypt.hashpw('Machete1@'.encode('utf-8'), bcrypt.gensalt()), 
+        contrasenya='Machete1@', 
         rol='Alumne'
         )
     return usuari
+## ()
 
 @pytest.fixture(scope='module')
-def nou_alumne():
+def nou_alumne() -> Alumne:
+    """Instancia un objecte Alumne per a provar les seues funcionalitats. 
+
+    Returns:
+        Alumne: Objecte de tipus Alumne.
+    """
     alumne = Alumne(
         nom_i_cognoms="David Fernández Fuster", 
         grup="DAW", 
@@ -57,13 +88,27 @@ def nou_alumne():
         observacions="Disponible", 
         aporta_empresa=True, 
         erasmus=False, 
-        distancies={"Punt de Partida": "Gandía", "Punt de Destí": "València", "Distància": 8}, 
-        assignacio={"Alumne": "David Fernández Fuster", "Pràctica": "Locatec_(Pràctica 01)", "Professor": "Juan Miguel Alberola Oltra"}
-        )
+        distancies={
+            "Punt de Partida": "Gandía", 
+            "Punt de Destí": "València", 
+            "Distància": 8
+        }, 
+        assignacio={
+            "Alumne": "David Fernández Fuster", 
+            "Pràctica": "Locatec_(Pràctica 01)", 
+            "Professor": "Juan Miguel Alberola Oltra"
+        }
+    )
     return alumne
+## ()
 
 @pytest.fixture(scope='module')
-def nou_professor():
+def nou_professor() -> Professor:
+    """Instancia un objecte Professor per a provar les seues funcionalitats. 
+
+    Returns:
+        Professor: Objecte de tipus Professor.
+    """
     professor = Professor(
         nom="Juan Miguel", 
         cognoms="Alberola Oltra", 
@@ -72,13 +117,24 @@ def nou_professor():
         hores_restants=5, 
         rati_fct="1 hora per alumne", 
         rati_dual="3 hores per alumne", 
-        assignacions=[{"Alumne": "David Fernández Fuster", "Pràctica": "Locatec_(Pràctica 01)", "Professor": "Juan Miguel Alberola Oltra"}]
+        assignacions=[
+            {
+                "Alumne": "David Fernández Fuster", 
+                "Pràctica": "Locatec_(Pràctica 01)", 
+                "Professor": "Juan Miguel Alberola Oltra"
+            }
+        ]
     )
     return professor
-
+## ()
 
 @pytest.fixture(scope='module')
-def nova_empresa():
+def nova_empresa() -> Empresa:
+    """Instancia un objecte Empresa per a provar les seues funcionalitats. 
+
+    Returns:
+        Alumne: Objecte de tipus Empresa.
+    """
     empresa = Empresa(
         nom="Locatec", 
         poblacio="València", 
@@ -86,6 +142,13 @@ def nova_empresa():
         correu="info@locatec.es", 
         persona_de_contacte="Salva", 
         practiques=[{"Nom": "Pràctica 01"}],
-        assignacions=[{"Alumne": "David Fernández Fuster", "Pràctica": "Locatec_(Pràctica 01)", "Professor": "Juan Miguel Alberola Oltra"}]
+        assignacions=[
+            {
+                "Alumne": "David Fernández Fuster", 
+                "Pràctica": "Locatec_(Pràctica 01)", 
+                "Professor": "Juan Miguel Alberola Oltra"
+            }
+        ]
     )
     return empresa
+## ()
