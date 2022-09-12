@@ -1,51 +1,87 @@
+###############################################################################
+## Autor: David Fernández Fuster                                             ##
+## Data: 11/08/2022                                                          ## 
+## Funció: Conté les rutes que desencandenen accions sobre les assignacions. ##
+###############################################################################
+
+################
+## Llibreries ##
+################
 import json
+import pytest
+
+#############
+##  Flask  ##
+#############
 from flask import Response
 
+######################################
+##  Parche per als Tests de Celery  ##
+######################################
+from unittest.mock import patch
 
+###########
+##  Ruta ##
+###########
+import sys
+sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\projecte_assignacio")
+
+
+#######################
+##  Funció de Celery ##
+#######################
+from projecte_assignacio.assignacions.rutes_assignacions import assignar
+
+#############
+##  Tests  ##
+#############
 def test_importar_alumnes_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició de importar alumnes
-    LLAVORS comprovar que els alumnes estiguen insertats.
+    LLAVORS comprovar que els alumnes estiguen inserits.
     """    
-    file = "tests\\functional\\fitxers\\DAW.csv"
+    fitxer: str = "tests\\functional\\fitxers\\DAW.csv"
     data = {
-        'fichero': (open(file, 'rb'), file),
+        'fichero': (open(fitxer, 'rb'), fitxer),
         'cicle': "DAW"
     }
     resposta: Response = test_client.post('/importar_alumnes', data=data)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
+## ()
 
 def test_importar_professors_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de importar professors
-    LLAVORS comprovar que els professor estiguen insertats.
+    QUAN s'haja executat la petició d'importar professors
+    LLAVORS comprovar que els professor estiguen inserits.
     """    
-    file = "tests\\functional\\fitxers\\Dades_empreses-professors-21-22.xlsx"
+    fitxer: str = "tests\\functional\\fitxers\\Dades_empreses-professors-21-22.xlsx"
     data = {
-        'fichero': (open(file, 'rb'), file)
+        'fichero': (open(fitxer, 'rb'), fitxer)
     }
     resposta: Response = test_client.post('/importar_professors', data=data)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
+## ()
 
 def test_importar_empreses_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de importar empreses
-    LLAVORS comprovar que les empreses estiguen insertades.
+    QUAN s'haja executat la petició d'importar empreses
+    LLAVORS comprovar que les empreses estiguen inserides.
     """    
-    file = "tests\\functional\\fitxers\\Empreses-Adaptat.xlsx"
+    fitxer: str = "tests\\functional\\fitxers\\Empreses-Adaptat.xlsx"
     data = {
-        'fichero': (open(file, 'rb'), file)
+        'fichero': (open(fitxer, 'rb'), fitxer)
     }
     resposta: Response = test_client.post('/importar_empreses', data=data)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
+## ()
 
-def test_insertar_assignacio_manual_amb_fixture(test_client):
+def test_inserir_assignacio_manual_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de insertar assignació de forma manual
+    QUAN s'haja executat la petició d'inserir assignació de forma manual
     LLAVORS comprovar que l'alumne tinga la seua pràctica assignada.
     """    
     dades: dict[str, str] = {
@@ -53,6 +89,7 @@ def test_insertar_assignacio_manual_amb_fixture(test_client):
     }
     resposta: Response = test_client.post('/insertar_assignacio_manual/alumno01/professor01/professor01/AEOL', data=dades)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
+## ()
 
 def test_actualitzar_assignacio_amb_fixture(test_client):
     """
@@ -65,7 +102,7 @@ def test_actualitzar_assignacio_amb_fixture(test_client):
     }
     resposta: Response = test_client.put('/actualitzar_assignacio/alumno01/professor01/professor01/AEOL/Pràctica01', data=dades)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
-
+## ()
     
 def test_esborrar_assignacio_amb_fixture(test_client):
     """
@@ -75,13 +112,19 @@ def test_esborrar_assignacio_amb_fixture(test_client):
     """    
     resposta: Response = test_client.delete('/esborrar_assignacio/alumno02/professor01/professor01/AEOL/Pràctica01')
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
+## ()
 
-
-def test_realitzar_assignacio_automatica_amb_fixture(test_client):
+@patch.object(assignar, 'delay')
+@pytest.mark.use_fixtures
+def test_realitzar_assignacio_automatica_amb_fixture(mock_delay, test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició de realitzar assignació automàtica
-    LLAVORS comprovar que els alumnes s'hajen assignat.
+    LLAVORS comprovar que els alumnes s'hagen assignat.
     """    
-    resposta: Response = test_client.get('/realitzar_assignacio_automatica')
-    assert json.loads(resposta.get_data(as_text=True))["success"] == True
+    resposta: Response = test_client.post('/realitzar_assignacio_automatica')
+    #assert json.loads(resposta.get_data(as_text=True))["success"] == True
+    assert resposta.status_code == 202
+## ()
+##############################################################
+##############################################################

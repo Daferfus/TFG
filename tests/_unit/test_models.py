@@ -9,7 +9,7 @@ def test_nou_usuari_amb_fixture(nou_usuari):
     """
     DONAT un model d'Usuari
     QUAN un nou Usuari es creat
-    LLAVORS comprobar que els camps nom, contrasenya i rol hajen sigut definits correctament
+    LLAVORS comprobar que els camps nom, contrasenya i rol hajen sigut definits correctament.
     """
     nou_usuari.establir_contrasenya(nou_usuari.contrasenya)
 
@@ -24,7 +24,7 @@ def test_nou_alumne_amb_fixture(nou_alumne):
     QUAN un nou Alumne es creat
     LLAVORS comprobar que els camps nom_i_cognoms, grup, poblacio, mobilitat, tipo_de_practica, 
     preferencies, observacions, aporta_empresa, erasmus, distancies i assignacio 
-    hajen sigut definits correctament
+    hajen sigut definits correctament.
     """
     assert nou_alumne.nom_i_cognoms == "David Fernández Fuster" 
     assert nou_alumne.grup == "DAW"
@@ -52,7 +52,7 @@ def test_nou_professor_amb_fixture(nou_professor):
     DONAT un model de Professor
     QUAN un nou Professor es creat
     LLAVORS comprobar que els camps nom, cognoms, titulacions, hores_alliberades, hores_restants, 
-    rati_fct, rati_dual i assignacions hajen sigut definits correctament
+    rati_fct, rati_dual i assignacions hajen sigut definits correctament.
     """
     assert nou_professor.nom == "Juan Miguel"
     assert nou_professor.cognoms == "Alberola Oltra"
@@ -75,7 +75,7 @@ def test_nova_empresa_amb_fixture(nova_empresa):
     DONAT un model d'Empersa
     QUAN una nova Empresa es creada
     LLAVORS comprobar que els camps nom, poblacio, telefon, correu, 
-    persona_de_contacte, practiques i assignacions hajen sigut definits correctament
+    persona_de_contacte, practiques i assignacions hajen sigut definits correctament.
     """
     assert nova_empresa.nom == "Locatec" 
     assert nova_empresa.poblacio == "València" 

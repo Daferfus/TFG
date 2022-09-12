@@ -1,7 +1,7 @@
 ##########################################################################
 ## Autor: David Fernández Fuster                                        ##
 ## Data: 11/08/2022                                                     ## 
-## Funció: Conté les rutes que desencandenen accions sobre els alumnes. ##
+## Funció: Conté les rutes que desencandenen accions sobre els usuaris. ##
 ##########################################################################
 
 ################
@@ -26,7 +26,7 @@ from projecte_assignacio.usuaris.model_usuaris import Usuari
 def test_esborrar_usuaris_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de esborrat d'usuaris
+    QUAN s'haja executat la petició d'esborrat d'usuaris
     LLAVORS comprovar que no quede cap usuari.
     """    
     resposta: Response = test_client.delete('/esborrar_usuaris')
@@ -59,7 +59,7 @@ def test_autenticar_usuari_amb_fixture(test_client):
     dades: dict = {
         "nom": 'Mikaeru Softo', 
         "contrasenya": 'Machete1@'
-        }
+    }
     resposta: Response = test_client.post('/autenticar', data=dades)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
 ## ()
@@ -95,7 +95,7 @@ def test_actualitzar_usuari_amb_fixture(test_client):
         'nom': 'Michael Soft', 
         'contrasenya': 'Machete1@', 
         "rol": "Alumne"
-        }
+    }
     primera_resposta: Response = test_client.put('/actualitzar_usuari/Mikaeru Softo', data=dades)
     assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
     segona_resposta: Response = test_client.put('/actualitzar_usuari/Mikaeru Softo', data=dades)
@@ -105,7 +105,7 @@ def test_actualitzar_usuari_amb_fixture(test_client):
 def test_esborrar_usuari_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de esborrat d'usuari
+    QUAN s'haja executat la petició d'esborrat d'usuari
     LLAVORS comprovar que el usuari previament insertat no existisca.
     """    
     resposta: Response = test_client.delete('/esborrar_usuari/Michael Soft')
@@ -115,7 +115,7 @@ def test_esborrar_usuari_amb_fixture(test_client):
 def test_obtindre_dades_del_usuari_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de de recerca del usuari anteriorment borrat
+    QUAN s'haja executat la petició de de recerca del usuari anteriorment esborrat
     LLAVORS comprovar que no existisca.
     """    
     resposta: Response = test_client.get('/usuari/Michael Soft')

@@ -50,12 +50,7 @@ def test_mongo() -> object:
     return db
 ## ()
 
-# @pytest.fixture(scope='module')
-# def test_celery():
-#     return {
-#         'broker_url': 'memory://',
-#         'result_backend': 'redis://'
-#     }
+        
 @pytest.fixture(scope='module')
 def nou_usuari() -> Usuari:
     """Instancia un objecte Usuari per a provar les seues funcionalitats. 
@@ -63,7 +58,7 @@ def nou_usuari() -> Usuari:
     Returns:
         Usuari: Objecte de tipus Usuari.
     """
-    usuari = Usuari(
+    usuari: Usuari = Usuari(
         nom='Mikaeru Softo', 
         contrasenya='Machete1@', 
         rol='Alumne'
@@ -78,7 +73,7 @@ def nou_alumne() -> Alumne:
     Returns:
         Alumne: Objecte de tipus Alumne.
     """
-    alumne = Alumne(
+    alumne: Alumne = Alumne(
         nom_i_cognoms="David Fernández Fuster", 
         grup="DAW", 
         poblacio="Gandía", 
@@ -109,7 +104,7 @@ def nou_professor() -> Professor:
     Returns:
         Professor: Objecte de tipus Professor.
     """
-    professor = Professor(
+    professor: Professor = Professor(
         nom="Juan Miguel", 
         cognoms="Alberola Oltra", 
         titulacions={"DAW": "X", "ASIX": "X"}, 
@@ -135,7 +130,7 @@ def nova_empresa() -> Empresa:
     Returns:
         Alumne: Objecte de tipus Empresa.
     """
-    empresa = Empresa(
+    empresa: Empresa = Empresa(
         nom="Locatec", 
         poblacio="València", 
         telefon=665517969, 

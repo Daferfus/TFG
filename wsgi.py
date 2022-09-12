@@ -13,9 +13,9 @@ from projecte_assignacio import init_app
 ###########
 ## Modes ##
 ###########
-## -----------------------------------------------------------------------
-## Per a més informació sobre els modes, consultar el fitxer "config.py". 
-## -----------------------------------------------------------------------
+#-----------------------------------------------------------------------
+# Per a més informació sobre els modes, consultar el fitxer "config.py". 
+#------------------------------------------------------------------------
 mode_produccio: str = 'config.ProdConfig'
 mode_desenvolupament: str = 'config.DevConfig'
 

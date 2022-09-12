@@ -33,11 +33,11 @@ def test_esborrar_alumnes_amb_fixture(test_client):
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
 ## ()
 
-def test_insertar_alumne_amb_fixture(test_client):
+def test_inserir_alumne_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició de inserció d'alumne
-    LLAVORS comprovar que este haja sigut insertat i que no puga tornar-se a insertar.
+    LLAVORS comprovar que este haja sigut insertat i que no puga tornar-se a inserir.
     """    
     dades: dict[str, str] = {
         "nom_i_cognoms": "David Fernàndez Fuster",
@@ -60,7 +60,7 @@ def test_insertar_alumne_amb_fixture(test_client):
 def test_obtindre_dades_del_alumne_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de de recerca de l'alumne anteriorment insertat
+    QUAN s'haja executat la petició de de recerca de l'alumne anteriorment inserit
     LLAVORS comprovar que existisca.
     """    
     resposta: Response = test_client.get('/alumne/David Fernàndez Fuster')
@@ -71,8 +71,8 @@ def test_obtindre_dades_del_alumne_amb_fixture(test_client):
 def test_actualitzar_alumne_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició d'actualitzar alumne
-    LLAVORS comprovar que el nom ja no siga el mateix.
+    QUAN s'haja executat amb éxit la petició d'actualitzar alumne
+    LLAVORS comprovar que la petició fracase si és fa sobre un inexistent.
     """    
     dades: dict[str, str] = {
         "nom_i_cognoms": "David Fernández Fuster",
@@ -96,21 +96,21 @@ def test_esborrar_alumne_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició d'esborrat d'alumne
-    LLAVORS comprovar que l'alumne previament insertat no existisca.
+    LLAVORS comprovar que l'alumne previament inserit no existisca.
     """    
-    response = test_client.post('/esborrar_alumne/David Fernàndez Fuster')
-    assert json.loads(response.get_data(as_text=True))["success"] == True
+    resposta: Response = test_client.post('/esborrar_alumne/David Fernàndez Fuster')
+    assert json.loads(resposta.get_data(as_text=True))["success"] == True
 ## ()
 
 def test_importar_alumnes_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de importar alumnes
-    LLAVORS comprovar que els alumnes estiguen insertats.
+    QUAN s'haja executat la petició d'importar alumnes
+    LLAVORS comprovar que els alumnes estiguen inserits.
     """    
-    file = "tests\\functional\\fitxers\\DAM.csv"
+    fitxer = "tests\\functional\\fitxers\\DAM.csv"
     data = {
-        'fichero': (open(file, 'rb'), file),
+        'fichero': (open(fitxer, 'rb'), fitxer),
         'cicle': "DAM"
     }
     resposta: Response = test_client.post('/importar_alumnes', data=data)
@@ -120,7 +120,7 @@ def test_importar_alumnes_amb_fixture(test_client):
 def test_exportar_empreses_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
-    QUAN s'haja executat la petició de exportar alumnes
+    QUAN s'haja executat la petició d'exportar alumnes
     LLAVORS comprovar que existisca el fitxer.
     """    
     resposta: Response = test_client.get('/exportar_alumnes')
@@ -131,7 +131,7 @@ def test_obtindre_dades_de_alumnes_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició de recuperar dades de tots els alumnes
-    LLAVORS te que hi haure més de 0 alumnes en la base de dades.
+    LLAVORS ha d'hi haure 15 alumnes en la base de dades.
     """    
     resposta: Response = test_client.get('/alumnes')
     alumnes: list[Alumne] = json.loads(resposta.get_data(as_text=True))["message"]

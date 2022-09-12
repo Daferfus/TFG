@@ -11,9 +11,11 @@
 import redis
 from os import environ, path
 from dotenv import load_dotenv
+##############################################
+##############################################
 
-basedir = path.abspath(path.dirname(__file__))
-load_dotenv(path.join(basedir, '.env'))
+arrel = path.abspath(path.dirname(__file__))
+load_dotenv(path.join(arrel, '.env'))
 
 class Config:
     """Configuració compartida entre els distints modes de configuració.
@@ -33,7 +35,7 @@ class Config:
     SESSION_REDIS = redis.from_url(environ.get('SESSION_REDIS'))
 
     LESS_BIN = 'lessc' ## Programa per la compilació modularitzada d'estils.
-    ASSETS_AUTO_BUILD = True ## Sempre que l'aplicació compilaràn els estils.
+    ASSETS_AUTO_BUILD = True ## Sempre que l'aplicació s'execute es compilaràn els estils.
 ## class    
 
 class ProdConfig(Config):
@@ -63,7 +65,7 @@ class ProdConfig(Config):
     ##       (Worker)         ##
     ############################
     CELERY_CONFIG={
-        'broker_url': 'redis://localhost:6379/0', ## Base de dades per a emmagatzemar el procés.
+        'broker_url': 'redis://localhost:6379/0', ## Base de dades per a emmagatzemar el missatges.
         'result_backend': 'redis://localhost:6379/0', ## Base de dades on s'emmatgatzemen els resultats.
     }
     ###########################
@@ -96,9 +98,11 @@ class DevConfig(Config):
     ##       (Worker)         ##
     ############################
     CELERY_CONFIG={
-        'broker_url': 'redis://localhost:6379/0', ## Base de dades per a emmagatzemar el procés.
+        'broker_url': 'redis://localhost:6379/0', ## Base de dades per a emmagatzemar els missatges.
         'result_backend': 'redis://localhost:6379/0', ## Base de dades on s'emmatgatzemen els resultats.
     }
+    CELERY_ALWAYS_EAGER = True
+    CELERY_EAGER_PROPAGATES = True
     ###########################
     ###########################
 ## class
