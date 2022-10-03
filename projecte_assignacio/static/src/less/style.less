@@ -47,6 +47,7 @@ nav#menu{
     display: none;
     a{
         text-decoration: none;
+        width: 100%;
         button {
             background-color: #ebebeb;
             color: black;
@@ -125,13 +126,22 @@ table.llistat{
         padding-left: 1rem;
     }
 }
-button.anyadir{
+button.afegir{
     width: 120px !important;
     height: 48px !important;
     border-radius: 4px;
     background-color: #ebebeb;
     border-width: thin;
     margin-left: 17.4rem;
+    margin-bottom: 1.5rem;
+}
+button.tornar{
+    width: 120px !important;
+    height: 48px !important;
+    border-radius: 4px;
+    background-color: #ebebeb;
+    border-width: thin;
+    margin-right: 17.4rem;
     margin-bottom: 1.5rem;
 }
 
@@ -265,24 +275,6 @@ footer {
     }
 }
 
-ul#disponibilitat_de_cotxe{
-    list-style-type: none;
-}
-
-ul#volen_practica{
-    list-style-type: none;
-}
-
-ul#accedeix_a_fct{
-    list-style-type: none;
-}
-ul#aporta_empresa{
-    list-style-type: none;
-}
-ul#es_erasmus{
-    list-style-type: none;
-}
-
 div.pagination {
     display: inline-block;
     text-align: center;
@@ -339,7 +331,7 @@ div.pagination {
 
         div.flex{
             display: flex;
-            justify-content: space-between;
+            //justify-content: space-between;
 
             div.flex-izquierdo{
                 margin-right: 6rem;
@@ -353,4 +345,26 @@ div.pagination {
     textarea#observacions{
         width: 100%;
     }
+}
+
+ul#volen_practica{
+    list-style-type: none;
+}
+
+ul#disponibilitat_de_cotxe{
+    list-style-type: none;
+}
+
+ul#volen_practica{
+    list-style-type: none;
+}
+
+ul#accedeix_a_fct{
+    list-style-type: none;
+}
+ul#aporta_empresa{
+    list-style-type: none;
+}
+ul#es_erasmus{
+    list-style-type: none;
 }

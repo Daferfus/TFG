@@ -1,7 +1,7 @@
 ##########################################################################
 ## Autor: David Fernández Fuster                                        ##
 ## Data: 11/08/2022                                                     ## 
-## Funció: Conté les rutes que desencandenen accions sobre els usuaris. ##
+## Funció: Prova les rutes que desencandenen accions sobre els usuaris. ##
 ##########################################################################
 
 ################

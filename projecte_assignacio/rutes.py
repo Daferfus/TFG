@@ -4,6 +4,9 @@
 ## Funció: Conté les rutes que desencandenen accions sobre la pàgina de inici. ##
 #################################################################################
 
+#############
+##  Flask  ##
+#############
 from flask import current_app as app, render_template
 
 #################

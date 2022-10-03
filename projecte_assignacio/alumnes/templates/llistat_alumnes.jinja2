@@ -11,11 +11,12 @@
     <h1 id="titol_de_seccio">{{ title }}</h1>
     
     <div class="botons">
-      <form method="POST" action="{{ url_for('alumnes_bp.importar_alumnes') }}">
-          <button type="file" id="izquierda">Importar Alumnes</button>
-      </form>
+      <!--<form method="POST" action="{{ url_for('alumnes_bp.importar_alumnes') }}" enctype="multipart/form-data">-->
+          <input id="fileInput" name="fichero" type="file" style="display:none;" />
+          <button type="button" id="izquierda" onclick="document.getElementById('fileInput').click();">Importar Alumnes</button>
+      <!--</form>-->
       <a href="{{ url_for('alumnes_bp.exportar_alumnes') }}">
-        <button type="file" id="derecha">Exportar Alumnes</button>
+        <button id="derecha"">Exportar Alumnes</button>
       </a>
     </div>
     
@@ -34,13 +35,17 @@
         </tr>
     {% endfor %}
     </table>
-    <a href="{{ url_for('alumnes_bp.anyadir_alumne') }}"><button class="anyadir">Afegir Alumne</button>
+    <a href="{{ url_for('alumnes_bp.anyadir_alumne') }}"><button class="afegir">Afegir Alumne</button>
 
     <div class=pagination>
       <ul>
       {% if alumnes.has_prev %}
         <li>
-            <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.prev_num) }}">Anterior</a>
+            {% if form.filtrar.data %}
+              <a class="pag" href="{{ url_for('alumnes_bp.llistat', filtro=form.filtrar.data, pagina=alumnes.prev_num) }}">Anterior</a>
+            {% else %}
+              <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.prev_num) }}">Anterior</a>
+            {% endif %}
         </li>
       {% endif %}
 
@@ -49,7 +54,11 @@
           {% if page_num %}
               {% if page_num != alumnes.page %}
                   <li>
-                      <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=page_num) }}">{{ page_num }}</a>
+                      {% if form.filtrar.data %}
+                        <a class="pag" href="{{ url_for('alumnes_bp.llistat', filtro=form.filtrar.data, pagina=page_num) }}">{{ page_num }}</a>
+                      {% else %}
+                        <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=page_num) }}">{{ page_num }}</a>
+                      {% endif %}
                   </li>
               {% else %}
                   <li class="active">
@@ -66,7 +75,11 @@
       <!-- next page -->
       {% if alumnes.has_next %}
       <li>
-          <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.next_num) }}">Siguiente</a>
+          {% if form.filtrar.data %}
+            <a class="pag" href="{{ url_for('alumnes_bp.llistat', filtro=form.filtrar.data, pagina=alumnes.next_num) }}">Siguiente</a>
+          {% else %}
+            <a class="pag" href="{{ url_for('alumnes_bp.llistat', pagina=alumnes.next_num) }}">Siguiente</a>
+          {% endif %}
       </li>
       {% endif %}
     </ul>

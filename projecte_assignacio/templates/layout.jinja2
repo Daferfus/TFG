@@ -16,8 +16,12 @@
     <link rel="shortcut icon" href="/favicon.ico">
     {% block css %}
       <link href="{{ url_for('static', filename='/dist/css/style.css') }}" rel="stylesheet">
+      <link href="{{ url_for('alumnes_bp.static', filename='/dist/css/alumnes.css') }}" rel="stylesheet">
+      <link href="{{ url_for('empreses_bp.static', filename='/dist/css/empreses.css') }}" rel="stylesheet">
     {% endblock %}
     {% block js %}
+      <script src="{{ url_for('static', filename='/dist/js/main.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='/dist/js/worker.min.js') }}"></script>
       <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
       <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     {% endblock %}
@@ -33,75 +37,33 @@
   <!-- Peu de Pàgina -->
   {% include 'footer.jinja2' %}
 
-  <script>
-  /* Toggle between showing and hiding the navigation menu links when the user clicks on the hamburger menu / bar icon */
-  function myFunction() {
-    var x = document.getElementById("menu");
-    if (x.style.display === "block") {
-      x.style.display = "none";
-    } else {
-      x.style.display = "block";
-    }// if()
-  }// ()
+  <script>  
+    $(document).ready(function() {
+      $("#filtrar").on("keyup", function() {
+          setTimeout(() => {  
+            var value = $(this).val().toLowerCase(); 
+            window.location.href = "http://127.0.0.1:5000/llistat_alumnes/filtro/"+value; 
+          }, 3000);
+      });
 
-  function tancarNotificacio() {
-    var x = document.getElementsByClassName("missatge");
-    for (let i = 0; i < x.length; i++) {
-      x[i].style.display = "none";
-    }// for()
-  }// ()
-
-  function empezar_assignacion_automatica() {
-        // add task status elements 
-        div = $('<div class="progress"><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div><hr>');
-        $('.progress').append(div);
-
-        // create a progress bar
-        var nanobar = new Nanobar({
-            bg: '#44f',
-            target: div[0].childNodes[0]
-        });
-
-        // send ajax POST request to start background job
+      $("#fileInput").on("input", function(){
+        var x = $('#fileInput')[0].files[0].name;
+        var cicle = x.replace(/\.[^/.]+$/, "")
+        var formData = new FormData();
+        formData.append('fichero', $('#fileInput')[0].files[0]);
+        formData.append('cicle', cicle);
         $.ajax({
-            type: 'POST',
-            url: '/realitzar_assignacio_automatica',
-            success: function(data, status, request) {
-                status_url = request.getResponseHeader('Location');
-                update_progress(status_url, nanobar, div[0]);
-            },
-            error: function() {
-                alert('Unexpected error');
-            }
+          url : 'http://127.0.0.1:5000/importar_alumnes',
+          type : 'POST',
+          data : formData,
+          processData: false,
+          contentType: false,
+          success : function(data) {
+            window.location.reload();
+          }
         });
-  }
-
-  function update_progress(status_url, nanobar, status_div) {
-        // send GET request to status URL
-        $.getJSON(status_url, function(data) {
-            // update UI
-            percent = parseInt(data['current'] * 100 / data['total']);
-            nanobar.go(percent);
-            $(status_div.childNodes[1]).text(percent + '%');
-            $(status_div.childNodes[2]).text(data['status']);
-            if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
-                if ('result' in data) {
-                    // show result
-                    $(status_div.childNodes[3]).text('Result: ' + data['result']);
-                }
-                else {
-                    // something unexpected happened
-                    $(status_div.childNodes[3]).text('Result: ' + data['state']);
-                }
-            }
-            else {
-                // rerun in 2 seconds
-                setTimeout(function() {
-                    update_progress(status_url, nanobar, status_div);
-                }, 2000);
-            }
-        });
-    }
+      });
+  });
   </script>
 
 </html>

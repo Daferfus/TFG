@@ -8,7 +8,7 @@ import mongomock
 def test_iniciar_db(test_mongo):
     """
     DONAT un client amb base de dades Mongo
-    QUAN e s'arreplega la conexió 
+    QUAN s'arreplega la conexió 
     LLAVORS comprobar que apareix com a instanciada.
     """
     client = test_mongo.get_connection()
@@ -18,7 +18,7 @@ def test_iniciar_db(test_mongo):
 def test_cerrar_db(test_mongo):
     """
     DONAT un client amb base de dades Mongo
-    QUAN es desconecta
+    QUAN es desconecta aquesta base de dades
     LLAVORS comprobar que està desconectada.
     """
     try:

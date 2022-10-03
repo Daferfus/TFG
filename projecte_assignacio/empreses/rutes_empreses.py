@@ -162,11 +162,17 @@ def practiques() -> str:
     """    
     empresa: Empresa = Empresa.objects(nom_de_usuari=current_user.nom).first()
 
+    if empresa.volen_practica == "Sí":
+        practiques = empresa.practiques
+    else:
+        practiques = "NO"
+    ## if
+
     return render_template(
         'practiques_empresa.jinja2',
         title="Pràctiques",
         nom_de_usuari=current_user.nom,
-        practiques_de_empresa=empresa.practiques,
+        practiques_de_empresa=practiques,
         template="practiques_empresa-template"
     )
 ## ()
@@ -510,9 +516,9 @@ def exportar_empreses() -> Response:
         empreses_dict.append(empresa_dict)
     
     dades = pd.DataFrame.from_dict(empreses_dict)
-    dades.to_excel("empreses_ex.xlsx",header=True)
+    dades.to_excel("./projecte_assignacio/empreses/static/file/empreses_ex.xlsx",header=True)
 
-    if os.path.exists("empreses_ex.xlsx"):
+    if os.path.exists("./projecte_assignacio/empreses/static/file/empreses_ex.xlsx"):
         resposta: Response = jsonify(success=True, message="S'han exportat amb èxit les dades de les empreses.")
         return resposta
     else:
@@ -541,6 +547,7 @@ def actualitzar_empresa(usuari: str) -> Response:
     telefon: int = request.form['telefon'] 
     correu: str = request.form['correu'] 
     persona_de_contacte: str = request.form['nom_de_persona_de_contacte']
+    volen_practica: str = request.form['volen_practica']
 
     resultat: int = Empresa.objects(nom_de_usuari=usuari).update(__raw__=
         {"$set": {
@@ -549,6 +556,7 @@ def actualitzar_empresa(usuari: str) -> Response:
             "telefon": telefon,
             "correu": correu,
             "persona_de_contacte": persona_de_contacte,
+            "volen_practica": volen_practica
             }
         }
     )
@@ -729,14 +737,14 @@ def esborrar_practica(usuari: str, nombre_de_practica: int) -> Response:
     empresa.save()
     if resultat:
         resposta: Response = jsonify(success=True, message="La pràctica ha sigut esborrada.")
-        flash(resultat)
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
         if app.config["DEBUG"]:
             return resposta
         else:        
             return redirect(url_for('empreses_bp.practiques'))
     else:
         resposta: Response = jsonify(success=False, message="No s'ha trovat la pràctica a esborrar.")
-        flash(resultat)
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
         if app.config["DEBUG"]:
             return resposta
         else:

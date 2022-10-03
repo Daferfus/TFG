@@ -1,7 +1,7 @@
 ##########################################################################
 ## Autor: David Fernández Fuster                                        ##
 ## Data: 13/08/2022                                                     ## 
-## Funció: Conté les rutes que desencandenen accions sobre els alumnes. ##
+## Funció: Prova les rutes que desencandenen accions sobre els alumnes. ##
 ##########################################################################
 
 ################
@@ -131,7 +131,7 @@ def test_obtindre_dades_de_alumnes_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició de recuperar dades de tots els alumnes
-    LLAVORS ha d'hi haure 15 alumnes en la base de dades.
+    LLAVORS deu haver-hi 15 alumnes en la base de dades.
     """    
     resposta: Response = test_client.get('/alumnes')
     alumnes: list[Alumne] = json.loads(resposta.get_data(as_text=True))["message"]

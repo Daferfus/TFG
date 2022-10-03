@@ -83,9 +83,14 @@ def ajustos() -> str:
             obtindre_dades_del_professor(current_user.nom).get_data(as_text=True)
         )["message"]
     )
-    res_fct = [int(i) for i in professor.rati_fct.split() if i.isdigit()]    
-    res_dual = [int(i) for i in professor.rati_dual.split() if i.isdigit()]    
-    
+    if professor.rati_fct != "":
+        res_fct = [int(i) for i in professor.rati_fct.split() if i.isdigit()]    
+        res_dual = [int(i) for i in professor.rati_dual.split() if i.isdigit()]    
+    else:
+        res_fct = [0, 0]
+        res_dual = [0, 0]
+    ## if
+        
     form = ProfessorsForm(
         ajustos_fct={
           'quantitat_alumnes': res_fct[0],
@@ -96,6 +101,8 @@ def ajustos() -> str:
           'hores_alliberades': res_dual[1],
         }
     )
+    form.submit.label.text = 'Canviar Ajustos'
+    
     return render_template(
         'ajustos_professor.jinja2',
         title="Ajustos",
@@ -347,7 +354,7 @@ def importar_professors() -> Response:
         Response: Informació sobre el resultat de la petició.
     """
     f: Request = request.files['fichero']
-    nom_del_fitxer: str = './professors.xlsx'
+    nom_del_fitxer: str = './projecte_assignacio/professors/static/file/professors.xlsx'
     f.save(nom_del_fitxer)
 
     df: any = pd.read_excel(nom_del_fitxer)
@@ -444,9 +451,9 @@ def exportar_professors() -> Response:
     ## for
 
     dades = pd.DataFrame.from_dict(professors_dict)
-    dades.to_excel("professors_ex.xlsx",header=True)
+    dades.to_excel("./projecte_assignacio/professors/static/file/professors_ex.xlsx",header=True)
 
-    if os.path.exists("professors_ex.xlsx"):
+    if os.path.exists("./projecte_assignacio/professors/static/file/professors_ex.xlsx"):
         resposta: Response = jsonify(success=True, message="S'han exportat amb èxit les dades dels professors.")
         return resposta
     else:

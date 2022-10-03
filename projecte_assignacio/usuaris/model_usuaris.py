@@ -18,13 +18,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 ###################
 ## Base de Dades ##
 ###################
-import mongoengine as me
+from flask_mongoengine import MongoEngine
+db = MongoEngine()
 
-class Usuari(UserMixin, me.Document):
-    nom: str = me.StringField(required=True)
-    contrasenya: str = me.StringField(required=True)
-    rol: str = me.StringField(required=True)
-    distancies: list[dict] = me.ListField(required=False)
+class Usuari(UserMixin, db.Document):
+    nom: str = db.StringField(required=True)
+    contrasenya: str = db.StringField(required=True)
+    rol: str = db.StringField(required=True)
+    distancies: list[dict] = db.ListField(required=False)
 
     def establir_contrasenya(self, contrasenya: str):
         """Crea una contrasenya xifrada.

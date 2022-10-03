@@ -1,7 +1,7 @@
 ###############################################################################
 ## Autor: David Fernández Fuster                                             ##
 ## Data: 11/08/2022                                                          ## 
-## Funció: Conté les rutes que desencandenen accions sobre les assignacions. ##
+## Funció: Prova les rutes que desencandenen accions sobre les assignacions. ##
 ###############################################################################
 
 ################

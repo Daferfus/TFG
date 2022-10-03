@@ -17,7 +17,7 @@ from urllib.request import Request
 #############
 ##  Flask  ##
 #############
-from flask import current_app as app, Blueprint, Response, flash, redirect, render_template, request, make_response, jsonify, url_for
+from flask import current_app as app, Blueprint, Response, flash, redirect, render_template, request, make_response, jsonify, send_file, url_for
 from flask_login import current_user
 
 
@@ -135,7 +135,9 @@ def mostrar_perfil() -> str:
 
 @alumnes_bp.route('/llistat_alumnes', methods=['GET'])
 @alumnes_bp.route('/llistat_alumnes/pagina/<int:pagina>')
-def llistat(pagina=1) -> str:
+@alumnes_bp.route('/llistat_alumnes/filtro/<string:filtro>')
+@alumnes_bp.route('/llistat_alumnes/filtro/<string:filtro>/pagina/<int:pagina>')
+def llistat(pagina=1, filtro="") -> str:
     """Mostra una pàgina on s'enllista els alumnes de formma paginada.
 
     Args:
@@ -144,11 +146,12 @@ def llistat(pagina=1) -> str:
     Returns:
         str: Llista d'alumnes en la pàgina indicada.
     """    
-    dades_de_alumnes: list[Alumne]|None = Alumne.objects.paginate(page=pagina, per_page=5)
+    dades_de_alumnes: list[Alumne]|None = Alumne.objects(nom_i_cognoms__icontains=filtro).paginate(page=pagina, per_page=5)
+    form = AlumnesForm(filtrar=filtro)
     return render_template(
         'llistat_alumnes.jinja2',
         title="Llistat d'Alumnes",
-        form = AlumnesForm(),
+        form = form,
         alumnes=dades_de_alumnes,
         template="llistat_alumnes-template"
     )
@@ -524,11 +527,11 @@ def exportar_alumnes() -> Response:
         alumnes_dict.append(alumne_dict)
 
     dades = pd.DataFrame.from_dict(alumnes_dict)
-    dades.to_excel("alumnes_ex.xlsx",header=True)
+    dades.to_excel("./projecte_assignacio/alumnes/static/files/alumnes_ex.xlsx",header=True)
 
-    if os.path.exists("alumnes_ex.xlsx"):
+    if os.path.exists("./projecte_assignacio/alumnes/static/files/alumnes_ex.xlsx"):
         resposta: Response = jsonify(success=True, message="S'han exportat amb èxit les dades dels alumnes.")
-        return resposta
+        return send_file("C://Users/david/Documents/Proyectos/Personales/TFG/projecte_assignacio/projecte_assignacio/alumnes/static/files/alumnes_ex.xlsx", as_attachment=True, attachment_filename="alumnes_ex.xlsx")
     else:
         resposta: Response = jsonify(success=False, message="Hi ha hagut un problema durant l'exportació.")
     return resposta

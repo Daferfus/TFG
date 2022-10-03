@@ -9,21 +9,29 @@
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
     
-    {% set count = namespace(value=0) %}
-    <table class="llistat">
-    {% for practica in practiques_de_empresa %}
-        <tr>
-            <td>{{ practica["Nom"] }} ({{ practica["Titulacio"] }})</td>
-            <td><a href="{{ url_for('empreses_bp.editar_practica', nombre_de_practica=count.value) }}"><button>🖊</button></a>
-            <td>
-              <form method="POST" action="{{ url_for('empreses_bp.esborrar_practica', usuari=nom_de_usuari, nombre_de_practica=count.value) }}">
-                <button type="submit">🗑️</button>
-              </form>
-        </tr>
-        {% set count.value = count.value + 1 %}
-    {% endfor %}
-    </table>
-    <a href="{{ url_for('empreses_bp.anyadir_practica') }}"><button class="anyadir">Afegir Pràctica</button>
+    {% if practiques_de_empresa == "NO" %}
+      <br>
+      <p><b>La teua empresa no es troba interessada a fer pràctiques.</b> <br>
+         En cas d'haver-ne canviat d'opinió, marca "Sí" en el camp <br>
+         "Volen Pràctica" del teu perfil.
+      </p>      
+    {% else %}
+      {% set count = namespace(value=0) %}
+        <table class="llistat">
+        {% for practica in practiques_de_empresa %}
+            <tr>
+                <td>{{ practica["Nom"] }} ({{ practica["Titulacio"] }})</td>
+                <td><a href="{{ url_for('empreses_bp.editar_practica', nombre_de_practica=count.value) }}"><button>🖊</button></a>
+                <td>
+                  <form method="POST" action="{{ url_for('empreses_bp.esborrar_practica', usuari=nom_de_usuari, nombre_de_practica=count.value) }}">
+                    <button type="submit">🗑️</button>
+                  </form>
+            </tr>
+            {% set count.value = count.value + 1 %}
+        {% endfor %}
+        </table>
+        <a href="{{ url_for('empreses_bp.anyadir_practica') }}"><button class="afegir">Afegir Pràctica</button>
+    {% endif %}
   </div>
 
 {% endblock %}

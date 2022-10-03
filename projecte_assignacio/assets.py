@@ -1,12 +1,31 @@
-"""Compile static assets."""
+##########################################################
+## Autor: David Fernández Fuster                        ##
+## Data: 09/09/2022                                     ## 
+## Funció: Compila els actius estàtics de l'aplicació.  ##
+##########################################################
+
+###########
+## Flask ##
+###########
 from flask import current_app as app
 from flask_assets import Bundle
 
 
-def compile_static_assets(assets):
-    """Create stylesheet bundles."""
+def compilar_actius_estatics(assets):
+    """Configura i compila paquets d'actius.
+
+    Args:
+        assets (Environment): entorn on s'executen actius.
+
+    Returns:
+        Environment: entorn amb actius incorporats.
+    """
     assets.auto_build: bool = True
     assets.debug: bool = False
+
+    ############
+    ## Estils ##
+    ############
     common_style_bundle: Bundle = Bundle(
         'src/less/*.less',
         filters='less,cssmin',
@@ -49,6 +68,27 @@ def compile_static_assets(assets):
     assets.register('professors_style_bundle', professors_style_bundle)
     assets.register('empreses_style_bundle', empreses_style_bundle)
     assets.register('assignacions_style_bundle', assignacions_style_bundle)
+    #######################################################################
+    #######################################################################
+
+    ################
+    ## JavaScript ##
+    ################
+    main_js_bundle: Bundle = Bundle(
+        'src/js/main.js',
+        filters='jsmin',
+        output='dist/js/main.min.js'
+    )
+    worker_js_bundle = Bundle(
+        'src/js/worker.js',
+        filters='jsmin',
+        output='dist/js/worker.min.js'
+    )
+    assets.register('main_js', main_js_bundle)
+    assets.register('worker_js', worker_js_bundle)
+    ##############################################
+    ##############################################
+
     if app.config['FLASK_ENV'] == 'development':
         common_style_bundle.build()
         usuaris_style_bundle.build()
@@ -56,4 +96,8 @@ def compile_static_assets(assets):
         professors_style_bundle.build()
         empreses_style_bundle.build()
         assignacions_style_bundle.build()
+        main_js_bundle.build()
+        worker_js_bundle.build()
+    ## if
+
     return assets

@@ -1,16 +1,16 @@
-Nombre y apellidos,"Ciudad donde vives","Podrias utilizar coche","[Desarrollador backend]","[Desarrollador frontend]","[Desarrollador fullstack]","[Disenyador]","[Tecnico QA y documentacion]","[Devops]","[Desarrollador de aplicaciones moviles]",
-alumno16,"Picassent","No","9","8","9","8","9","9","8"
-alumno17,"Catarroja","Sí","10","8","9","7","4","6","3"
-alumno18,"Valencia","No","8","4","8","2","2","3","5"
-alumno19,"Albal","Sí","10","10","10","8","1","5","10"
-alumno20,"Sollana","No","7","10","7","10","1","7","7"
-alumno21,"Carcaixent","Sí","10","5","5","5","1","7","1" 
-alumno22,"Albal","Sí","6","7","7","8","6","6","6"
-alumno23,"Valencia","Sí","10","8","7","8","8","8","6"
-alumno24,"Picassent","No","9","9","10","8","6","8","8"
-alumno25,"Valencia","Sí","9","9","9","9","1","1","1"
-alumno26,"Albal","Sí","2","9","8","2","7","9","5"
-alumno27,"Silla","Sí","7","7","4","10","8","2","6"
-alumno28,"Valencia","Sí","6","7","8","4","4","8","9"
-alumno29,"Benetusser","Sí","2","4","6","1","2","9","3"
-alumno30,"Catarroja","No","5","4","8","5","6","2","2"
+"Nombre y apellidos","Ciudad donde vives","Podrias utilizar coche","[Desarrollador backend]","[Desarrollador software multiplataforma]","[Desarrollador videojuegos]","[Desarrollador de aplicaciones moviles]","[Programador de robotica, automocion e informatica industrial]","[Tecnico QA y documentacion]","[Consultor ERP]",
+"alumno01","Paiporta","Sí","7","7","6","5","5","5","9",
+"alumno02","VALENCIA","Sí","10","10","1","2","7","2","7",
+"alumno03","Algemesí","No","1","9","10","10","8","1","3","",
+"alumno04","Alaquàs","Sí","10","7","1","1","1","9","1","",
+"alumno05","Valencia","Sí","9","9","10","5","3","1","7","",
+"alumno06","Requena","No","8","10","8","10","9","5","5",
+"alumno07","Algemesí","No","7","7","10","3","1","1","1","",
+"alumno08","Valencia","No","7","7","10","10","7","7","7","",
+"alumno09","Valencia","No","10","10","1","10","3","1","6","",
+"alumno10","Benetússer","No","1","8","5","9","1","3","6",
+"alumno11","Silla","Sí","4","6","1","8","4","8","8","",
+"alumno12","Benetusser","No","5","5","5","5","5","5","5",
+"alumno13","Alginet","Sí","4","9","5","9","9","1","1","",
+"alumno14","Alginet","No","5","8","1","10","1","1","1",
+"alumno15","Catarroja","No","9","10","8","10","5","7","10","",

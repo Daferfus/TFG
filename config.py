@@ -101,8 +101,6 @@ class DevConfig(Config):
         'broker_url': 'redis://localhost:6379/0', ## Base de dades per a emmagatzemar els missatges.
         'result_backend': 'redis://localhost:6379/0', ## Base de dades on s'emmatgatzemen els resultats.
     }
-    CELERY_ALWAYS_EAGER = True
-    CELERY_EAGER_PROPAGATES = True
     ###########################
     ###########################
 ## class

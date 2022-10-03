@@ -1,8 +1,8 @@
-##########################################################################
-## Autor: David Fernández Fuster                                        ##
-## Data: 11/08/2022                                                     ## 
-## Funció: Conté les rutes que desencandenen accions sobre els professors. ##
-##########################################################################
+#############################################################################
+## Autor: David Fernández Fuster                                           ##
+## Data: 11/08/2022                                                        ## 
+## Funció: Prova les rutes que desencandenen accions sobre els professors. ##
+#############################################################################
 
 ################
 ## Llibreries ##
@@ -119,7 +119,7 @@ def test_obtindre_dades_de_professors_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició de recuperar dades de tots els professors
-    LLAVORS ha d'hi haure 44 professors en la base de dades.
+    LLAVORS deu haver-hi 44 professors en la base de dades.
     """    
     resposta: Response = test_client.get('/professors')
     professors: list[Professor] = json.loads(resposta.get_data(as_text=True))["message"]

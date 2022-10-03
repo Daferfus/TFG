@@ -81,4 +81,4 @@ class AlumnesForm(FlaskForm):
         render_kw={'rows': 15, 'cols': 50}
     )
 
-    submit = SubmitField('Actualitzar')
+    submit = SubmitField('Actualitzar Perfil')

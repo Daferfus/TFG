@@ -1,7 +1,7 @@
 ###########################################################################
 ## Autor: David Fernández Fuster                                         ##
 ## Data: 11/08/2022                                                      ## 
-## Funció: Conté les rutes que desencandenen accions sobre les empreses. ##
+## Funció: Prova les rutes que desencandenen accions sobre les empreses. ##
 ###########################################################################
 
 ################
@@ -164,7 +164,7 @@ def test_obtindre_dades_de_empreses_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició de recuperar dades de totes les empreses
-    LLAVORS ha d'hi haure 98 empreses en la base de dades.
+    LLAVORS deu haver-hi 98 empreses en la base de dades.
     """    
     resposta: Response = test_client.get('/empreses')
     empreses: list[Empresa] = json.loads(resposta.get_data(as_text=True))["message"]

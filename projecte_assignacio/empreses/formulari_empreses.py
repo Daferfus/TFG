@@ -42,7 +42,7 @@ class EmpresesForm(FlaskForm):
     )
 
     nom_de_persona_de_contacte = StringField(
-        'Nom de Persona de Contacte',
+        'Persona de Contacte',
         [
             DataRequired(),
         ]

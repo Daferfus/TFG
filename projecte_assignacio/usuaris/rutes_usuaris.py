@@ -14,14 +14,25 @@ import json
 ##  Flask  ##
 #############
 from flask_login import login_user, logout_user, current_user
-from flask import current_app as app, Blueprint, Response, flash, redirect, request, jsonify, render_template, url_for
-from munch import DefaultMunch
+
+from flask import (
+    current_app as app, 
+    Blueprint, 
+    Response, 
+    flash, 
+    redirect, 
+    request, 
+    jsonify, 
+    render_template, 
+    url_for
+)
 
 ##############
 ##  Mòduls  ##
 ##############
 from projecte_assignacio.usuaris.model_usuaris import Usuari
 from .formulari_usuaris import UsuarisForm
+
 
 ############################
 ## Configuració Blueprint ##
@@ -83,6 +94,7 @@ def obtindre_dades_de_usuaris() -> list[Usuari]:
             message=dades_de_usuaris
             )
         return resposta
+    ## if
 ## ()
 
 @usuaris_bp.route('/usuari/<string:usuari>', methods=['GET'])
@@ -206,6 +218,7 @@ def autenticar() -> Response:
                 return redirect(url_for('empreses_bp.mostrar_perfil'))
             elif usuari.rol == "Coordinador":
                 return redirect(url_for('assignacions_bp.mostrar_panel_de_assignacio'))
+            ## if
     else:
         resposta: Response = jsonify(
             success=False, 
@@ -239,6 +252,7 @@ def tancar_sessio() -> Response:
         else:
             flash(json.loads(resposta.get_data(as_text=True))["message"])
             return redirect(url_for('mostrar_pagina_de_inici'))
+        ## if
     else:
         resposta: Response = jsonify(
             success=True, 
@@ -249,6 +263,7 @@ def tancar_sessio() -> Response:
         else:
             flash(json.loads(resposta.get_data(as_text=True))["message"])
             return redirect(url_for('mostrar_pagina_de_inici'))
+        ## if
     ## if
 ## ()
 
@@ -295,6 +310,7 @@ def actualitzar_usuari(usuari: str) -> Response:
                 message="Error al actualitzar."
                 )
             return resposta
+        ## if
     else:
         resposta: Response = jsonify(
             success=False, 

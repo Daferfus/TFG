@@ -14,7 +14,7 @@ import pytest
 import sys
 sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\projecte_assignacio")
 
-from projecte_assignacio import init_app, celery
+from projecte_assignacio import init_app
 from projecte_assignacio.usuaris.model_usuaris import Usuari
 from projecte_assignacio.alumnes.model_alumnes import Alumne
 from projecte_assignacio.professors.model_professors import Professor
@@ -62,7 +62,7 @@ def nou_usuari() -> Usuari:
         nom='Mikaeru Softo', 
         contrasenya='Machete1@', 
         rol='Alumne'
-        )
+    )## Usuari()
     return usuari
 ## ()
 
@@ -93,7 +93,7 @@ def nou_alumne() -> Alumne:
             "Pràctica": "Locatec_(Pràctica 01)", 
             "Professor": "Juan Miguel Alberola Oltra"
         }
-    )
+    )## Alumne()
     return alumne
 ## ()
 
@@ -119,7 +119,7 @@ def nou_professor() -> Professor:
                 "Professor": "Juan Miguel Alberola Oltra"
             }
         ]
-    )
+    )## Professor()
     return professor
 ## ()
 
@@ -144,6 +144,6 @@ def nova_empresa() -> Empresa:
                 "Professor": "Juan Miguel Alberola Oltra"
             }
         ]
-    )
+    )## Empresa()
     return empresa
 ## ()
