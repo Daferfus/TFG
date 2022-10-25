@@ -1,6 +1,7 @@
 import json
 from munch import DefaultMunch
 from flask import (
+    current_app as app,
     Blueprint, 
     Response, 
     jsonify, 
@@ -12,7 +13,9 @@ from flask import (
     session,
     g
 )
+
 from flask_login import current_user
+from projecte_assignacio.assignacions.formulari_assignacions import AssignacionsForm
 
 from projecte_assignacio.usuaris.model_usuaris import Usuari
 
@@ -24,7 +27,7 @@ from projecte_assignacio.professors import rutes_professors
 from projecte_assignacio.alumnes.model_alumnes import Alumne
 from projecte_assignacio.empreses.model_empreses import Empresa
 from projecte_assignacio.professors.model_professors import Professor
-
+from projecte_assignacio import r
 # Blueprint Configuration
 assignacions_bp = Blueprint(
     'assignacions_bp', __name__,
@@ -43,8 +46,88 @@ def mostrar_panel_de_assignacio():
         description="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
     )
 
-@assignacions_bp.route('/insertar_assignacio_manual/<string:alumne>/<string:nom_de_professor>/<string:cognoms_de_professor>/<string:empresa>', methods=['POST'])
-def recollir_dades_assignacio(alumne: str, nom_de_professor: str, cognoms_de_professor: str, empresa: str) -> Response:
+@assignacions_bp.route('/afegir_assignacio', methods=["GET"])
+def afegir_assignacio():
+    """Mostra el formulari d'assignació.
+
+    Returns:
+        str: Pàgina amb el formulari d'assignacio.
+    """
+    resposta_alumnes: Response = rutes_alumnes.obtindre_dades_de_alumnes()
+    alumnes: list[Alumne]|None = DefaultMunch.fromDict(json.loads(resposta_alumnes.get_data(as_text=True))["message"])
+
+    resposta_professors: Response = rutes_professors.obtindre_dades_de_professors()
+    professors: list[Professor]|None = DefaultMunch.fromDict(json.loads(resposta_professors.get_data(as_text=True))["message"])
+
+    empreses: list[Empresa]|None = Empresa.objects()
+    
+    form = AssignacionsForm()
+    form.alumne.choices = [(alumne.nom_i_cognoms, alumne.nom_i_cognoms) for alumne in alumnes]
+    form.professor.choices = [(professor.nom, professor.nom) for professor in professors]
+    form.empresa.choices = [(empresa.nom + "("+practica["Nom"]+")", empresa.nom+ "("+practica["Nom"]+")") for empresa in empreses for practica in empresa.practiques]
+
+    if form.validate_on_submit():
+        pass
+    ## if
+
+    return render_template(
+        'formulari_assignacio.jinja2',
+        title="Assignar",
+        accio="crear",
+        form=form,
+        template="formulari_assignacio-template"
+    )
+## ()
+
+@assignacions_bp.route('/editar_empresa/<string:professor>/<string:alumne>/<string:practica>', methods=["GET"])
+def editar_assignacio(professor: str, alumne: str, practica: str):
+    """Mostra el formulari d'edició d'assignació.
+
+    Args:
+        usuari (str): Nom d'usuari de l'assignació a editar.
+
+    Returns:
+        str: Pàgina amb el formulari d'edició d'assignacio.
+    """
+    form = AssignacionsForm()
+    resposta_alumnes: Response = rutes_alumnes.obtindre_dades_de_alumnes()
+    alumnes: list[Alumne]|None = DefaultMunch.fromDict(json.loads(resposta_alumnes.get_data(as_text=True))["message"])
+
+    resposta_professors: Response = rutes_professors.obtindre_dades_de_professors()
+    professors: list[Professor]|None = DefaultMunch.fromDict(json.loads(resposta_professors.get_data(as_text=True))["message"])
+
+    empreses: list[Empresa]|None = Empresa.objects()
+    
+    form = AssignacionsForm()
+    form.alumne.choices = [(alumne.nom_i_cognoms, alumne.nom_i_cognoms) for alumne in alumnes]
+    form.professor.choices = [(professor.nom, professor.nom) for professor in professors]
+    form.empresa.choices = [(empresa.nom + "("+practica["Nom"]+")", empresa.nom+ "("+practica["Nom"]+")") for empresa in empreses for practica in empresa.practiques]
+    
+    form.alumne.data = alumne
+    form.professor.data = professor
+    form.empresa.data = practica
+
+    if form.validate_on_submit():
+        pass
+    ## if
+    
+    dades_empresa = practica.split("(");
+    return render_template(
+        'formulari_assignacio.jinja2',
+        title="Editar Assignació",
+        accio="editar",
+        alumne=alumne,
+        nom_de_professor=professor,
+        cognoms_de_professor=professor,
+        empresa=dades_empresa[0],
+        practica=dades_empresa[1],
+        form=form,
+        template="formulari_assignacio-template"
+    )
+## ()
+
+@assignacions_bp.route('/inserir_assignacio', methods=['POST'])
+def inserir_assignacio() -> Response:
     """Crida a la funció per a assignar a cascuna de les parts a una pràctica.
 
     Args:
@@ -57,7 +140,14 @@ def recollir_dades_assignacio(alumne: str, nom_de_professor: str, cognoms_de_pro
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    assignacio: dict[str, str] = json.loads(request.form['assignacio'])
+    alumne: str = request.form['alumne'];
+    professor: str = request.form['professor'];
+    practica: str = request.form['empresa'];
+    assignacio: dict[str, str] = {
+        "alumne": alumne,
+        "professor": professor,
+        "practica": practica
+    }
     Alumne.objects(nom_i_cognoms=alumne).update(__raw__=
         {"$set": {
             "assignacio": assignacio
@@ -65,21 +155,33 @@ def recollir_dades_assignacio(alumne: str, nom_de_professor: str, cognoms_de_pro
         }
     )
 
-    professor: Professor = Professor.objects(nom=nom_de_professor, cognoms=cognoms_de_professor).get()
+    professor: Professor = Professor.objects(nom=professor, cognoms=professor).get()
     professor.assignacions.append(assignacio)
+    professor.save()
+    
+    parts_de_practica = practica.split("(") 
 
-    empresa: Empresa = Empresa.objects(nom=empresa).get()
+    empresa: Empresa = Empresa.objects(nom=parts_de_practica[0]).get()
     empresa.assignacions.append(assignacio)
+    empresa.save()
 
     assignacio_insertada: Alumne|None = Alumne.objects(assignacio=assignacio).first()
     if assignacio_insertada is not None:
-        resposta: Response = jsonify(success=True, message="L'assignació s'ha insertat.")
-        return resposta
+        resposta: Response = jsonify(success=True, message="L'assignació s'ha inserit.")
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('assignacions_bp.mostrar_panel_de_assignacio'))
     else:
-        resposta: Response = jsonify(success=False, message="No s'ha insertat cap assignacio.")
-        return resposta
+        resposta: Response = jsonify(success=False, message="No s'ha inserit cap assignacio.")
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('assignacions_bp.afegir_assignacio'))
 
-@assignacions_bp.route('/actualitzar_assignacio/<string:alumne>/<string:nom_de_professor>/<string:cognoms_de_professor>/<string:empresa>/<string:practica>', methods=['PUT'])
+@assignacions_bp.route('/actualitzar_assignacio/<string:alumne>/<string:nom_de_professor>/<string:cognoms_de_professor>/<string:empresa>/<string:practica>', methods=['POST'])
 def actualitzar_assignacio(alumne: str, nom_de_professor: str, cognoms_de_professor: str, empresa: str, practica:str) -> Response:
     """Crida a la funció per a actualitzar una assignació donada.
 
@@ -93,7 +195,14 @@ def actualitzar_assignacio(alumne: str, nom_de_professor: str, cognoms_de_profes
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    assignacio: dict[str, str] = json.loads(request.form['assignacio'])
+    alumne: str = request.form['alumne'];
+    professor: str = request.form['professor'];
+    practica: str = request.form['empresa'];
+    assignacio: dict[str, str] = {
+        "alumne": alumne,
+        "professor": professor,
+        "practica": practica
+    }
     resultat: int = Alumne.objects(nom_i_cognoms=alumne).update(__raw__=
         {"$set": {
             "assignacio": assignacio
@@ -114,13 +223,21 @@ def actualitzar_assignacio(alumne: str, nom_de_professor: str, cognoms_de_profes
 
     if resultat > 0:
         resposta: Response = jsonify(success=True, message="S'ha actualitzat l'assignació.")
-        return resposta
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('assignacions_bp.mostrar_panel_de_assignacio'))
     else:
         resposta: Response = jsonify(success=False, message="No hi ha hagut cap canvi en l'assignació.")
-        return resposta
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('assignacions_bp.editar_assignacio', alumne=alumne, professor=professor, practica=practica))
 
-@assignacions_bp.route('/esborrar_assignacio/<string:alumne>/<string:nom_de_professor>/<string:cognoms_de_professor>/<string:empresa>/<string:practica>', methods=['DELETE'])
-def eliminacio_de_assignacio(alumne: str, nom_de_professor: str, cognoms_de_professor: str, empresa: str, practica:str) -> Response:
+@assignacions_bp.route('/esborrar_assignacio/<string:alumne>/<string:professor>/<string:practica>', methods=['POST'])
+def esborrar_assignacio(alumne: str, professor: str, practica:str) -> Response:
     """Crida a la funció per a esborrar un assignació.
 
     Args:
@@ -133,9 +250,9 @@ def eliminacio_de_assignacio(alumne: str, nom_de_professor: str, cognoms_de_prof
     Returns:
         Response: Informació sobre el resultat de l'operació.
     """
-    professor = nom_de_professor+' '+cognoms_de_professor
-    assignacio = {"Alumne": alumne, "Practica": empresa+"("+practica+")", "Professor": professor}
-    resultat: int = Alumne.objects(nom_i_cognoms=assignacio["Alumne"]).update(__raw__=
+    parts_de_practica = practica.split("(") 
+    assignacio = {"alumne": alumne, "professor": professor, "practica": practica}
+    resultat: int = Alumne.objects(nom_i_cognoms=alumne).update(__raw__=
         {"$set": {
             "assignacio": ""
             }
@@ -143,12 +260,12 @@ def eliminacio_de_assignacio(alumne: str, nom_de_professor: str, cognoms_de_prof
     )
 
     Professor.objects(
-        nom=nom_de_professor,
-        cognoms=cognoms_de_professor
+        nom=professor,
+        cognoms=professor
     ).update(pull__assignacions__S=assignacio)
 
     Empresa.objects(
-        nom=empresa
+        nom=parts_de_practica[0]
     ).update(pull__assignacions__S=assignacio)
 
     if resultat == "S'ha esborrat l'assignació.":
@@ -167,7 +284,6 @@ def assignar_automaticament() -> Response:
         Response: Informació sobre el resultat de la petició.
     """
     distancies = session.get('distancies')
-    print(distancies)
     tasca_de_assignacio = assignar.delay(distancies)
     flash("L'assignació automàtica s'està executant en segó plà."
     +"Quan acabi se t'avisarà a través d'una notificació com aquesta.")
@@ -189,7 +305,6 @@ def taskstatus(task_id):
     elif task.state != 'FAILURE':
         if task.info.get('status', '') == 'Assignacions Realitzades':
             session['distancies'] = current_user.distancies
-            print(session.get('distancies'))
         response = {
             'state': task.state,
             'current': task.info.get('current', 0),
@@ -214,34 +329,29 @@ def taskstatus(task_id):
 def assignar(self, distancies):
     contador_de_assignacions: int = 0
 
+    print("Hola")
     self.update_state(state='PROGRESS',
                           meta={'current': 0, 'total': 100,
                                 'status': "Recopil·lant alumnes"})
-    resposta_alumnes: Response = rutes_alumnes.obtindre_dades_de_alumnes()
-    alumnes: list[Alumne]|None = DefaultMunch.fromDict(json.loads(resposta_alumnes.get_data(as_text=True))["message"])
-
+    alumnes: list[Alumne]|None = Alumne.objects()
     self.update_state(state='PROGRESS',
                             meta={'current': 15, 'total': 100,
                                 'status': "Recopil·lant professors"})
-    resposta_professors: Response = rutes_professors.obtindre_dades_de_professors()
-    professors: list[Professor]|None = DefaultMunch.fromDict(json.loads(resposta_professors.get_data(as_text=True))["message"])
-
+    professors: list[Professor]|None = Professor.objects()
     self.update_state(state='PROGRESS',
                           meta={'current': 30, 'total': 100,
                                 'status': "Recopil·lant empreses"})
-    resposta_empreses = rutes_empreses.obtindre_dades_de_empreses()
-    empreses: list[Empresa]|None = DefaultMunch.fromDict(json.loads(resposta_empreses.get_data(as_text=True))["message"])
+    empreses: list[Empresa]|None = Empresa.objects()
     
     self.update_state(state='PROGRESS',
                           meta={'current': 35, 'total': 100,
                                 'status': "Calculant distàncies alumne-pràctica"})
-    
-    if distancies == None:
-        distancies: list[dict] = model_de_optimitzacio.calcular_distancia(alumnes, empreses)
+
+    redis = r    
+    #if not redis.exists("Distancies"):
+    distancies: list[dict] = model_de_optimitzacio.calcular_distancia(self, redis, alumnes, empreses)
     ## if
-    usuari: Usuari|None = Usuari.objects(nom="Soft").first()
-    usuari.distancies = distancies
-    usuari.save()
+
     self.update_state(state='PROGRESS',
                           meta={'current': 70, 'total': 100,
                                 'status': "Comprovant les distintes prosibil·litats"})
@@ -251,7 +361,7 @@ def assignar(self, distancies):
     self.update_state(state='PROGRESS',
                           meta={'current': 85, 'total': 100,
                                 'status': "Buscant assignacions més óptimes"})
-    funcio = model_de_optimitzacio.definir_funcio_objectiu(restriccions[0], restriccions[1], alumnes, empreses, distancies, restriccions[2])
+    funcio = model_de_optimitzacio.definir_funcio_objectiu(restriccions[0], alumnes, professors, restriccions[2], restriccions[3])
 
     tipo_resultado = funcio[0].Solve()
 
@@ -259,27 +369,27 @@ def assignar(self, distancies):
     self.update_state(state='PROGRESS',
                           meta={'current': 95, 'total': 100,
                                 'status': "Guardant assignacions més óptimes"})
+                                
     for alumne in alumnes:
-        sid = alumne.nom_i_cognoms
-        for v in funcio[2][sid] :
-            if v.SolutionValue() > 0:
-                # print(v, v.SolutionValue(), funcio[3].GetCoefficient(v))
-                print(v)
-                parts_de_assignacio = str(v).split("-")
-                parts_de_practica = parts_de_assignacio[1].split("(")  
-                assignacio = {"Alumne": parts_de_assignacio[0], "Pràctica": parts_de_assignacio[1]}
-                resultat: int = Alumne.objects(nom_de_usuari=alumne.nom_de_usuari).update(__raw__=
-                    {"$set": {
-                        "assignacio": assignacio
+        if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
+            sid = alumne.nom_i_cognoms
+            for v in funcio[2][sid] :
+                if v.SolutionValue() > 0:
+                    parts_de_assignacio = str(v).split("-")
+                    parts_de_practica = parts_de_assignacio[1].split("(")  
+                    assignacio = {"Alumne": parts_de_assignacio[0], "Pràctica": parts_de_assignacio[1]}
+                    resultat: int = Alumne.objects(nom_de_usuari=alumne.nom_de_usuari).update(__raw__=
+                        {"$set": {
+                            "assignacio": assignacio
+                            }
                         }
-                    }
-                ,)
+                    ,)
 
-                empresa: Empresa = Empresa.objects(nom=parts_de_practica[0]).get()
-                empresa.assignacions.append(assignacio)
+                    # empresa: Empresa = Empresa.objects(nom=parts_de_practica[0]).get()
+                    # empresa.assignacions.append(assignacio)
 
-                if resultat > 0:
-                    contador_de_assignacions+=1
+                    if resultat > 0:
+                        contador_de_assignacions+=1
     if contador_de_assignacions>0:
         return {'current': 100, 'total': 100, 'status': "Assignacions Realitzades"}
     else:

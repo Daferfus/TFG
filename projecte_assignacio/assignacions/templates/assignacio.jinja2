@@ -11,16 +11,17 @@
     <table class="llistat">
     {% for alumne in alumnes %}
         <tr>
-            <td>{{ alumne.assignacio.Alumne }} - {{ alumne.assignacio.Pràctica }} - {{ alumne.assignacio.professor }}</td>
-            <td><a href="{{ url_for('alumnes_bp.editar_alumne', usuari=alumne.nom_de_usuari) }}"><button>🖊</button></a>
-            <td>
-              <form method="POST" action="{{ url_for('alumnes_bp.esborrar_alumne', usuari=alumne.nom_de_usuari) }}">
+            <td>{{ alumne.assignacio.Alumne }} - {{ alumne.assignacio.Pràctica}} - {{ alumne.assignacio.professor }}</td>
+            <td class="editar"><a href="{{ url_for('assignacions_bp.editar_assignacio', alumne=alumne.assignacio.Alumne, professor=alumne.assignacio.professor, practica=alumne.assignacio.Pràctica) }}"><button>🖊</button></a>
+            <td class="borrar">
+              <form method="POST" action="{{ url_for('assignacions_bp.esborrar_assignacio', alumne=alumne.assignacio.Alumne, professor=alumne.assignacio.professor, practica=alumne.assignacio.Pràctica) }}">
                 <button type="submit">🗑️</button>
-              </form>
+            </form>
         </tr>
     {% endfor %}
     </table>
-    <a onclick="empezar_assignacion_automatica()"><button>Realitzar Assignació Automática</button>
+    <a href="{{ url_for('assignacions_bp.afegir_assignacio') }}"><button class="afegir">Afegir Assignació</button>
+    <a onclick="empezar_assignacion_automatica()"><button class="assignacio">Realitzar Assignació Automática</button>
   </div>
 
 {% endblock %}

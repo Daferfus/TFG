@@ -1,6 +1,6 @@
 """Form object declaration."""
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, Field, widgets
+from wtforms import StringField, SelectField, TextAreaField, SubmitField, Field, widgets
 from wtforms.validators import DataRequired
 
 
@@ -55,12 +55,9 @@ class PractiquesForm(FlaskForm):
             
         ]
     )
-    titulacio = StringField(
+    titulacio = SelectField(
         'Titulacio',
-        [
-            DataRequired(),
-            
-        ]
+        choices=[('DAM', 'DAM'), ('DAW', 'DAW'), ('ASIX', 'ASIX'), ('TSMR', 'TSMR')]
     )
 
     descripcio = TextAreaField(

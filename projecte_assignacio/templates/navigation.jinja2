@@ -51,7 +51,7 @@
       <a href="{{ url_for('professors_bp.mostrar_perfil') }}">
         <button>Perfil</button>
       </a>
-      <a href="{{ url_for('professors_bp.ajustos') }}">
+      <a href="{{ url_for('professors_bp.ajustos', usuari=current_user.nom) }}">
         <button>Ajustos de Configuració</button>
       </a>
 
@@ -60,7 +60,7 @@
       <a href="{{ url_for('empreses_bp.mostrar_perfil') }}">
         <button>Perfil</button>
       </a>
-      <a href="{{ url_for('empreses_bp.practiques') }}">
+      <a href="{{ url_for('empreses_bp.practiques', usuari=current_user.nom) }}">
         <button>Pràctiques</button>
       </a>
 

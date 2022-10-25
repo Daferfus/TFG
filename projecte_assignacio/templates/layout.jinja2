@@ -37,23 +37,71 @@
   <!-- Peu de Pàgina -->
   {% include 'footer.jinja2' %}
 
-  <script>  
+  <script> 
     $(document).ready(function() {
-      $("#filtrar").on("keyup", function() {
+      $("#filtrar_alumne").on("keyup", function() {
           setTimeout(() => {  
             var value = $(this).val().toLowerCase(); 
             window.location.href = "http://127.0.0.1:5000/llistat_alumnes/filtro/"+value; 
           }, 3000);
       });
+      $("#filtrar_professor").on("keyup", function() {
+          setTimeout(() => {  
+            var value = $(this).val().toLowerCase(); 
+            window.location.href = "http://127.0.0.1:5000/llistat_professors/filtro/"+value; 
+          }, 3000);
+      });
+      $("#filtrar_empresa").on("keyup", function() {
+          setTimeout(() => {  
+            var value = $(this).val().toLowerCase(); 
+            window.location.href = "http://127.0.0.1:5000/llistat_empreses/filtro/"+value; 
+          }, 3000);
+      });
+      $("#filtrar_assignacions").on("keyup", function() {
+          setTimeout(() => {  
+            var value = $(this).val().toLowerCase(); 
+            window.location.href = "http://127.0.0.1:5000/llistat_assignacions/filtro/"+value; 
+          }, 3000);
+      });
 
-      $("#fileInput").on("input", function(){
-        var x = $('#fileInput')[0].files[0].name;
+      $("#fileInput_alumne").on("input", function(){
+        var x = $('#fileInput_alumne')[0].files[0].name;
         var cicle = x.replace(/\.[^/.]+$/, "")
         var formData = new FormData();
-        formData.append('fichero', $('#fileInput')[0].files[0]);
+        formData.append('fichero', $('#fileInput_alumne')[0].files[0]);
         formData.append('cicle', cicle);
         $.ajax({
           url : 'http://127.0.0.1:5000/importar_alumnes',
+          type : 'POST',
+          data : formData,
+          processData: false,
+          contentType: false,
+          success : function(data) {
+            window.location.reload();
+          }
+        });
+      });
+      $("#fileInput_professor").on("input", function(){
+        var x = $('#fileInput_professor')[0].files[0].name;
+        var formData = new FormData();
+        formData.append('fichero', $('#fileInput_professor')[0].files[0]);
+        $.ajax({
+          url : 'http://127.0.0.1:5000/importar_professors',
+          type : 'POST',
+          data : formData,
+          processData: false,
+          contentType: false,
+          success : function(data) {
+            window.location.reload();
+          }
+        });
+      });
+      $("#fileInput_empresa").on("input", function(){
+        var x = $('#fileInput_empresa')[0].files[0].name;
+        var formData = new FormData();
+        formData.append('fichero', $('#fileInput_empresa')[0].files[0]);
+        $.ajax({
+          url : 'http://127.0.0.1:5000/importar_empreses',
           type : 'POST',
           data : formData,
           processData: false,

@@ -9,12 +9,13 @@
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
     {% if accio=="crear" %}
-        <form method="POST" action="{{ url_for('empreses_bp.recollir_dades_empresa', nombre_de_empresa=nombre_de_empresa) }}">
+        <form method="POST" action="{{ url_for('empreses_bp.inserir_empresa', nombre_de_empresa=nombre_de_empresa) }}">
     {% elif accio=="editar" %}
-        <form method="POST" action="{{ url_for('empreses_bp.recollir_nom_de_empresa', usuari=nom_de_usuari) }}">
+        <form method="POST" action="{{ url_for('empreses_bp.actualitzar_empresa', usuari=nom_de_usuari) }}">
     {% endif %}
-    
-<fieldset class="form-field">
+<div class="flex">
+  <div class="flex-izquierdo">
+    <fieldset class="form-field">
         <div align="center" class="marge_vertical">
           {{ form.nom.label }}
           <br>
@@ -28,9 +29,10 @@
             {% endfor %}
           </ul>
         {% endif %}
-      </fieldset>
-
-      <fieldset class="form-field">
+    </fieldset>
+  </div>
+  <div class="flex-centro">
+    <fieldset class="form-field">
         <div align="center" class="marge_vertical">
           {{ form.poblacio.label }}
           <br>
@@ -45,7 +47,8 @@
           </ul>
         {% endif %}
       </fieldset>
-
+  </div>
+  <div class="flex-derecho">
       <fieldset class="form-field">
         <div align="center" class="marge_vertical">
           {{ form.telefon.label }}
@@ -61,7 +64,10 @@
           </ul>
         {% endif %}
       </fieldset>
-
+    </div>
+  </div>
+  <div class="flex">
+    <div class="flex-izquierdo">
       <fieldset class="form-field">
         <div align="center" class="marge_vertical">
           {{ form.correu.label }}
@@ -77,7 +83,8 @@
           </ul>
         {% endif %}
       </fieldset>
-
+    </div>
+    <div class="flex-centro">
       <fieldset class="form-field">
         <div align="center" class="marge_vertical">
           {{ form.nom_de_persona_de_contacte.label }}
@@ -93,8 +100,9 @@
           </ul>
         {% endif %}
       </fieldset>
-
-    <fieldset class="form-field">
+    </div>
+    <div class="flex-derecho">
+      <fieldset class="form-field">
         <div align="center" class="marge_vertical">
           {{ form.volen_practica.label }}
           <br>
@@ -109,7 +117,8 @@
           </ul>
         {% endif %}
       </fieldset>
-
+    </div>
+  </div>
       <div class="marge_vertical" align="center">
         {{ form.submit }}
       </div>

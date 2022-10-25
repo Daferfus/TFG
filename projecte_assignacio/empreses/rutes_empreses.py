@@ -17,7 +17,7 @@ from urllib.request import Request
 #############
 ##  Flask  ##
 #############
-from flask import current_app as app, Blueprint, Response, make_response, request, flash, redirect, url_for, render_template, jsonify
+from flask import current_app as app, Blueprint, Response, make_response, request, flash, redirect, send_file, url_for, render_template, jsonify
 from flask_login import current_user
 
 
@@ -77,27 +77,31 @@ def mostrar_perfil() -> str:
 
 @empreses_bp.route('/llistat_empreses', methods=['GET'])
 @empreses_bp.route('/llistat_empreses/pagina/<int:pagina>')
-def llistat(pagina=1) -> str:
+@empreses_bp.route('/llistat_empreses/filtro/<string:filtro>')
+@empreses_bp.route('/llistat_empreses/filtro/<string:filtro>/pagina/<int:pagina>')
+def llistat(pagina=1, filtro="") -> str:
     """Mostra una pàgina on s'enllista les empreses de forma paginada.
 
     Args:
         pagina (int, optional): Nombre de pàgina del llistat d'empreses. Defaults to 1.
-        
+        filtro (str, optional): Text amb el que es filtra les empreses. Defaults to ALL.
+
     Returns:
         str: Llista d'empreses en la pàgina indicada.
     """    
-    dades_de_empreses: list[Empresa]|None = Empresa.objects.paginate(page=pagina, per_page=5)
+    dades_de_empreses: list[Empresa]|None = Empresa.objects(nom__icontains=filtro).paginate(page=pagina, per_page=5)
+    form = EmpresesForm(filtrar_empresa=filtro)
     return render_template(
         'llistat_empreses.jinja2',
         title="Llistat d'Empreses",
-        form = EmpresesForm(),
+        form = form,
         empreses=dades_de_empreses,
         template="llistat_empreses-template"
     )
 ## ()
 
-@empreses_bp.route('/anyadir_empresa/<string:nombre_de_empresa>', methods=["GET"])
-def anyadir_empresa(nombre_de_empresa: str):
+@empreses_bp.route('/afegir_empresa/<string:nombre_de_empresa>', methods=["GET"])
+def afegir_empresa(nombre_de_empresa: str):
     """Mostra el formulari d'inserció d'empresa.
 
     Returns:
@@ -111,7 +115,7 @@ def anyadir_empresa(nombre_de_empresa: str):
 
     return render_template(
         'formulari_empresa.jinja2',
-        title="Anyadir Empresa",
+        title="Afegir Empresa",
         accio="crear",
         nombre_de_empresa=nombre_de_empresa,
         form=form,
@@ -136,7 +140,8 @@ def editar_empresa(usuari: str):
             poblacio=empresa.poblacio,
             telefon=empresa.telefon,
             correu=empresa.correu,
-            nom_de_persona_de_contacte=empresa.persona_de_contacte
+            nom_de_persona_de_contacte=empresa.persona_de_contacte,
+            volen_practica=empresa.volen_practica
         )
     
     if form.validate_on_submit():
@@ -145,7 +150,7 @@ def editar_empresa(usuari: str):
 
     return render_template(
         'formulari_empresa.jinja2',
-        title="Editar Alumne",
+        title="Editar Empresa",
         accio="editar",
         nom_de_usuari=usuari,
         form=form,
@@ -153,14 +158,14 @@ def editar_empresa(usuari: str):
     )
 ## ()
 
-@empreses_bp.route('/practiques', methods=["GET"])
-def practiques() -> str:
+@empreses_bp.route('/practiques/<string:usuari>', methods=["GET"])
+def practiques(usuari: str) -> str:
     """Mostra una pàgina on s'enllista les pràctiques de la empresa en sessió.
 
     Returns:
         str: Llista de pràcticques en la pàgina indicada.
     """    
-    empresa: Empresa = Empresa.objects(nom_de_usuari=current_user.nom).first()
+    empresa: Empresa = Empresa.objects(nom_de_usuari=usuari).first()
 
     if empresa.volen_practica == "Sí":
         practiques = empresa.practiques
@@ -170,8 +175,8 @@ def practiques() -> str:
 
     return render_template(
         'practiques_empresa.jinja2',
-        title="Pràctiques",
-        nom_de_usuari=current_user.nom,
+        title="Pràctiques "+empresa.nom,
+        nom_de_usuari=usuari,
         practiques_de_empresa=practiques,
         template="practiques_empresa-template"
     )
@@ -313,8 +318,8 @@ def obtindre_dades_de_la_empresa(usuari: str) -> Response:
 #######################################
 ## Funcions de Modificació de Dades  ##
 #######################################
-@empreses_bp.route('/insertar_empresa/<int:nombre_de_empresa>', methods=['POST'])
-def insertar_empresa(nombre_de_empresa: int) -> Response:
+@empreses_bp.route('/inserir_empresa/<int:nombre_de_empresa>', methods=['POST'])
+def inserir_empresa(nombre_de_empresa: int) -> Response:
     """Crida a la funció per a insertar una empresa.
 
     Returns:
@@ -358,7 +363,7 @@ def insertar_empresa(nombre_de_empresa: int) -> Response:
             if app.config["DEBUG"]:
                 return resposta
             else:
-                return redirect(url_for('usuaris_bp.home'))
+                return redirect(url_for('empreses_bp.llistat'))
         else:
             resposta: Response = jsonify(
                 success=False, 
@@ -368,7 +373,7 @@ def insertar_empresa(nombre_de_empresa: int) -> Response:
             if app.config["DEBUG"]:
                 return resposta
             else:
-                return redirect(url_for('empreses_bp.anyadir_empresa'))
+                return redirect(url_for('empreses_bp.afegir_empresa', nombre_de_empresa=nombre_de_empresa))
         ## if
     else:
         resposta: Response = jsonify(
@@ -379,7 +384,7 @@ def insertar_empresa(nombre_de_empresa: int) -> Response:
         if app.config["DEBUG"]:
                 return resposta
         else:
-            return redirect(url_for('empreses_bp.anyadir_empresa'))
+            return redirect(url_for('empreses_bp.afegir_empresa', nombre_de_empresa=nombre_de_empresa))
         ## if
     ## if
 ## ()
@@ -520,7 +525,10 @@ def exportar_empreses() -> Response:
 
     if os.path.exists("./projecte_assignacio/empreses/static/file/empreses_ex.xlsx"):
         resposta: Response = jsonify(success=True, message="S'han exportat amb èxit les dades de les empreses.")
-        return resposta
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return send_file(".\\empreses\\static\\file\\empreses_ex.xlsx", as_attachment=True, attachment_filename="empreses_ex.xlsx")
     else:
         resposta: Response = jsonify(success=False, message="Hi ha hagut un problema durant l'exportació.")
     return resposta

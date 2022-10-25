@@ -49,11 +49,7 @@ def mostrar_perfil() -> str:
     Returns:
         str: Pàgina de perfil de l'alumne que ha iniciat la sessió.
     """    
-    alumne: Alumne = DefaultMunch.fromDict(
-        json.loads(
-            obtindre_dades_del_alumne(current_user.nom).get_data(as_text=True)
-        )["message"]
-    )
+    alumne: Alumne = Alumne.objects(nom_de_usuari=current_user.nom).first()
     if(alumne.grup == "DAM"):
         form = AlumnesForm(
             nom_i_cognoms=alumne.nom_i_cognoms,
@@ -142,12 +138,13 @@ def llistat(pagina=1, filtro="") -> str:
 
     Args:
         pagina (int, optional): Nombre de pàgina del llistat d'alumnes. Defaults to 1.
+        filtro (str, optional): Text amb el que es filtra els alumnes. Defaults to ALL.
         
     Returns:
         str: Llista d'alumnes en la pàgina indicada.
     """    
     dades_de_alumnes: list[Alumne]|None = Alumne.objects(nom_i_cognoms__icontains=filtro).paginate(page=pagina, per_page=5)
-    form = AlumnesForm(filtrar=filtro)
+    form = AlumnesForm(filtrar_alumne=filtro)
     return render_template(
         'llistat_alumnes.jinja2',
         title="Llistat d'Alumnes",
@@ -157,8 +154,8 @@ def llistat(pagina=1, filtro="") -> str:
     )
 ## ()
 
-@alumnes_bp.route('/anyadir_alumne')
-def anyadir_alumne() -> str:
+@alumnes_bp.route('/afegir_alumne')
+def afegir_alumne() -> str:
     """Mostra el formulari d'inserció d'alumne.
 
     Returns:
@@ -370,7 +367,7 @@ def insertar_alumne() -> Response:
             if app.config["DEBUG"]:
                 return resposta
             else:
-                return redirect(url_for('usuaris_bp.home'))
+                return redirect(url_for('alumnes_bp.llistat'))
         else:
             resposta: Response = jsonify(
                 success=False, 
@@ -380,7 +377,7 @@ def insertar_alumne() -> Response:
             if app.config["DEBUG"]:
                 return resposta
             else:
-                return redirect(url_for('alumnes_bp.anyadir_alumne'))
+                return redirect(url_for('alumnes_bp.afegir_alumne'))
         ## if
     else:
         resposta: Response = jsonify(
@@ -391,7 +388,7 @@ def insertar_alumne() -> Response:
         if app.config["DEBUG"]:
                 return resposta
         else:
-            return redirect(url_for('alumnes_bp.anyadir_alumne'))
+            return redirect(url_for('alumnes_bp.afegir_alumne'))
         ## if
     ## if
 ## ()
@@ -531,7 +528,10 @@ def exportar_alumnes() -> Response:
 
     if os.path.exists("./projecte_assignacio/alumnes/static/files/alumnes_ex.xlsx"):
         resposta: Response = jsonify(success=True, message="S'han exportat amb èxit les dades dels alumnes.")
-        return send_file("C://Users/david/Documents/Proyectos/Personales/TFG/projecte_assignacio/projecte_assignacio/alumnes/static/files/alumnes_ex.xlsx", as_attachment=True, attachment_filename="alumnes_ex.xlsx")
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return send_file(".\\alumnes\\static\\files\\alumnes_ex.xlsx", as_attachment=True, attachment_filename="alumnes_ex.xlsx")
     else:
         resposta: Response = jsonify(success=False, message="Hi ha hagut un problema durant l'exportació.")
     return resposta

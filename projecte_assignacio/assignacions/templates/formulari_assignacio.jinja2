@@ -1,0 +1,70 @@
+{% extends 'layout.jinja2' %}
+
+{% block content %}
+  
+
+  <div class="form-wrapper">
+    {% include 'messages.jinja2' %}
+    <h1 id="titol_de_seccio">{{ title }}</h1>
+    {% if accio=="crear" %}
+        <form method="POST" action="{{ url_for('assignacions_bp.inserir_assignacio') }}">
+    {% elif accio=="editar" %}
+        <form method="POST" action="{{ url_for('assignacions_bp.actualitzar_assignacio', alumne=alumne, nom_de_professor=nom_de_professor, cognoms_de_professor=cognoms_de_professor, empresa=empresa, practica=practica) }}">
+    {% endif %}
+    
+<fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.alumne.label }}
+          <br>
+          <br>
+          {{ form.alumne }}
+        </div>
+        {% if form.alumne.errors %}
+          <ul class="errors">
+            {% for error in form.alumne.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.professor.label }}
+          <br>
+          <br>
+          {{ form.professor }}
+        </div>
+        {% if form.professor.errors %}
+          <ul class="errors">
+            {% for error in form.professor.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="form-field">
+        <div align="center" class="marge_vertical">
+          {{ form.empresa.label }}
+          <br>
+          <br>
+          {{ form.empresa }}
+        </div>
+        {% if form.empresa.errors %}
+          <ul class="errors">
+            {% for error in form.empresa.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <div class="marge_vertical" align="center">
+        {{ form.submit }}
+      </div>
+      </form>
+  </div>
+
+
+{% endblock %}

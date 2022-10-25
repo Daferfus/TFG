@@ -78,16 +78,16 @@ def test_importar_empreses_amb_fixture(test_client):
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
 ## ()
 
-def test_inserir_assignacio_manual_amb_fixture(test_client):
+def test_inserir_assignacio_amb_fixture(test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves
     QUAN s'haja executat la petició d'inserir assignació de forma manual
     LLAVORS comprovar que l'alumne tinga la seua pràctica assignada.
     """    
     dades: dict[str, str] = {
-        "assignacio": '{"Alumne": "alumno01", "Practica": "AEOL(Pràctica 01)", "Professor": "professor01"}'
+        "alumne": "alumno01", "professor": "professor01", "empresa": "AEOL", "practica": "AEOL(Pràctica 01)"
     }
-    resposta: Response = test_client.post('/insertar_assignacio_manual/alumno01/professor01/professor01/AEOL', data=dades)
+    resposta: Response = test_client.post('/inserir_assignacio', data=dades)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
 ## ()
 
@@ -98,9 +98,9 @@ def test_actualitzar_assignacio_amb_fixture(test_client):
     LLAVORS comprovar que l'alumne tinga la seua pràctica actualitzada.
     """    
     dades: dict[str, str] = {
-        "assignacio": '{"Alumne": "alumno02", "Practica": "AEOL(Pràctica 01)", "Professor": "professor01"}'
+        "alumne": "alumno02", "professor": "professor01", "empresa": "AEOL(Pràctica 01)"
     }
-    resposta: Response = test_client.put('/actualitzar_assignacio/alumno01/professor01/professor01/AEOL/Pràctica01', data=dades)
+    resposta: Response = test_client.post('/actualitzar_assignacio/alumno01/professor01/professor01/AEOL/Pràctica01', data=dades)
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
 ## ()
     
@@ -110,7 +110,7 @@ def test_esborrar_assignacio_amb_fixture(test_client):
     QUAN s'haja executat la petició de d'esborrar assignació
     LLAVORS comprovar que l'alumne ja no estiga assignat a cap pràctica.
     """    
-    resposta: Response = test_client.delete('/esborrar_assignacio/alumno02/professor01/professor01/AEOL/Pràctica01')
+    resposta: Response = test_client.post('/esborrar_assignacio/alumno01/professor01/Pràctica01')
     assert json.loads(resposta.get_data(as_text=True))["success"] == True
 ## ()
 

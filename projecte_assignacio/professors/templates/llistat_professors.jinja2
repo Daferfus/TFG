@@ -8,36 +8,36 @@
   <div class="container">
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
-            <div class="botons">
-      <form method="POST" action="{{ url_for('professors_bp.importar_professors') }}">
-          <button type="file" id="izquierda">Importar Professors</button>
-      </form>
-      <a href="{{ url_for('professors_bp.exportar_professors') }}">
-        <button type="file" id="derecha">Exportar Professors</button>
-      </a>
-    </div>
+      {# <div class="botons">
+        <input id="fileInput_professor" name="fichero" type="file" style="display:none;" />
+        <button type="button" id="izquierda" onclick="document.getElementById('fileInput_professor').click();">Importar Professors</button>
+        <a href="{{ url_for('professors_bp.exportar_professors') }}">
+          <button id="derecha"">Exportar Professors</button>
+        </a>
+      </div> #}
     
-    {{ form.filtrar.label }}
-    {{ form.filtrar }}
+    {{ form.filtrar_professor.label }}
+    {{ form.filtrar_professor }}
 
     <table class="llistat">
     {% for professor in professors.items %}
         <tr>
             <td>{{professor.nom }}</td>
-            <td><a href="{{ url_for('professors_bp.editar_professor', usuari=professor.nom_de_usuari) }}"><button>🖊</button></a>
-            <td>
-              <form method="POST" action="{{ url_for('professors_bp.esborrar_professor', usuari=professor.nom_de_usuari) }}">
-                <button type="submit">🗑️</button>
-              </form>
+            <td><a href="{{ url_for('professors_bp.ajustos', usuari=professor.nom_de_usuari) }}"><button class="vistes">Vore Ratis</button></a>
+            <td><a href="{{ url_for('professors_bp.alumnes_professor', usuari=professor.nom_de_usuari) }}"><button class="vistes">Vore Alumnes</button></a>
         </tr>
     {% endfor %}
     </table>
-    <a href="{{ url_for('professors_bp.anyadir_professor') }}"><button class="anyadir">Anyadir Professor</button>
+    <a href="{{ url_for('professors_bp.afegir_professor') }}"><button class="afegir">Afegir Professor</button>
     <div class=pagination>
       <ul>
       {% if professors.has_prev %}
         <li>
+          {% if form.filtrar_professor.data %}
+            <a class="pag" href="{{ url_for('professors_bp.llistat', filtro=form.filtrar_professor.data, pagina=professors.prev_num) }}">Anterior</a>
+          {% else %}
             <a class="pag" href="{{ url_for('professors_bp.llistat', pagina=professors.prev_num) }}">Anterior</a>
+          {% endif %}
         </li>
       {% endif %}
 
@@ -46,7 +46,11 @@
           {% if page_num %}
               {% if page_num != professors.page %}
                   <li>
+                    {% if form.filtrar_professor.data %}
+                      <a class="pag" href="{{ url_for('professors_bp.llistat', filtro=form.filtrar_professor.data, pagina=page_num) }}">{{ page_num }}</a>
+                    {% else %}
                       <a class="pag" href="{{ url_for('professors_bp.llistat', pagina=page_num) }}">{{ page_num }}</a>
+                    {% endif %}
                   </li>
               {% else %}
                   <li class="active">
@@ -63,7 +67,11 @@
       <!-- next page -->
       {% if professors.has_next %}
       <li>
+        {% if form.filtrar_professor.data %}
+          <a class="pag" href="{{ url_for('professors_bp.llistat', filtro=form.filtrar_professor.data, pagina=professors.next_num) }}">Siguiente</a>
+        {% else %}
           <a class="pag" href="{{ url_for('professors_bp.llistat', pagina=professors.next_num) }}">Siguiente</a>
+        {% endif %}
       </li>
       {% endif %}
     </ul>

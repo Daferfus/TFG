@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired
 class EmpresesForm(FlaskForm):
     """Formulari d'empreses."""
 
-    filtrar = SearchField(
+    filtrar_empresa = SearchField(
         'Filtrar'
     )
 

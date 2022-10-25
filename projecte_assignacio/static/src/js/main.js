@@ -40,13 +40,6 @@ function myFunction() {
         url: '/realitzar_assignacio_automatica',
         success: function(data, status, request) {
             status_url = request.getResponseHeader('Location');
-            // Sending the message using postMessage
-            // worker.postMessage([status_url, nanobar, div[0]]);
-            // console.log(worker)
-            // // On response
-            // worker.onmessage = function(e) {
-            //     console.log(e.data);
-            // };
             update_progress(status_url, nanobar, div[0]);
         },
         error: function() {

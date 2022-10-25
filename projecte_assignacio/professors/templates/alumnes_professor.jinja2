@@ -1,0 +1,25 @@
+
+{% extends 'layout.jinja2' %}
+
+
+{% block content %}
+  
+
+  <div class="form-wrapper">
+    {% include 'messages.jinja2' %}
+    <h1 id="titol_de_seccio">{{ title }}</h1>
+    <h2>Alumnes de FCT Assignats</h2>
+    <table>
+        {% for alumne_fct in alumnes_fct %}
+        <td>{{ alumne_fct.nom_i_cognoms }}</td>
+        {% endfor%}
+    </table>
+    <h2>Alumnes de Dual Assignats</h2>
+    <table>
+        {% for alumne_dual in alumnes_dual %}
+        <td>{{ alumne_dual.nom_i_cognoms }}</td>
+        {% endfor%}
+    </table>
+</div>
+
+{% endblock %}

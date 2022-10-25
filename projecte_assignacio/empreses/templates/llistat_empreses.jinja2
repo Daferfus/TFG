@@ -8,17 +8,16 @@
   <div class="container">
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
-        <div class="botons">
-      <form method="POST" action="{{ url_for('empreses_bp.importar_empreses') }}">
-          <button type="file" id="izquierda">Importar Empreses</button>
-      </form>
-      <a href="{{ url_for('empreses_bp.exportar_empreses') }}">
-        <button type="file" id="derecha">Exportar Empreses</button>
-      </a>
+      <div class="botons">
+        <input id="fileInput_empresa" name="fichero" type="file" style="display:none;" />
+        <button type="button" id="izquierda" onclick="document.getElementById('fileInput_empresa').click();">Importar Empreses</button>
+        <a href="{{ url_for('empreses_bp.exportar_empreses') }}">
+          <button id="derecha"">Exportar Empreses</button>
+        </a>
     </div>
     
-    {{ form.filtrar.label }}
-    {{ form.filtrar }}
+    {{ form.filtrar_empresa.label }}
+    {{ form.filtrar_empresa }}
 
      {% set count = namespace(value=0) %}
     <table class="llistat">
@@ -30,16 +29,21 @@
               <form method="POST" action="{{ url_for('empreses_bp.esborrar_empresa', usuari=empresa.nom_de_usuari) }}">
                 <button type="submit">🗑️</button>
               </form>
+            <td><a href="{{ url_for('empreses_bp.practiques', usuari=empresa.nom_de_usuari) }}"><button class="vistes">Vore Pràctiques</button></a>
         </tr>
         {% set count.value = count.value + 1 %}
     {% endfor %}
     </table>
-    <a href="{{ url_for('empreses_bp.anyadir_empresa', nombre_de_empresa=count.value) }}"><button class="anyadir">Afegir Empresa</button>
+    <a href="{{ url_for('empreses_bp.afegir_empresa', nombre_de_empresa=count.value) }}"><button class="afegir">Afegir Empresa</button>
     <div class=pagination>
       <ul>
       {% if empreses.has_prev %}
         <li>
+          {% if form.filtrar_empresa.data %}
+            <a class="pag" href="{{ url_for('empreses_bp.llistat', filtro=form.filtrar_empresa.data, pagina=empreses.prev_num) }}">Anterior</a>
+          {% else %}
             <a class="pag" href="{{ url_for('empreses_bp.llistat', pagina=empreses.prev_num) }}">Anterior</a>
+          {% endif %}
         </li>
       {% endif %}
 
@@ -48,7 +52,11 @@
           {% if page_num %}
               {% if page_num != empreses.page %}
                   <li>
+                    {% if form.filtrar_empresa.data %}
+                      <a class="pag" href="{{ url_for('empreses_bp.llistat', filtro=form.filtrar_empresa.data, pagina=page_num) }}">{{ page_num }}</a>
+                    {% else %}
                       <a class="pag" href="{{ url_for('empreses_bp.llistat', pagina=page_num) }}">{{ page_num }}</a>
+                    {% endif %}
                   </li>
               {% else %}
                   <li class="active">
@@ -65,7 +73,11 @@
       <!-- next page -->
       {% if empreses.has_next %}
       <li>
+        {% if form.filtrar_empresa.data %}
+          <a class="pag" href="{{ url_for('empreses_bp.llistat', filtro=form.filtrar_empresa.data, pagina=empreses.next_num) }}">Siguiente</a>
+        {% else %}
           <a class="pag" href="{{ url_for('empreses_bp.llistat', pagina=empreses.next_num) }}">Siguiente</a>
+        {% endif %}
       </li>
       {% endif %}
     </ul>

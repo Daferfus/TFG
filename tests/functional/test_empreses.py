@@ -46,9 +46,9 @@ def test_inserir_empresa_amb_fixture(test_client):
         "correu": "info@locatec.es", 
         "nom_de_persona_de_contacte": "Salva"
     }
-    primera_resposta: Response = test_client.post('/insertar_empresa/0', data=dades)
+    primera_resposta: Response = test_client.post('/inserir_empresa/0', data=dades)
     assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
-    segona_resposta: Response = test_client.post('/insertar_empresa/0', data=dades)
+    segona_resposta: Response = test_client.post('/inserir_empresa/0', data=dades)
     assert json.loads(segona_resposta.get_data(as_text=True))["message"] == "Ja existeix una empresa amb aquest usuari."
 ## ()
 
@@ -74,7 +74,8 @@ def test_actualitzar_empresa_amb_fixture(test_client):
         "poblacio": "València", 
         "telefon": 665517969, 
         "correu": "info@locatec.es", 
-        "nom_de_persona_de_contacte": "Salva"
+        "nom_de_persona_de_contacte": "Salva",
+        "volen_practica": "Sí"
     }
     primera_resposta: Response = test_client.post('/actualitzar_empresa/empresa0', data=dades)
     assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True

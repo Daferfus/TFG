@@ -16,8 +16,10 @@ from urllib.request import Request
 #############
 ##  Flask  ##
 #############
-from flask import current_app as app, Blueprint, Response, request, jsonify, render_template, make_response, flash, redirect, url_for
+from flask import current_app as app, Blueprint, Response, request, jsonify, render_template, make_response, flash, redirect, send_file, url_for
 from flask_login import current_user
+from projecte_assignacio.alumnes.model_alumnes import Alumne
+from projecte_assignacio.alumnes.rutes_alumnes import obtindre_dades_del_alumne
 
 ##############
 ##  Mòduls  ##
@@ -46,11 +48,7 @@ def mostrar_perfil() -> str:
     Returns:
         str: Pàgina de perfil del professor
     """    
-    professor: Professor = DefaultMunch.fromDict(
-        json.loads(
-            obtindre_dades_del_professor(current_user.nom).get_data(as_text=True)
-        )["message"]
-    )    
+    professor: Professor = Professor.objects(nom_de_usuari=current_user.nom).first()
     form: object = ProfessorsForm(
             nom=professor.nom,
             cognoms=professor.cognoms,
@@ -71,8 +69,32 @@ def mostrar_perfil() -> str:
     )
 ## ()
 
-@professors_bp.route('/ajustos')
-def ajustos() -> str:
+@professors_bp.route('/alumnes_professor/<string:usuari>', methods=["GET"])
+def alumnes_professor(usuari: str) -> str:
+    professor: Professor|None = Professor.objects(nom_de_usuari=usuari).first()
+    assignacions: dict = professor.assignacions
+
+    alumnes_dual: list[str] = []
+    alumnes_fct: list[str] = []
+
+    for assignacio in assignacions:
+        alumne: Alumne = Alumne.objects(nom_i_cognoms=assignacio["alumne"]).first()
+
+        if alumne.tipo_de_practica == "FCT":
+            alumnes_fct.append(alumne)
+        else:
+            alumnes_dual.append(alumne)
+
+    return render_template(
+        'alumnes_professor.jinja2',
+        title=usuari,
+        alumnes_fct=alumnes_fct,
+        alumnes_dual=alumnes_dual,
+        template="alumnes_professor-template"
+    )
+
+@professors_bp.route('/ajustos/<string:usuari>')
+def ajustos(usuari: str) -> str:
     """Mostra la pàgina amb els ratis d'alumne per hora del professor actualment en sessió.
 
     Returns:
@@ -80,7 +102,7 @@ def ajustos() -> str:
     """
     professor: Professor = DefaultMunch.fromDict(
     json.loads(
-            obtindre_dades_del_professor(current_user.nom).get_data(as_text=True)
+            obtindre_dades_del_professor(usuari).get_data(as_text=True)
         )["message"]
     )
     if professor.rati_fct != "":
@@ -106,7 +128,7 @@ def ajustos() -> str:
     return render_template(
         'ajustos_professor.jinja2',
         title="Ajustos",
-        nom_de_usuari=current_user.nom,
+        nom_de_usuari=usuari,
         form=form,
         template="ajustos_professor-template"
     )
@@ -114,27 +136,31 @@ def ajustos() -> str:
 
 @professors_bp.route('/llistat_professors', methods=['GET'])
 @professors_bp.route('/llistat_professors/pagina/<int:pagina>')
-def llistat(pagina=1) -> str:
+@professors_bp.route('/llistat_professors/filtro/<string:filtro>')
+@professors_bp.route('/llistat_professors/filtro/<string:filtro>/pagina/<int:pagina>')
+def llistat(pagina=1, filtro="") -> str:
     """Mostra una pàgina on s'enllista els professors de formma paginada.
 
     Args:
         pagina (int, optional): Nombre de pàgina del llistat de professors. Defaults to 1.
-        
+        filtro (str, optional): Text amb el que es filtra els professors. Defaults to ALL.
+
     Returns:
         str: Llista de professors en la pàgina indicada.
     """    
-    dades_de_professors: list[Professor]|None = Professor.objects.paginate(page=pagina, per_page=5)
+    dades_de_professors: list[Professor]|None = Professor.objects(nom__icontains=filtro).paginate(page=pagina, per_page=5)
+    form = ProfessorsForm(filtrar_professor=filtro)
     return render_template(
         'llistat_professors.jinja2',
         title="Llistat de Professors",
-        form=ProfessorsForm(),
+        form=form,
         professors=dades_de_professors,
         template="llistat_professors-template"
     )
 ## ()
 
-@professors_bp.route('/anyadir_professor', methods=["GET"])
-def anyadir_professor() -> str:
+@professors_bp.route('/afegir_professor', methods=["GET"])
+def afegir_professor() -> str:
     """Mostra el formulari d'inserció de professor.
 
     Returns:
@@ -267,8 +293,8 @@ def obtindre_dades_del_professor(usuari: str) -> Response:
 #######################################
 ## Funcions de Modificació de Dades  ##
 #######################################
-@professors_bp.route('/insertar_professor', methods=['POST'])
-def insertar_professor() -> Response:
+@professors_bp.route('/inserir_professor', methods=['POST'])
+def inserir_professor() -> Response:
     """Crida a la funció per a insertar un professor.
 
     Returns:
@@ -318,7 +344,7 @@ def insertar_professor() -> Response:
             if app.config["DEBUG"]:
                 return resposta
             else:
-                return redirect(url_for('usuaris_bp.home'))
+                return redirect(url_for('professors_bp.llistat'))
         else:
             resposta: Response = jsonify(
                 success=False, 
@@ -328,7 +354,7 @@ def insertar_professor() -> Response:
             if app.config["DEBUG"]:
                 return resposta
             else:
-                return redirect(url_for('professors_bp.anyadir_professor'))
+                return redirect(url_for('professors_bp.afegir_professor'))
         ## if
     else:
         resposta: Response = jsonify(
@@ -339,7 +365,7 @@ def insertar_professor() -> Response:
         if app.config["DEBUG"]:
                 return resposta
         else:
-            return redirect(url_for('professors_bp.anyadir_professor'))
+            return redirect(url_for('professors_bp.afegir_professor'))
         ## if
     ## if
 ## ()
@@ -455,7 +481,10 @@ def exportar_professors() -> Response:
 
     if os.path.exists("./projecte_assignacio/professors/static/file/professors_ex.xlsx"):
         resposta: Response = jsonify(success=True, message="S'han exportat amb èxit les dades dels professors.")
-        return resposta
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return send_file(".\\professors\\static\\file\\professors_ex.xlsx", as_attachment=True, attachment_filename="professors_ex.xlsx")
     else:
         resposta: Response = jsonify(success=False, message="Hi ha hagut un problema durant l'exportació.")
     return resposta

@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired
 class AlumnesForm(FlaskForm):
     """Formulari d'alumnes."""
 
-    filtrar = SearchField(
+    filtrar_alumne = SearchField(
         'Filtrar'
     )
 
@@ -20,13 +20,11 @@ class AlumnesForm(FlaskForm):
         ]
     )
 
-    grup = StringField(
+    grup = SelectField(
         'Grup',
-        [
-            DataRequired(),
-            
-        ]
+        choices=[('DAM', 'DAM'), ('DAW', 'DAW'), ('ASIX', 'ASIX'), ('TSMR', 'TSMR')]
     )
+
 
     ciutat_de_residencia = StringField(
         'Ciutat de Residencia',

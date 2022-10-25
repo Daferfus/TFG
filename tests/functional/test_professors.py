@@ -46,9 +46,9 @@ def test_inserir_professor_amb_fixture(test_client):
         "hores_alliberades_setmanalment": 8, 
         "hores_restants_setmanalment": 5
     }
-    primera_resposta: Response = test_client.post('/insertar_professor', data=dades)
+    primera_resposta: Response = test_client.post('/inserir_professor', data=dades)
     assert json.loads(primera_resposta.get_data(as_text=True))["success"] == True
-    segona_resposta: Response = test_client.post('/insertar_professor', data=dades)
+    segona_resposta: Response = test_client.post('/inserir_professor', data=dades)
     assert json.loads(segona_resposta.get_data(as_text=True))["message"] == "Ja existeix un professor amb aquest usuari."
 ## ()
 

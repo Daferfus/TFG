@@ -79,13 +79,7 @@ def compilar_actius_estatics(assets):
         filters='jsmin',
         output='dist/js/main.min.js'
     )
-    worker_js_bundle = Bundle(
-        'src/js/worker.js',
-        filters='jsmin',
-        output='dist/js/worker.min.js'
-    )
     assets.register('main_js', main_js_bundle)
-    assets.register('worker_js', worker_js_bundle)
     ##############################################
     ##############################################
 
@@ -97,7 +91,6 @@ def compilar_actius_estatics(assets):
         empreses_style_bundle.build()
         assignacions_style_bundle.build()
         main_js_bundle.build()
-        worker_js_bundle.build()
     ## if
 
     return assets

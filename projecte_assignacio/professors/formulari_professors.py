@@ -45,7 +45,7 @@ class BetterTagListField(TagListField):
 class ProfessorsForm(FlaskForm):
     """Formulari de pràctiques."""
 
-    filtrar = SearchField(
+    filtrar_professor = SearchField(
         'Filtrar'
     )
 
