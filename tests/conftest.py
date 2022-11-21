@@ -12,7 +12,7 @@ import pytest
 ## Ruta sobre la que s'executen els tests. ##
 #############################################
 import sys
-sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\projecte_assignacio")
+sys.path.insert(0, "C:\\Users\\david\\Projectes\\Personales\\TFG\\projecte_assignacio")
 
 from projecte_assignacio import init_app
 from projecte_assignacio.usuaris.model_usuaris import Usuari

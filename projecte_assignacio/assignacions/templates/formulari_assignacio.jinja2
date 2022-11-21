@@ -9,7 +9,7 @@
     {% if accio=="crear" %}
         <form method="POST" action="{{ url_for('assignacions_bp.inserir_assignacio') }}">
     {% elif accio=="editar" %}
-        <form method="POST" action="{{ url_for('assignacions_bp.actualitzar_assignacio', alumne=alumne, nom_de_professor=nom_de_professor, cognoms_de_professor=cognoms_de_professor, empresa=empresa, practica=practica) }}">
+        <form method="POST" action="{{ url_for('assignacions_bp.actualitzar_assignacio') }}">
     {% endif %}
     
 <fieldset class="form-field">

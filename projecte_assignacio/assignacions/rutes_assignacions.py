@@ -37,12 +37,17 @@ assignacions_bp = Blueprint(
 
 
 @assignacions_bp.route('/assignacio')
-def mostrar_panel_de_assignacio():
-    alumnes: list[Alumne]|None = Alumne.objects()
+@assignacions_bp.route('/assignacio/pagina/<int:pagina>')
+@assignacions_bp.route('/assignacio/filtro/<string:filtro>')
+@assignacions_bp.route('/assignacio/filtro/<string:filtro>/pagina/<int:pagina>')
+def mostrar_panel_de_assignacio(pagina=1, filtro=""):
+    alumnes: list[Alumne]|None = Alumne.objects(nom_i_cognoms__icontains=filtro).paginate(page=pagina, per_page=5)
+    form = AssignacionsForm(filtrar_assignacions=filtro)
     return render_template(
         'assignacio.jinja2',
-        title="Projecte d'Assignació",
+        title="Panel d'Assignació",
         alumnes=alumnes,
+        form=form,
         description="Resolució d'un problema d'assignació d'alumne i professors a pràctiques d'empresa."
     )
 
@@ -78,9 +83,9 @@ def afegir_assignacio():
         template="formulari_assignacio-template"
     )
 ## ()
-
-@assignacions_bp.route('/editar_empresa/<string:professor>/<string:alumne>/<string:practica>', methods=["GET"])
-def editar_assignacio(professor: str, alumne: str, practica: str):
+@assignacions_bp.route('/editar_assignacio/<string:alumne>', methods=["GET"])
+@assignacions_bp.route('/editar_assignacio/<string:professor>/<string:alumne>/<string:practica>', methods=["GET"])
+def editar_assignacio(professor: str = "", alumne: str = "", practica: str = ""):
     """Mostra el formulari d'edició d'assignació.
 
     Args:
@@ -110,17 +115,11 @@ def editar_assignacio(professor: str, alumne: str, practica: str):
     if form.validate_on_submit():
         pass
     ## if
-    
-    dades_empresa = practica.split("(");
+
     return render_template(
         'formulari_assignacio.jinja2',
         title="Editar Assignació",
         accio="editar",
-        alumne=alumne,
-        nom_de_professor=professor,
-        cognoms_de_professor=professor,
-        empresa=dades_empresa[0],
-        practica=dades_empresa[1],
         form=form,
         template="formulari_assignacio-template"
     )
@@ -181,8 +180,8 @@ def inserir_assignacio() -> Response:
         else:
             return redirect(url_for('assignacions_bp.afegir_assignacio'))
 
-@assignacions_bp.route('/actualitzar_assignacio/<string:alumne>/<string:nom_de_professor>/<string:cognoms_de_professor>/<string:empresa>/<string:practica>', methods=['POST'])
-def actualitzar_assignacio(alumne: str, nom_de_professor: str, cognoms_de_professor: str, empresa: str, practica:str) -> Response:
+@assignacions_bp.route('/actualitzar_assignacio', methods=['POST'])
+def actualitzar_assignacio() -> Response:
     """Crida a la funció per a actualitzar una assignació donada.
 
     Args:
@@ -195,13 +194,14 @@ def actualitzar_assignacio(alumne: str, nom_de_professor: str, cognoms_de_profes
     Returns:
         Response: Informació sobre el resultat de la petició.
     """
-    alumne: str = request.form['alumne'];
-    professor: str = request.form['professor'];
-    practica: str = request.form['empresa'];
+    alumne: str = request.form['alumne']
+    professor: str = request.form['professor']
+    practica: str = request.form['empresa']
+    empresa: str = practica.split("(")[0]
     assignacio: dict[str, str] = {
-        "alumne": alumne,
-        "professor": professor,
-        "practica": practica
+        "Alumne": alumne,
+        "Professor": professor,
+        "Pràctica": practica
     }
     resultat: int = Alumne.objects(nom_i_cognoms=alumne).update(__raw__=
         {"$set": {
@@ -210,17 +210,14 @@ def actualitzar_assignacio(alumne: str, nom_de_professor: str, cognoms_de_profes
         }
     )
 
-    Professor.objects(
-        nom=nom_de_professor,
-        cognoms=cognoms_de_professor,
-        assignacions={"Alumne": alumne, "Practica": empresa+"("+practica+")", "Professor": nom_de_professor}
-    ).update(set__assignacions__S=assignacio)
+    professor: Professor = Professor.objects(nom=professor).get()
+    professor.assignacions.append(assignacio)
+    professor.save()
 
-    Empresa.objects(
-        nom=empresa,
-        assignacions={"Alumne": alumne, "Practica": empresa+"("+practica+")", "Professor": nom_de_professor}
-    ).update(set__assignacions__S=assignacio)
-
+    empresa: Empresa = Empresa.objects(nom=empresa).get()
+    empresa.assignacions.append(assignacio)
+    empresa.save()
+    
     if resultat > 0:
         resposta: Response = jsonify(success=True, message="S'ha actualitzat l'assignació.")
         flash(json.loads(resposta.get_data(as_text=True))["message"])
@@ -234,7 +231,7 @@ def actualitzar_assignacio(alumne: str, nom_de_professor: str, cognoms_de_profes
         if app.config["DEBUG"]:
             return resposta
         else:
-            return redirect(url_for('assignacions_bp.editar_assignacio', alumne=alumne, professor=professor, practica=practica))
+            return redirect(url_for('assignacions_bp.editar_assignacio'))
 
 @assignacions_bp.route('/esborrar_assignacio/<string:alumne>/<string:professor>/<string:practica>', methods=['POST'])
 def esborrar_assignacio(alumne: str, professor: str, practica:str) -> Response:
@@ -270,10 +267,17 @@ def esborrar_assignacio(alumne: str, professor: str, practica:str) -> Response:
 
     if resultat == "S'ha esborrat l'assignació.":
         resposta: Response = jsonify(success=True, message="S'ha esborrat l'assignació.")
-        return resposta
+        flash(json.loads(resposta.get_data(as_text=True))["message"])
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('assignacions_bp.mostrar_panel_de_assignacio'))
     else:
         resposta: Response = jsonify(success=True, message="No s'ha esborrat l'assignació.")
-        return resposta
+        if app.config["DEBUG"]:
+            return resposta
+        else:
+            return redirect(url_for('assignacions_bp.mostrar_panel_de_assignacio'))
 
 
 @assignacions_bp.route('/realitzar_assignacio_automatica', methods=['POST'])
@@ -329,7 +333,6 @@ def taskstatus(task_id):
 def assignar(self, distancies):
     contador_de_assignacions: int = 0
 
-    print("Hola")
     self.update_state(state='PROGRESS',
                           meta={'current': 0, 'total': 100,
                                 'status': "Recopil·lant alumnes"})
@@ -371,10 +374,11 @@ def assignar(self, distancies):
                                 'status': "Guardant assignacions més óptimes"})
                                 
     for alumne in alumnes:
-        if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
+        #if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
             sid = alumne.nom_i_cognoms
             for v in funcio[2][sid] :
                 if v.SolutionValue() > 0:
+                    print(v, v.SolutionValue(), funcio[1].GetCoefficient(v))
                     parts_de_assignacio = str(v).split("-")
                     parts_de_practica = parts_de_assignacio[1].split("(")  
                     assignacio = {"Alumne": parts_de_assignacio[0], "Pràctica": parts_de_assignacio[1]}

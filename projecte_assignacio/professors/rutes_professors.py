@@ -78,7 +78,7 @@ def alumnes_professor(usuari: str) -> str:
     alumnes_fct: list[str] = []
 
     for assignacio in assignacions:
-        alumne: Alumne = Alumne.objects(nom_i_cognoms=assignacio["alumne"]).first()
+        alumne: Alumne = Alumne.objects(nom_i_cognoms=assignacio["Alumne"]).first()
 
         if alumne.tipo_de_practica == "FCT":
             alumnes_fct.append(alumne)

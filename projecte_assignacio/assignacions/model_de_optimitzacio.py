@@ -21,7 +21,7 @@ def calcular_distancia(self, redis, alumnes: list[Alumne], empreses: list[Empres
     progres = 35
     print("Calculem distàncies.")
     for alumne in alumnes:
-        if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
+        #if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
             progres+=1
             distancies_alumne: list = []
             ciutat_alumne: str = alumne.poblacio
@@ -30,11 +30,11 @@ def calcular_distancia(self, redis, alumnes: list[Alumne], empreses: list[Empres
                                 meta={'current': progres, 'total': 100,
                                         'status': "Calculant distàncies alumne-pràctica"})
             for empresa in empreses:
-                perfil: bool = False;
-                for practica in empresa.practiques:
-                    if practica["Titulacio"] == alumne.grup:
-                        perfil = True
-                if perfil:
+                # perfil: bool = False;
+                # for practica in empresa.practiques:
+                #     if practica["Titulacio"] == alumne.grup:
+                #         perfil = True
+                # if perfil:
                     ciutat_empresa: str = empresa.poblacio
                     coordenades_ciutat_empresa = Nominatim.geocode(nm, ciutat_empresa+", València")
                     if (coordenades_ciutat_alumne and coordenades_ciutat_empresa) is not None:
@@ -50,8 +50,8 @@ def calcular_distancia(self, redis, alumnes: list[Alumne], empreses: list[Empres
 
                         redis.hset("Distancies", str((ciutat_alumne+"-"+ciutat_empresa)), float(route["distance"]/1000))
                         distancies = redis.hgetall("Distancies")
-                else:
-                    print(alumne.nom_i_cognoms)
+                # else:
+                #     print(alumne.nom_i_cognoms)
             Alumne.objects(nom_i_cognoms=alumne.nom_i_cognoms).update(__raw__=
                 {"$set": {
                     "distancies": distancies_alumne
@@ -77,12 +77,12 @@ def definir_variables(alumnes: list[Alumne], empreses: list[Empresa], professors
     ## Definim Variables
     ## Alumnes (Y_ki)
     for alumne in alumnes:
-        if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
+        #if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
             for empresa in empreses:
                 nombre_de_practiques: int = len(empresa.practiques)
                 contador: int = 0;
                 while nombre_de_practiques > 0:
-                    if empresa.practiques[contador]["Titulacio"] == alumne.grup:
+                    #if empresa.practiques[contador]["Titulacio"] == alumne.grup:
                         variable_buleana = solver.BoolVar(alumne.nom_i_cognoms+"-"+empresa.nom+"(Pràctica "+str(nombre_de_practiques)+")")
                         practiques.append(empresa.nom+"(Pràctica "+str(nombre_de_practiques)+")")
                         llistat_practiques: list = variable_alumnes.setdefault(alumne.nom_i_cognoms, list())
@@ -91,11 +91,11 @@ def definir_variables(alumnes: list[Alumne], empreses: list[Empresa], professors
                         llistat_practiques = variable_practiques_alumne.setdefault(empresa.nom+"(Pràctica "+str(nombre_de_practiques)+")", list())
                         llistat_practiques.append(variable_buleana)
                         variable_practiques_alumne[len(empresa.practiques)] = llistat_practiques
-                    else:
-                        print(empresa.practiques[contador]["Titulacio"])
-                        print(alumne.grup)
-                    contador+=1;
-                    nombre_de_practiques-=1
+                    #else:
+                        #print(empresa.practiques[contador]["Titulacio"])
+                        #print(alumne.grup)
+                        contador+=1;
+                        nombre_de_practiques-=1
 
     ## Professors (X_ji)
     for professor in professors:
@@ -117,7 +117,7 @@ def definir_restriccions(alumnes: list[Alumne], professors: list[Professor], pra
     print("Definim Restriccions.")
     # Restricció de capacitat del alumne.
     for alumne in alumnes:
-        if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
+        #if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
             sid = alumne.nom_i_cognoms
             c = solver.Constraint(1, 1)
             for v in variable_alumnes[sid] :
@@ -151,7 +151,7 @@ def definir_funcio_objectiu(solver, alumnes: list[Alumne], professors: list[Prof
     objective.SetMinimization()
 
     for alumne in alumnes:
-        if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
+        #if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
             sid = alumne.nom_i_cognoms
             contador_practica = 0
             for distancia in alumne.distancies:

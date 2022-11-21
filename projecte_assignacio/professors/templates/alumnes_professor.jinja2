@@ -8,18 +8,32 @@
   <div class="form-wrapper">
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
-    <h2>Alumnes de FCT Assignats</h2>
-    <table>
-        {% for alumne_fct in alumnes_fct %}
-        <td>{{ alumne_fct.nom_i_cognoms }}</td>
-        {% endfor%}
-    </table>
-    <h2>Alumnes de Dual Assignats</h2>
-    <table>
-        {% for alumne_dual in alumnes_dual %}
-        <td>{{ alumne_dual.nom_i_cognoms }}</td>
-        {% endfor%}
-    </table>
+
+    <div class="flex">
+        <div class="flex-izquierdo" style="margin-right: 6rem">
+            <h2 class="margen_h2">Alumnes de FCT Assignats</h2>
+            <table class="llistat">
+                {% for alumne_fct in alumnes_fct %}
+                    <tr>
+                        <td class="td_size">{{ alumne_fct.nom_i_cognoms }}</td>
+                    </tr>
+                {% endfor%}
+            </table>
+        </div>
+        <div class="flex-derecho">
+            <h2 class="margen_h2">Alumnes de Dual Assignats</h2>
+            <table class="llistat">
+                {% for alumne_dual in alumnes_dual %}
+                    <tr>
+                        <td class="td_size">{{ alumne_dual.nom_i_cognoms }}</td>
+                    </tr>
+                {% endfor%}
+            </table>
+        </div>
+    </div>
+
+    <h2 class="margen_h2">Disponibilitat</h2>
+    <p>45% de disponibilitat en base a 2 </br> hores restants de les 5 alliberades</p>
 </div>
 
 {% endblock %}

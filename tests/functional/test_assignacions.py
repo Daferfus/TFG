@@ -24,7 +24,7 @@ from unittest.mock import patch
 ##  Ruta ##
 ###########
 import sys
-sys.path.insert(0, "C:\\Users\\david\\Documents\\Proyectos\\Personales\\TFG\\projecte_assignacio")
+sys.path.insert(0, "C:\\Users\\david\\Projectes\\Personales\\TFG\\projecte_assignacio")
 
 
 #######################
@@ -115,7 +115,7 @@ def test_esborrar_assignacio_amb_fixture(test_client):
 ## ()
 
 @patch.object(assignar, 'delay')
-@pytest.mark.use_fixtures
+@pytest.mark.usefixtures
 def test_realitzar_assignacio_automatica_amb_fixture(mock_delay, test_client):
     """
     DONADA una aplicació Flask configurada per a fer proves

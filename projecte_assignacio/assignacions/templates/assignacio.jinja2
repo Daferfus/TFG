@@ -8,20 +8,78 @@
   <div class="container">
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
-    <table class="llistat">
-    {% for alumne in alumnes %}
-        <tr>
-            <td>{{ alumne.assignacio.Alumne }} - {{ alumne.assignacio.Pràctica}} - {{ alumne.assignacio.professor }}</td>
-            <td class="editar"><a href="{{ url_for('assignacions_bp.editar_assignacio', alumne=alumne.assignacio.Alumne, professor=alumne.assignacio.professor, practica=alumne.assignacio.Pràctica) }}"><button>🖊</button></a>
-            <td class="borrar">
-              <form method="POST" action="{{ url_for('assignacions_bp.esborrar_assignacio', alumne=alumne.assignacio.Alumne, professor=alumne.assignacio.professor, practica=alumne.assignacio.Pràctica) }}">
-                <button type="submit">🗑️</button>
-            </form>
-        </tr>
-    {% endfor %}
-    </table>
-    <a href="{{ url_for('assignacions_bp.afegir_assignacio') }}"><button class="afegir">Afegir Assignació</button>
-    <a onclick="empezar_assignacion_automatica()"><button class="assignacio">Realitzar Assignació Automática</button>
-  </div>
 
+    {% if alumnes.items|length > 0 %}
+      {{ form.filtrar_assignacions.label }}
+      {{ form.filtrar_assignacions }}
+
+      <table class="llistat">
+      {% for alumne in alumnes.items %}
+          <tr>
+              <td>{{ alumne.nom_i_cognoms }} - {{ alumne.assignacio.Pràctica}} - {{ alumne.assignacio.Professor }}</td>
+              {% if alumne.assignacions %}
+                <td class="editar"><a href="{{ url_for('assignacions_bp.editar_assignacio', alumne=alumne.nom_i_cognoms, professor=alumne.assignacio.Professor, practica=alumne.assignacio.Pràctica) }}"><button>🖊</button></a>
+              {% else %}
+                <td class="editar"><a href="{{ url_for('assignacions_bp.editar_assignacio', alumne=alumne.nom_i_cognoms) }}"><button>🖊</button></a>
+              {% endif %}            
+              <td class="borrar">
+                <form method="POST" action="{{ url_for('assignacions_bp.esborrar_assignacio', alumne=alumne.assignacio.Alumne, professor=alumne.assignacio.Professor, practica=alumne.assignacio.Pràctica) }}">
+                  <button type="submit">🗑️</button>
+              </form>
+          </tr>
+      {% endfor %}
+      </table>
+      <a onclick="empezar_assignacion_automatica()"><button class="assignacio">Realitzar Assignació Automática</button>
+      <div class=pagination>
+        <ul>
+        {% if alumnes.has_prev %}
+          <li>
+            {% if form.filtrar_assignacions.data %}
+              <a class="pag" href="{{ url_for('assignacions_bp.mostrar_panel_de_assignacio', filtro=form.filtrar_alumne.data, pagina=alumnes.prev_num) }}">Anterior</a>
+            {% else %}
+              <a class="pag" href="{{ url_for('assignacions_bp.mostrar_panel_de_assignacio', pagina=alumnes.prev_num) }}">Anterior</a>
+            {% endif %}
+          </li>
+        {% endif %}
+
+        <!-- all page numbers -->
+        {% for page_num in alumnes.iter_pages() %}
+            {% if page_num %}
+                {% if page_num != alumnes.page %}
+                    <li>
+                      {% if form.filtrar_assignacions.data %}
+                        <a class="pag" href="{{ url_for('assignacions_bp.mostrar_panel_de_assignacio', filtro=form.filtrar_assignacions.data, pagina=page_num) }}">{{ page_num }}</a>
+                      {% else %}
+                        <a class="pag" href="{{ url_for('assignacions_bp.mostrar_panel_de_assignacio', pagina=page_num) }}">{{ page_num }}</a>
+                      {% endif %}
+                    </li>
+                {% else %}
+                    <li class="active">
+                        <a class="pag" href="#">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+          {% else %}
+              <li>
+                  <span class="ellipsis" style="white-space; nowrap; overflow: hidden; text-overflow: ellipsis">…</span>
+              </li>
+          {% endif %}
+        {% endfor %}
+
+        <!-- next page -->
+        {% if alumnes.has_next %}
+        <li>
+          {% if form.filtrar_assignacions.data %}
+            <a class="pag" href="{{ url_for('assignacions_bp.mostrar_panel_de_assignacio', filtro=form.filtrar_assignacions.data, pagina=alumnes.next_num) }}">Siguiente</a>
+          {% else %}
+            <a class="pag" href="{{ url_for('assignacions_bp.mostrar_panel_de_assignacio', pagina=alumnes.next_num) }}">Siguiente</a>
+          {% endif %}
+        </li>
+        {% endif %}
+      </ul>
+      </div>
+    {% else %}
+    <p>No es diposa d'informació sobre els alumnes, professors i/o empreses que entren dins del programa d'assignació.</p>
+    <p>Per favor, accedeix als llistats corresponents desde el menú e importa les dades d'aquests.</p>
+    {% endif %}
+  </div>
 {% endblock %}
