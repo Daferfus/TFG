@@ -12,11 +12,11 @@
     {% if alumnes.items|length > 0 %}
       {{ form.filtrar_assignacions.label }}
       {{ form.filtrar_assignacions }}
-
+      {# {{ form.ver }} #}
       <table class="llistat">
       {% for alumne in alumnes.items %}
           <tr>
-              <td>{{ alumne.nom_i_cognoms }} - {{ alumne.assignacio.Pràctica}} - {{ alumne.assignacio.Professor }}</td>
+              <td style="width: 40%">{{ alumne.nom_i_cognoms }} <br> - <br> {{ alumne.assignacio.Pràctica}} <br> - <br> {{ alumne.assignacio.Professor }}</td>
               {% if alumne.assignacions %}
                 <td class="editar"><a href="{{ url_for('assignacions_bp.editar_assignacio', alumne=alumne.nom_i_cognoms, professor=alumne.assignacio.Professor, practica=alumne.assignacio.Pràctica) }}"><button>🖊</button></a>
               {% else %}

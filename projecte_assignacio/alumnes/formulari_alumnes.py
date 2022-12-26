@@ -37,7 +37,7 @@ class AlumnesForm(FlaskForm):
     disponibilitat_de_cotxe = RadioField(
         'Disponibilitat de Cotxe', 
         choices=[
-            ('Sí','Sí'),('No','No')
+            ('Si','Sí'),('No','No')
         ]
     )
 

@@ -9,7 +9,7 @@
     {% include 'messages.jinja2' %}
     <h1 id="titol_de_seccio">{{ title }}</h1>
     {% if accio=="crear" %}
-      <form method="POST" action="{{ url_for('empreses_bp.insertar_practica', usuari=nom_de_usuari) }}">
+      <form method="POST" action="{{ url_for('empreses_bp.inserir_practica', usuari=nom_de_usuari) }}">
     {% elif accio=="editar" %}
       <form method="POST" action="{{ url_for('empreses_bp.actualitzar_practica', usuari=nom_de_usuari, nombre_de_practica=nombre_de_practica) }}">
     {% endif %}
@@ -82,7 +82,7 @@
       </fieldset>
 
       <div class="marge_vertical" align="center">
-        <a href="{{ url_for('empreses_bp.practiques') }}"><button type="button" class="tornar">Tornar Enrere</button></a>        
+        <a href="{{ url_for('empreses_bp.practiques', usuari=nom_de_usuari) }}"><button type="button" class="tornar">Tornar Enrere</button></a>        
         {{ form.submit }}
       </div>
     </form>

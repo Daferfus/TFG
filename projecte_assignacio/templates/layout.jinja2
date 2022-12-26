@@ -63,7 +63,16 @@
             window.location.href = "http://127.0.0.1:5000/assignacio/filtro/"+value; 
           }, 3000);
       });
-
+      $('#ver input[type=radio]').change(function() {
+          if (this.value == 'Tots') {
+            var value = $(this).val().toLowerCase(); 
+            window.location.href = "http://127.0.0.1:5000/assignacio/filtro/"+value; 
+          }
+          else if (this.value == 'No Assignats') {
+            var value = $(this).val().toLowerCase(); 
+            window.location.href = "http://127.0.0.1:5000/assignacio/filtro/"+value; 
+          }
+      });
       $("#fileInput_alumne").on("input", function(){
         var x = $('#fileInput_alumne')[0].files[0].name;
         var cicle = x.replace(/\.[^/.]+$/, "")

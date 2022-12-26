@@ -38,11 +38,16 @@ assignacions_bp = Blueprint(
 
 @assignacions_bp.route('/assignacio')
 @assignacions_bp.route('/assignacio/pagina/<int:pagina>')
-@assignacions_bp.route('/assignacio/filtro/<string:filtro>')
-@assignacions_bp.route('/assignacio/filtro/<string:filtro>/pagina/<int:pagina>')
-def mostrar_panel_de_assignacio(pagina=1, filtro=""):
-    alumnes: list[Alumne]|None = Alumne.objects(nom_i_cognoms__icontains=filtro).paginate(page=pagina, per_page=5)
-    form = AssignacionsForm(filtrar_assignacions=filtro)
+@assignacions_bp.route('/assignacio/filtro/<string:filtre>')
+@assignacions_bp.route('/assignacio/filtro/<string:filtre>/pagina/<int:pagina>')
+def mostrar_panel_de_assignacio(pagina=1, filtre=""):
+    if filtre == "tots":        
+        alumnes: list[Alumne]|None = Alumne.objects(nom_i_cognoms__icontains="").paginate(page=pagina, per_page=5)    
+    elif filtre == "no assignats":
+        alumnes: list[Alumne]|None = Alumne.find(assignacio_exists="false").paginate(page=pagina, per_page=5)
+    else:
+        alumnes: list[Alumne]|None = Alumne.objects(nom_i_cognoms__icontains=filtre).paginate(page=pagina, per_page=5)
+    form = AssignacionsForm(filtrar_assignacions=filtre)
     return render_template(
         'assignacio.jinja2',
         title="Panel d'Assignació",
@@ -289,8 +294,6 @@ def assignar_automaticament() -> Response:
     """
     distancies = session.get('distancies')
     tasca_de_assignacio = assignar.delay(distancies)
-    flash("L'assignació automàtica s'està executant en segó plà."
-    +"Quan acabi se t'avisarà a través d'una notificació com aquesta.")
     return jsonify({}), 202, {'Location': url_for('assignacions_bp.taskstatus',
                                                   task_id=tasca_de_assignacio.id)}
 
@@ -317,7 +320,7 @@ def taskstatus(task_id):
         }
         if 'result' in task.info:
             response['result'] = task.info['result']
-            
+            flash("L'assignació automàtica ha finalitzat amb éxit.")
     else:
         # something went wrong in the background job
         print("Error")
@@ -351,8 +354,8 @@ def assignar(self, distancies):
                                 'status': "Calculant distàncies alumne-pràctica"})
 
     redis = r    
-    #if not redis.exists("Distancies"):
-    distancies: list[dict] = model_de_optimitzacio.calcular_distancia(self, redis, alumnes, empreses)
+    if not redis.exists("Distancies"):
+        distancies: list[dict] = model_de_optimitzacio.calcular_distancia(self, redis, alumnes, empreses)
     ## if
 
     self.update_state(state='PROGRESS',
@@ -374,23 +377,34 @@ def assignar(self, distancies):
                                 'status': "Guardant assignacions més óptimes"})
                                 
     for alumne in alumnes:
-        #if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
+        if alumne.aporta_empresa == "No" and alumne.accedeix_a_fct == "Sí":
             sid = alumne.nom_i_cognoms
             for v in funcio[2][sid] :
                 if v.SolutionValue() > 0:
-                    print(v, v.SolutionValue(), funcio[1].GetCoefficient(v))
-                    parts_de_assignacio = str(v).split("-")
-                    parts_de_practica = parts_de_assignacio[1].split("(")  
-                    assignacio = {"Alumne": parts_de_assignacio[0], "Pràctica": parts_de_assignacio[1]}
-                    resultat: int = Alumne.objects(nom_de_usuari=alumne.nom_de_usuari).update(__raw__=
-                        {"$set": {
-                            "assignacio": assignacio
-                            }
-                        }
-                    ,)
-
-                    # empresa: Empresa = Empresa.objects(nom=parts_de_practica[0]).get()
-                    # empresa.assignacions.append(assignacio)
+                    resultat = 1
+                    assignat = False
+                    for professor in professors:
+                        sid2 = professor.nom
+                        for p in funcio[3][sid2]:
+                            parts_de_assignacio_profe = str(p).split("-")
+                            parts_de_assignacio_alumne = str(v).split("-")
+                            if (parts_de_assignacio_profe[1] == parts_de_assignacio_alumne[1]) and professor.hores_restants > 0 and assignat == False:
+                                res_fct = [int(i) for i in professor.rati_fct.split() if i.isdigit()] 
+                                professor.hores_restants-=res_fct[1]
+                                assignacio = {"Alumne": parts_de_assignacio_alumne[0], "Pràctica": parts_de_assignacio_alumne[1], "Professor": parts_de_assignacio_profe[0]}
+                                professor.assignacions.append(assignacio)
+                                professor.save()
+                                parts_de_practica = parts_de_assignacio_alumne[1].split("(") 
+                                empresa: Empresa = Empresa.objects(nom=parts_de_practica[0]).get()
+                                empresa.assignacions.append(assignacio) 
+                                empresa.save()
+                                resultat: int = Alumne.objects(nom_de_usuari=alumne.nom_de_usuari).update(__raw__=
+                                    {"$set": {
+                                        "assignacio": assignacio
+                                        }
+                                    }
+                                ,)
+                                assignat = True
 
                     if resultat > 0:
                         contador_de_assignacions+=1

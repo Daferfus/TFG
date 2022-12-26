@@ -182,8 +182,8 @@ def practiques(usuari: str) -> str:
     )
 ## ()
 
-@empreses_bp.route('/anyadir_practica', methods=["GET"])
-def anyadir_practica() -> str:
+@empreses_bp.route('/afegir_practica/<string:usuari>', methods=["GET"])
+def afegir_practica(usuari: str) -> str:
     """Mostra el formulari d'inserció de pràctica.
 
     Returns:
@@ -197,9 +197,9 @@ def anyadir_practica() -> str:
 
     return render_template(
         'practica_empresa.jinja2',
-        title="Anyadir Pràctica",
+        title="Afegir Pràctica",
         accio="crear",
-        nom_de_usuari=current_user.nom,
+        nom_de_usuari=usuari,
         form=form,
         template="practica_empresa-template"
     )
@@ -432,7 +432,7 @@ def importar_empreses() -> Response:
                     empresa[columna]: str = df.loc[nombre_de_fila, columna]
         ## for
 
-        ## Si ofereix pràctiques s'anyadix al diccionari.
+        ## Si ofereix pràctiques s'afegix al diccionari.
         practiques: list = list()
         practica: dict = dict()
         if empresa["Practiques"] != 0:
@@ -644,13 +644,13 @@ def esborrar_empresa(usuari: str):
         ## if
     ## if
 ## ()
-@empreses_bp.route('/insertar_practica/<string:usuari>', methods=['POST'])
-def insertar_practica(usuari: str) -> Response:
-    """Anyadix una pràctica a la llista de pràctiques ofertada per l'empresa.
+@empreses_bp.route('/inserir_practica/<string:usuari>', methods=['POST'])
+def inserir_practica(usuari: str) -> Response:
+    """Afegeix una pràctica a la llista de pràctiques ofertada per l'empresa.
 
     Args:
         nom_de_empresa_per_a_filtrar (str): Nom de l'empresa que oferta la pràctica.
-        practica_de_la_empresa (dict): Pràctica a anyadir.
+        practica_de_la_empresa (dict): Pràctica a afegir.
 
     Returns:
         str: Resultat de l'operació.
@@ -680,7 +680,7 @@ def insertar_practica(usuari: str) -> Response:
                 return resposta
             else:
                 flash(json.loads(resposta.get_data(as_text=True))["message"])
-                return redirect(url_for('empreses_bp.practiques'))
+                return redirect(url_for('empreses_bp.practiques', usuari=usuari))
     else:
         resposta: Response = jsonify(success=False, message="L'empresa no existeix.")
         if app.config["DEBUG"]:
@@ -749,11 +749,11 @@ def esborrar_practica(usuari: str, nombre_de_practica: int) -> Response:
         if app.config["DEBUG"]:
             return resposta
         else:        
-            return redirect(url_for('empreses_bp.practiques'))
+            return redirect(url_for('empreses_bp.practiques', usuari=usuari))
     else:
         resposta: Response = jsonify(success=False, message="No s'ha trovat la pràctica a esborrar.")
         flash(json.loads(resposta.get_data(as_text=True))["message"])
         if app.config["DEBUG"]:
             return resposta
         else:
-            return redirect(url_for('empreses_bp.practiques'))
+            return redirect(url_for('empreses_bp.practiques', usuari=usuari))

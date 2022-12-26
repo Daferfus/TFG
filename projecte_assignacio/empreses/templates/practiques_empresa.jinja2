@@ -30,7 +30,7 @@
             {% set count.value = count.value + 1 %}
         {% endfor %}
         </table>
-        <a href="{{ url_for('empreses_bp.anyadir_practica') }}"><button class="afegir">Afegir Pràctica</button>
+        <a href="{{ url_for('empreses_bp.afegir_practica', usuari=nom_de_usuari) }}"><button class="afegir">Afegir Pràctica</button>
     {% endif %}
   </div>
 

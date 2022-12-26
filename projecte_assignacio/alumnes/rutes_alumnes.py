@@ -420,6 +420,7 @@ def importar_alumnes() -> Response:
 
             ## Clavem totes les preferències en un diccionari.
             if cicle == "DAM":
+                print(dades_del_alumne);
                 preferencies: dict[str, int] = {
                     'Backend': dades_del_alumne["[Desarrollador backend]"], 
                     'Multiplataforma': dades_del_alumne["[Desarrollador software multiplataforma]"],

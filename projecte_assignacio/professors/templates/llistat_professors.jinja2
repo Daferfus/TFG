@@ -22,7 +22,11 @@
     <table class="llistat">
     {% for professor in professors.items %}
         <tr>
-            <td>{{professor.nom }}</td>
+            {% if professor.hores_restants == 0 %}
+              <td><b>{{professor.nom }}</b> <br> (0% disponible)</td>              
+            {% else %}
+              <td><b>{{professor.nom }}</b> <br> ({{(professor.hores_restants / professor.hores_alliberades)*100}}% disponible)</td>
+            {% endif %}
             <td><a href="{{ url_for('professors_bp.ajustos', usuari=professor.nom_de_usuari) }}"><button class="vistes">Vore Ratis</button></a>
             <td><a href="{{ url_for('professors_bp.alumnes_professor', usuari=professor.nom_de_usuari) }}"><button class="vistes">Vore Alumnes</button></a>
         </tr>

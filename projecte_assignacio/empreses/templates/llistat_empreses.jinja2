@@ -23,7 +23,11 @@
     <table class="llistat">
     {% for empresa in empreses.items %}
         <tr>
-            <td>{{ empresa.nom }}</td>
+            {% if (empresa.assignacions | length) == true %}
+              <td><b>{{ empresa.nom }}</b> <br> (0% disponible)</td>
+            {% else %}
+              <td><b>{{ empresa.nom }}</b> <br> ({{ (1 - ((empresa.assignacions | length) // (empresa.practiques | length)))*100 }}% disponible)</td>
+            {% endif %}
             <td><a href="{{ url_for('empreses_bp.editar_empresa', usuari=empresa.nom_de_usuari) }}"><button>🖊</button></a>
             <td>
               <form method="POST" action="{{ url_for('empreses_bp.esborrar_empresa', usuari=empresa.nom_de_usuari) }}">

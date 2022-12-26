@@ -73,7 +73,9 @@ def mostrar_perfil() -> str:
 def alumnes_professor(usuari: str) -> str:
     professor: Professor|None = Professor.objects(nom_de_usuari=usuari).first()
     assignacions: dict = professor.assignacions
-
+    percentantge_disponibilitat = 0
+    if professor.hores_restants != 0:
+        percentatge_disponibilitat = (professor.hores_restants / professor.hores_alliberades)*100
     alumnes_dual: list[str] = []
     alumnes_fct: list[str] = []
 
@@ -90,6 +92,8 @@ def alumnes_professor(usuari: str) -> str:
         title=usuari,
         alumnes_fct=alumnes_fct,
         alumnes_dual=alumnes_dual,
+        professor=professor,
+        percentatge=percentantge_disponibilitat,
         template="alumnes_professor-template"
     )
 

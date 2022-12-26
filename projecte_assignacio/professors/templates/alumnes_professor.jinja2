@@ -33,7 +33,7 @@
     </div>
 
     <h2 class="margen_h2">Disponibilitat</h2>
-    <p>45% de disponibilitat en base a 2 </br> hores restants de les 5 alliberades</p>
+    <p>{{ percentatge }}% de disponibilitat en base a {{ professor.hores_restants }} </br> hores restants de les {{ professor.hores_alliberades }} alliberades</p>
 </div>
 
 {% endblock %}
